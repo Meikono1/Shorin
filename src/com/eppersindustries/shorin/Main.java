@@ -9,7 +9,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -80,6 +85,7 @@ public class Main extends Application {
             Parent options = createOptionsWindow();
             stage.setTitle("Shorin - Optionen");
             stage.setScene(new Scene(options));
+            stage.setResizable(false);
         });
 
         boxone.getChildren().addAll(start, laden, optionen);
@@ -95,6 +101,26 @@ public class Main extends Application {
         ScrollPane optionsfenster = new ScrollPane();
         optionsfenster.setPrefHeight(700);
         optionsfenster.setPrefWidth(900);
+        optionsfenster.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        optionsfenster.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
+        VBox main = new VBox();
+        main.setMinHeight(700);
+        main.setMinWidth(900);
+        main.setBackground(new Background(new BackgroundFill(Color.BLANCHEDALMOND, CornerRadii.EMPTY, Insets.EMPTY)));
+        optionsfenster.setContent(main);
+
+        HBox option = new HBox(30);
+        option.setPrefWidth(600);
+        option.setPrefHeight(150);
+        option.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        main.getChildren().add(option);
+
+        HBox buttongroup = new HBox(15);
+        buttongroup.setAlignment(Pos.CENTER);
+        Button back = new Button("Zurück");
+        buttongroup.getChildren().add(back);
+        main.getChildren().add(buttongroup);
         return optionsfenster;
     }
 }
