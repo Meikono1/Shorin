@@ -1,4 +1,4 @@
-package com.eppersindustries.shorin;
+package com.fuchsbau.shorin;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -7,7 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -78,7 +77,7 @@ public class Main extends Application {
         Button laden = new Button("Load Game");
         Button optionen = new Button("Optionen");
         optionen.setOnMouseClicked(event -> {
-            Parent options = createOptionsWindow();
+            Parent options = Options.createOptionsWindow();
             stage.setTitle("Shorin - Optionen");
             stage.setScene(new Scene(options));
             stage.setResizable(false);
@@ -93,30 +92,5 @@ public class Main extends Application {
         stage.show();
     }
 
-    private Parent createOptionsWindow() {
-        ScrollPane optionsfenster = new ScrollPane();
-        optionsfenster.setPrefHeight(700);
-        optionsfenster.setPrefWidth(900);
-        optionsfenster.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        optionsfenster.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-        VBox main = new VBox();
-        main.setMinHeight(700);
-        main.setMinWidth(900);
-        main.setBackground(new Background(new BackgroundFill(Color.BLANCHEDALMOND, CornerRadii.EMPTY, Insets.EMPTY)));
-        optionsfenster.setContent(main);
-
-        HBox option = new HBox(30);
-        option.setPrefWidth(600);
-        option.setPrefHeight(150);
-        option.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        main.getChildren().add(option);
-
-        HBox buttongroup = new HBox(15);
-        buttongroup.setAlignment(Pos.CENTER);
-        Button back = new Button("Zurück");
-        buttongroup.getChildren().add(back);
-        main.getChildren().add(buttongroup);
-        return optionsfenster;
-    }
 }
