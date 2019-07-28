@@ -8,12 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -49,6 +45,35 @@ public class Main extends Application {
         boxone.setAlignment(Pos.CENTER);
 
         Button start = new Button("Game Start");
+        start.setOnMouseClicked(event -> {
+            BorderPane charaktererstellung = new BorderPane();
+            charaktererstellung.setPrefWidth(900);
+            charaktererstellung.setPrefHeight(700);
+            VBox charakter = new VBox();
+            VBox controls = new VBox();
+            HBox rowone = new HBox();
+            rowone.setSpacing(10);
+            rowone.setAlignment(Pos.CENTER);
+
+            controls.getChildren().add(rowone);
+            Button one = new Button();
+            one.setText("noch offen");
+            rowone.getChildren().add(one);
+
+            Label name = new Label();
+            name.setText("Dein Name");
+
+            ImageView inventory = new ImageView("/images/plastic_bag.png");
+            inventory.setFitHeight(100);
+            inventory.setFitWidth(100);
+            charakter.getChildren().add(inventory);
+
+            charaktererstellung.setLeft(charakter);
+            charaktererstellung.setBottom(controls);
+            stage.setTitle("Characktererstellung");
+            stage.setScene(new Scene(charaktererstellung));
+
+        });
         Button laden = new Button("Load Game");
         Button optionen = new Button("Optionen");
         optionen.setOnMouseClicked(event -> {
