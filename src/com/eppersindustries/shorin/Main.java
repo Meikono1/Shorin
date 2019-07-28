@@ -9,12 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -31,6 +26,7 @@ public class Main extends Application {
     public void start(Stage stage) {
 
         stage.setTitle("Shorin");
+
 
         BorderPane startbildschirm = new BorderPane();
         startbildschirm.setPrefHeight(700);
