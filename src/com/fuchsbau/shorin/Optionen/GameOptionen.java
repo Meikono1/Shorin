@@ -25,23 +25,28 @@ public class GameOptionen {
 
 
         ScrollPane optionsfenster = new ScrollPane();
+        optionsfenster.setBackground(new Background(new BackgroundFill(Color.BLUEVIOLET, CornerRadii.EMPTY, Insets.EMPTY)));
+        optionsfenster.setFitToWidth(true);
         optionsfenster.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         optionsfenster.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-        optionsfenster.setMinHeight(500);
 
         VBox center = new VBox();
-        center.setBackground(new Background(new BackgroundFill(Color.BLANCHEDALMOND, CornerRadii.EMPTY, Insets.EMPTY)));
+        center.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+        center.setAlignment(Pos.CENTER);
         center.setPadding(padding);
         optionsfenster.setContent(center);
 
         HBox optionone = new HBox(10);
         optionone.setBackground(new Background(new BackgroundFill(Color.FUCHSIA, CornerRadii.EMPTY, Insets.EMPTY)));
         optionone.setAlignment(Pos.CENTER);
+        optionone.setSpacing(100);
         center.getChildren().add(optionone);
 
         HBox optiontwo = new HBox(10);
         optiontwo.setPadding(padding);
+        optiontwo.setAlignment(Pos.CENTER);
         optiontwo.setBackground(new Background(new BackgroundFill(Color.FUCHSIA, CornerRadii.EMPTY, Insets.EMPTY)));
+        optiontwo.setSpacing(100);
         center.getChildren().add(optiontwo);
 
         Label resonel = new Label();
@@ -68,7 +73,6 @@ public class GameOptionen {
             GameOptionen.height = 1080;
             Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
         });
-
 
         optiontwo.getChildren().addAll(restwol, restwob);
         optionone.getChildren().addAll(resonel, resoneb);
