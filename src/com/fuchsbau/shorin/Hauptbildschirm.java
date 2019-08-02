@@ -1,12 +1,12 @@
 package com.fuchsbau.shorin;
 
+import com.fuchsbau.shorin.Charakters.Charaktererstellung;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -29,30 +29,11 @@ public class Hauptbildschirm {
 
         Button start = new Button("Game Start");
         start.setOnMouseClicked(event -> {
-            VBox charakter = new VBox();
-            VBox controls = new VBox();
-            HBox rowone = new HBox();
-            rowone.setSpacing(10);
-            rowone.setAlignment(Pos.CENTER);
-
-            controls.getChildren().add(rowone);
-            Button one = new Button();
-            one.setText("noch offen");
-            rowone.getChildren().add(one);
-
-            Label name = new Label();
-            name.setText("Dein Name");
-            name.prefHeight(80);
 
 
-            ImageView inventory = new ImageView("/images/plastic_bag.png");
-            inventory.setFitHeight(100);
-            inventory.setFitWidth(100);
-            charakter.getChildren().add(inventory);
 
-            BorderPane charaktererstellung = SceneBuilder.buildBorderPane(null, null, charakter, controls);
             Main.getStage().setTitle("Characktererstellung");
-            Main.getStage().setScene(new Scene(charaktererstellung));
+            Main.getStage().setScene(new Scene(new Charaktererstellung().getPane()));
 
         });
         Button laden = new Button("Load Game");

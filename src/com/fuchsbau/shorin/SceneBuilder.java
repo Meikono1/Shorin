@@ -31,4 +31,16 @@ public class SceneBuilder {
 
     }
 
+    public static BorderPane buildGameScene() {
+        BorderPane haupt = new BorderPane();
+        haupt.setPrefHeight(GameOptionen.height);
+        haupt.setPrefWidth(GameOptionen.width);
+        haupt.setMaxHeight(GameOptionen.height);
+        haupt.setMaxWidth(GameOptionen.width);
+
+
+        return haupt;
+    }
+
+
 }
