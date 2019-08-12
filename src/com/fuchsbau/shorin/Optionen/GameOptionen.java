@@ -17,7 +17,10 @@ public class GameOptionen {
 
     public static double width = 1280;
     public static double height = 720;
-    private static Insets padding = new Insets(10, 10, 10, 10);
+    public static double buttonwidth = 140;
+    public static Insets padding = new Insets(5, 10, 5, 10);
+    public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
+
     private BorderPane pane;
 
 
@@ -59,6 +62,7 @@ public class GameOptionen {
         resoneb.setOnMouseClicked(event -> {
             GameOptionen.width = 1280;
             GameOptionen.height = 720;
+            GameOptionen.buttonwidth = 140;
             Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
         });
         Label restwol = new Label();
@@ -71,6 +75,7 @@ public class GameOptionen {
         restwob.setOnMouseClicked(event -> {
             GameOptionen.width = 1900;
             GameOptionen.height = 1080;
+            GameOptionen.buttonwidth = 220;
             Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
         });
 

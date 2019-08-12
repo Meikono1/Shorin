@@ -36,13 +36,16 @@ public class Hauptbildschirm {
             Main.getStage().setScene(new Scene(new Charaktererstellung().getPane()));
 
         });
+        start.setPrefWidth(GameOptionen.buttonwidth);
         Button laden = new Button("Load Game");
+        laden.setPrefWidth(GameOptionen.buttonwidth);
         Button optionen = new Button("Optionen");
         optionen.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin - Optionen");
             Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
             Main.getStage().setResizable(false);
         });
+        optionen.setPrefWidth(GameOptionen.buttonwidth);
 
         boxone.getChildren().addAll(start, laden, optionen);
 
@@ -50,6 +53,7 @@ public class Hauptbildschirm {
 
 
         pane = SceneBuilder.buildBorderPane(top, null, null, boxone);
+        pane.setBackground(GameOptionen.hintergrund);
 
     }
 
