@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 
 public class GameOptionen {
@@ -20,6 +21,10 @@ public class GameOptionen {
     public static double buttonwidth = 140;
     public static Insets padding = new Insets(5, 10, 5, 10);
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
+    public static Paint highlightRed = Paint.valueOf("734b4b");
+    public static Paint highlightBlue = Paint.valueOf("4b6673");
+    public static Paint missionDescription = Paint.valueOf("638387");
+    public static Paint ortcolor = Paint.valueOf("637d87");
 
     private BorderPane pane;
 

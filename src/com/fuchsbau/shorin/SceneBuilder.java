@@ -9,10 +9,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 public class SceneBuilder {
 
@@ -41,7 +44,15 @@ public class SceneBuilder {
 
     }
 
-    public static BorderPane buildGameScene(HBox erste, HBox zweite, HBox dritte, Label text) {
+    /***
+     * Baut die Borderpane auf die notfalls aufgefüllt wird, Bereits vorhanden sind die 3 Buttons links.
+     * @param erste Buttenreihe 1
+     * @param zweite Buttonreihe mitte
+     * @param dritte Buttonreihe unten
+     * @param text Der Haupttext der ausgegeben wird
+     * @return Die fertige Pane
+     */
+    public static BorderPane buildGameScene(HBox erste, HBox zweite, HBox dritte, TextFlow text) {
         BorderPane haupt = new BorderPane();
 
 
@@ -50,6 +61,9 @@ public class SceneBuilder {
         haupt.setMaxHeight(GameOptionen.height);
         haupt.setMaxWidth(GameOptionen.width);
 
+        if(erste==null){
+            erste=makeButtonrow();
+        }
         int lauf = erste.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
 
@@ -58,6 +72,9 @@ public class SceneBuilder {
             erste.getChildren().add(a);
         }
 
+        if(zweite==null){
+            zweite=makeButtonrow();
+        }
         lauf = zweite.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
 
@@ -67,6 +84,9 @@ public class SceneBuilder {
 
         }
 
+        if(dritte==null){
+            dritte=makeButtonrow();
+        }
         lauf = dritte.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
 
@@ -87,8 +107,6 @@ public class SceneBuilder {
         name.setTextFill(Paint.valueOf("868686"));
         name.setText(Game.spieler.getName());
         name.prefHeight(80);
-
-        text.setTextFill(Paint.valueOf("868686"));
 
 
         ImageView ich = new ImageView("/images/meikonol.jpg");
@@ -123,16 +141,21 @@ public class SceneBuilder {
         return box;
     }
 
-    public static Label mainLabel() {
-        Label label = new Label();
+    public static Text makeText(){
+        Text text = new Text();
+        text.setFont(Font.font("Cambria", 18));
+        text.setFill(Paint.valueOf("868686"));
+        return text;
+    }
 
-        label.setPadding(new Insets(20, 100, 0, 100));
-        label.setMaxWidth(GameOptionen.width - 200);
-        label.setFont(Font.font("Cambria", 18));
-        label.setWrapText(true);
+    public static TextFlow mainFlow() {
+        TextFlow flow = new TextFlow();
 
+        flow.setPadding(new Insets(20, 100, 0, 100));
+        flow.setMaxHeight(Double.MIN_VALUE);
+        flow.setMaxWidth(GameOptionen.width - 200);
 
-        return label;
+        return flow;
     }
 
     public static Button makeButton() {
