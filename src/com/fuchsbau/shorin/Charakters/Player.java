@@ -3,12 +3,17 @@ package com.fuchsbau.shorin.Charakters;
 
 
 public class Player {
-    public String name= "your name";
+    private String name= "Your name";
 
     public Player(){
-        
+
     }
 
+    public String getName(){
+        return name;
+    }
 
-
+    public void setName(String name) {
+        this.name = name;
+    }
 }

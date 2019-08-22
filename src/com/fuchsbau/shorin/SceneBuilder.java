@@ -1,6 +1,9 @@
 package com.fuchsbau.shorin;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Spiel.Game;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -9,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 
 public class SceneBuilder {
 
@@ -40,9 +44,6 @@ public class SceneBuilder {
     public static BorderPane buildGameScene(HBox erste, HBox zweite, HBox dritte, Label text) {
         BorderPane haupt = new BorderPane();
 
-        erste.setPadding(GameOptionen.padding);
-        zweite.setPadding(GameOptionen.padding);
-        dritte.setPadding(GameOptionen.padding);
 
         haupt.setPrefHeight(GameOptionen.height);
         haupt.setPrefWidth(GameOptionen.width);
@@ -83,11 +84,11 @@ public class SceneBuilder {
         VBox charakter = new VBox();
 
         Label name = new Label();
-        name.setTextFill(Paint.valueOf("#7e7e7e"));
-        name.setText("Dein Name");
+        name.setTextFill(Paint.valueOf("868686"));
+        name.setText(Game.spieler.getName());
         name.prefHeight(80);
 
-        text.setTextFill(Paint.valueOf("7e7e7e"));
+        text.setTextFill(Paint.valueOf("868686"));
 
 
         ImageView ich = new ImageView("/images/meikonol.jpg");
@@ -110,6 +111,34 @@ public class SceneBuilder {
 
         haupt.setBackground(GameOptionen.hintergrund);
         return haupt;
+    }
+
+    public static HBox makeButtonrow() {
+        HBox box = new HBox();
+        box.setPadding(GameOptionen.padding);
+        box.setSpacing(10);
+        box.setAlignment(Pos.CENTER);
+
+
+        return box;
+    }
+
+    public static Label mainLabel() {
+        Label label = new Label();
+
+        label.setPadding(new Insets(20, 100, 0, 100));
+        label.setMaxWidth(GameOptionen.width - 200);
+        label.setFont(Font.font("Cambria", 18));
+        label.setWrapText(true);
+
+
+        return label;
+    }
+
+    public static Button makeButton() {
+        Button button = new Button();
+        button.setPrefWidth(GameOptionen.buttonwidth);
+        return button;
     }
 
 
