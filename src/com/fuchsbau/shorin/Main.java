@@ -21,6 +21,7 @@ public class Main extends Application {
     public void start(Stage stage) {
 
         Main.stage = stage;
+        Main.stage.setResizable(false);
         stage.setTitle("Shorin");
         stage.setScene(new Scene(new Hauptbildschirm().getPane()));
         stage.show();

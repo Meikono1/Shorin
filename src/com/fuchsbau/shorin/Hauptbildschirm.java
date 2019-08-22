@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin;
 
-import com.fuchsbau.shorin.Charakters.Charaktererstellung;
+import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -9,6 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 public class Hauptbildschirm {
     private BorderPane pane;
@@ -32,8 +33,8 @@ public class Hauptbildschirm {
 
 
 
-            Main.getStage().setTitle("Characktererstellung");
-            Main.getStage().setScene(new Scene(new Charaktererstellung().getPane()));
+            Main.getStage().setTitle("Charaktererstellung");
+            Main.getStage().setScene(new Scene(new Charaktererstellung(1).getPane()));
 
         });
         start.setPrefWidth(GameOptionen.buttonwidth);
@@ -50,6 +51,7 @@ public class Hauptbildschirm {
         boxone.getChildren().addAll(start, laden, optionen);
 
         patch.setText(patchnotes);
+        patch.setTextFill(Paint.valueOf("868686"));
 
 
         pane = SceneBuilder.buildBorderPane(top, null, null, boxone);
