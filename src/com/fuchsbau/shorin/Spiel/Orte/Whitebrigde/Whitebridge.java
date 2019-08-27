@@ -1,7 +1,9 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
+import com.fuchsbau.shorin.Charakters.Dave;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,6 +15,8 @@ import javafx.scene.text.TextFlow;
 public class Whitebridge extends Platz {
 
     private Pane pane;
+    private int ort = 1;
+
 
     public Whitebridge(String name, String beschreibung) {
         super(name, beschreibung);
@@ -25,10 +29,10 @@ public class Whitebridge extends Platz {
 
         StringBuilder build = new StringBuilder();
 
-        build.append("You`re in in the City of Whitebridge, the first City outside Sudbury. \n\n");
-        build.append("This is your home town, where you lived only knowing the Army");
-        build.append("Your House is next to the Barracks. Next to the Towncenter is a Library. You can also go into the Tavern for some rumors.\n");
-        build.append("If you have the money you may visit the Local Shop\n\n");
+        build.append("You`re in in the city of Whitebridge, the first city outside of Sudbury. \n\n");
+        build.append("This is your home town, where you grew up an orphan. Your parents died in the Great War, because of this you want nothing more than to take revenge and you joined the army.\n");
+        build.append("Your hut is next to the barracks. Next to the town centre is a library. You can also go into the tavern to inquire about rumors concerning the surroundings.\n");
+        build.append("If you have the money you may visit the local shop.\n\n");
 
 
         Text a = SceneBuilder.makeText();
@@ -37,23 +41,24 @@ public class Whitebridge extends Platz {
 
         switch ((int) Math.floor(Math.random() * 5)) {
             case 0:
-                build.append("Some Guards are Walking around");
+                build.append("Some guards are walking around.");
                 break;
             case 1:
-                build.append("Your old Friend Dave is walking around the towncenter.");
+                build.append("Your old friend Dave is walking around the town centre.");
                 Button dave = SceneBuilder.makeButton();
+                dave.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(new Dave(ort, Game.spieler.dave).getPane())));
                 dave.setText("Greet Dave");
                 erste.getChildren().add(dave);
-                // TODO: 22.08.2019  Make Dave
+
                 break;
             case 2:
-                build.append("You Here some Farmers argue about a piece of Meat");
+                build.append("You hear some farmers arguing about a piece of meat.");
                 break;
             case 3:
-                build.append("A Drunken man is Screaming around. Shortly later some Guards take him away.");
+                build.append("A drunk man is screaming around. Shortly later some fellow guards take him away.");
                 break;
             case 4:
-                build.append("Nothing Special is happening right now");
+                build.append("Nothing special is happening right now.");
                 break;
 
         }
@@ -68,12 +73,12 @@ public class Whitebridge extends Platz {
 
         Button shop = SceneBuilder.makeButton();
         shop.setText("Shop");
-        // TODO: 22.08.2019 Make Shop
+        // TODO: Make Shop
 
         Button entrance = SceneBuilder.makeButton();
         entrance.setText("Main Entrance");
-        // TODO: 22.08.2019 Make Entrance
-        
+        // TODO: Make Entrance
+
         Button barracks = SceneBuilder.makeButton();
         barracks.setText("Barracks");
         // TODO Make Barracks

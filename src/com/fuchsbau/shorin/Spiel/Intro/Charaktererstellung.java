@@ -51,23 +51,23 @@ public class Charaktererstellung {
 
             Text a = SceneBuilder.makeText();
             String Intro = "Welcome to the World of Shorin\n\n" +
-                    "In this world you are a 19 Years old Soldier, who just signed for his First official Mission.\nYour name is " +
+                    "In this world you are a 19 year old freshly trained soldier, who was just signed for his first official mission.\nYour name is " +
                     Game.spieler.getName() + ".\n" +
-                    "You live in a divided world with many Races.\n\n" +
-                    "Dryads: 2.2 Meters high, thin Creatures living in the Woods. The Relationship between Humans and Dryads is complicated at least but" +
-                    "both Races swore to never inflict damage on the other." +
-                    "But Humans have cut down many trees in order to use the place for agricultur.\n\n" +
-                    "Gnomes: Small 0.85 Meters humanoids, living in the Mountains. They have a secret for creating tools and Weapons what makes them the most advanced beings." +
-                    "We depend on a good relationship for our farms and military\n\n" +
-                    "Orcs: Physical strong Beasts living on the other side of the River fen. We use them as Slaves on our Farms and to fish on the lake Tribar. We live in a cold war since the";
+                    "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
+                    "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +
+                    "both races swore to never inflict damage on the other. " +
+                    "But Humans have cut down many trees in order to use the place for agriculture.\n\n" +
+                    "Gnomes: ~0.85 meters high, humanoids, living in the mountains. They have a secret for creating powerful tools and weapons which makes them the most advanced beings. " +
+                    "We depend on a good relationship for our farms and military.\n\n" +
+                    "Orcs: Physical strong beasts living on the other side of the river Fen. We use them as slaves on our farms and to fish by the lake Tribar. We live in a cold war since the ";
             a.setText(Intro);
 
             Text b = SceneBuilder.makeText();
             b.setFill(GameOptionen.highlightRed);
-            b.setText("Birth of Magic\n");
+            b.setText("Birth of Magic.\n");
 
             Text c = SceneBuilder.makeText();
-            c.setText("\nThere are more Races but they are not Importend right now.");
+            c.setText("\n\nThere are more Races but they are not important right now.");
 
 
             spieltext.getChildren().addAll(a, b, c);
@@ -77,29 +77,31 @@ public class Charaktererstellung {
 
         if (stage == 3) {//home
             StringBuilder home = new StringBuilder();
-            home.append("You live in the city of Whitebridge, the first city outside the Walls from Sudbury.\n");
-            home.append("Here you live in a house near the Barracks, where you trained to bekome a Soldier.\n\n");
+            home.append("You live in the city of Whitebridge, the first city outside the walls from Sudbury, the main capital.\n");
+            home.append("Here you are living in a house near the barracks, where you voluntarily joined the army to become a soldier.\n\n");
+            // TODO: 22.08.2019 Namen für die Armee einführen
 
             Text a = SceneBuilder.makeText();
             a.setText(home.toString());
 
             Text b = SceneBuilder.makeText();
-            b.setText("Your Mission:\n");
+            b.setText("Your mission:\n");
             b.setFill(GameOptionen.highlightBlue);
 
             home = new StringBuilder();
 
-            home.append("In 14 Days there will be a Convoy Heading to Shallow-Mill. \nYou will Guard them on the journey und protect them if something happens.\n");
-            home.append("There are no Dangers expected, but you will be near the ");
+            home.append("In 14 days there will be a convoy heading to Shallow-Mill. \nYou will guard them on the journey und protect them if something should happen.\n");
+            home.append("There are no dangers expected, but you will come close to the ");
 
             Text c = SceneBuilder.makeText();
             c.setText(home.toString());
             c.setFill(GameOptionen.missionDescription);
 
-            Text d = Game.getInstance().unbriddledland.getOrtText();
+            Text d = Game.getInstance().unbridledland.getOrtText();
+            // TODO: 22.08.2019 namen für land färben
 
             home = new StringBuilder();
-            home.append(" you may Encounter some Thieves, so prepare and be mindful. You should also read a Book about the Kitsune");
+            home.append(".\nWatch out, you may encounter some thieves, so prepare and be mindful. You should also read a book about the Kitsune, as this is their homeland.");
 
             Text e = SceneBuilder.makeText();
             e.setText(home.toString());
@@ -141,7 +143,7 @@ public class Charaktererstellung {
         }
         if (stage == 3) {
             Button cont = SceneBuilder.makeButton();
-            cont.setText("Start you Story");
+            cont.setText("Start youe story");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
 
             rowone.getChildren().addAll(cont);
