@@ -29,6 +29,7 @@ public class Dave {
         this.stage=stage;
 
         HBox erste = SceneBuilder.makeButtonrow();
+        HBox dritte = SceneBuilder.makeButtonrow();
 
         TextFlow haupt = SceneBuilder.mainFlow();
 
@@ -59,11 +60,11 @@ public class Dave {
         if (ort == 1) {
             zurueck.setText("Back to Whitebridge");
             zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
-            erste.getChildren().add(zurueck);
+            dritte.getChildren().add(zurueck);
         }
 
 
-        pane = SceneBuilder.buildGameScene(erste, null, null, haupt);
+        pane = SceneBuilder.buildGameScene(erste, null, dritte, haupt);
 
 
     }
@@ -81,16 +82,16 @@ public class Dave {
         text.setText(build);
 
 
-        HBox erste = SceneBuilder.makeButtonrow();
+        HBox dritte = SceneBuilder.makeButtonrow();
 
         Button zurueck = SceneBuilder.makeButton();
         zurueck.setText("Back");
         zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(new Dave(ort, stage).getPane())));
 
-        erste.getChildren().add(zurueck);
+        dritte.getChildren().add(zurueck);
         field.getChildren().add(text);
 
-        pane = SceneBuilder.buildGameScene(erste, null, null, field);
+        pane = SceneBuilder.buildGameScene(null, null, dritte, field);
 
 
         return pane;

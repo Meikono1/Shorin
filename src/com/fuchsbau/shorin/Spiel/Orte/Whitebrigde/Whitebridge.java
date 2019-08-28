@@ -16,6 +16,7 @@ public class Whitebridge extends Platz {
 
     private Pane pane;
     private int ort = 1;
+    private int whitebridgestage = 0;
 
 
     public Whitebridge(String name, String beschreibung) {
@@ -30,7 +31,9 @@ public class Whitebridge extends Platz {
         StringBuilder build = new StringBuilder();
 
         build.append("You`re in in the city of Whitebridge, the first city outside of Sudbury. \n\n");
-        build.append("This is your home town, where you grew up an orphan. Your parents died in the Great War, because of this you want nothing more than to take revenge and you joined the army.\n");
+        if (whitebridgestage == 0) {
+            build.append("This is your home town, where you grew up an orphan. Your parents died in the Great War, because of this you want nothing more than to take revenge and you joined the army.\n");
+        }
         build.append("Your hut is next to the barracks. Next to the town centre is a library. You can also go into the tavern to inquire about rumors concerning the surroundings.\n");
         build.append("If you have the money you may visit the local shop.\n\n");
 
@@ -69,7 +72,9 @@ public class Whitebridge extends Platz {
 
         Button library = SceneBuilder.makeButton();
         library.setText("Library");
-        // TODO: Make Library
+        library.setOnMouseClicked(event -> {
+            Main.getStage().setScene(new Scene(new Library().getPane()));
+        });
 
         Button shop = SceneBuilder.makeButton();
         shop.setText("Shop");
@@ -85,8 +90,8 @@ public class Whitebridge extends Platz {
 
         Button inn = SceneBuilder.makeButton();
         inn.setText("Inn");
-        inn.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(getPane())));
-        //TODO make Inn
+        inn.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(new Inn().getPane())));
+
 
         dritte.getChildren().addAll(entrance, shop, inn, library, barracks);
         spieltext.getChildren().addAll(a);

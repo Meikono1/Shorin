@@ -10,40 +10,46 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Library {
+public class Inn {
 
     private BorderPane pane;
 
-    public Library() {
+    public Inn() {
+
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
         TextFlow flow = SceneBuilder.mainFlow();
 
 
-        Text descrip = SceneBuilder.makeText();
-        StringBuilder build = new StringBuilder();
+        Text intro = SceneBuilder.makeText();
 
-        build.append("Welcome to the Whitebridge library. \nHere you can read book about the human history and the races of Shorin.");
-        descrip.setText(build.toString());
+        StringBuilder builder = new StringBuilder();
 
-        flow.getChildren().addAll(descrip);
+        builder.append("You're in the Whitebrige Tavern. \nYou can talk to the to the barkeeper or buy a drink");
+
 
         Button back = SceneBuilder.makeButton();
+
         back.setText("Back to Whitebridge");
         back.setOnMouseClicked(event -> {
             Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane()));
         });
-        //todo make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war
 
-        dritte.getChildren().addAll(back);
+flow.getChildren().addAll(intro);
 
+        //TODO Make Barkeeper
+        dritte.getChildren().add(back);
+
+        //Todo let buy drink
         pane = SceneBuilder.buildGameScene(null, null, dritte, flow);
+
     }
 
 
     public BorderPane getPane() {
         return pane;
     }
+
 
 }

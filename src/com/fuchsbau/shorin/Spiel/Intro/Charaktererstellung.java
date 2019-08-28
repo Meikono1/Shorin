@@ -63,7 +63,7 @@ public class Charaktererstellung {
             a.setText(Intro);
 
             Text b = SceneBuilder.makeText();
-            b.setFill(GameOptionen.highlightRed);
+            b.setFill(GameOptionen.timestamp);
             b.setText("Birth of Magic.\n");
 
             Text c = SceneBuilder.makeText();
@@ -98,7 +98,6 @@ public class Charaktererstellung {
             c.setFill(GameOptionen.missionDescription);
 
             Text d = Game.getInstance().unbridledland.getOrtText();
-            // TODO: 22.08.2019 namen für land färben
 
             home = new StringBuilder();
             home.append(".\nWatch out, you may encounter some thieves, so prepare and be mindful. You should also read a book about the Kitsune, as this is their homeland.");
