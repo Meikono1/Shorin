@@ -14,7 +14,7 @@ public class Inn {
 
     private BorderPane pane;
 
-    public Inn() {
+    Inn() {
 
 
         HBox dritte = SceneBuilder.makeButtonrow();
@@ -23,20 +23,15 @@ public class Inn {
 
 
         Text intro = SceneBuilder.makeText();
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("You're in the Whitebrige Tavern. \nYou can talk to the to the barkeeper or buy a drink");
+        intro.setText("You're in the Whitebrige Tavern. \nYou can talk to the barkeeper or buy a drink");
 
 
         Button back = SceneBuilder.makeButton();
 
         back.setText("Back to Whitebridge");
-        back.setOnMouseClicked(event -> {
-            Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane()));
-        });
+        back.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
 
-flow.getChildren().addAll(intro);
+        flow.getChildren().addAll(intro);
 
         //TODO Make Barkeeper
         dritte.getChildren().add(back);

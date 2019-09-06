@@ -105,7 +105,7 @@ public class SceneBuilder {
 
         Label name = new Label();
         name.setTextFill(Paint.valueOf("868686"));
-        name.setText(Game.spieler.getName());
+        name.setText(Game.getInstance().spieler.getName().getText());
         name.prefHeight(80);
 
 
@@ -143,7 +143,7 @@ public class SceneBuilder {
 
     public static Text makeText(){
         Text text = new Text();
-        text.setFont(Font.font("Cambria", 18));
+        text.setFont(Font.font("Cambria", 21));
         text.setFill(Paint.valueOf("868686"));
         return text;
     }

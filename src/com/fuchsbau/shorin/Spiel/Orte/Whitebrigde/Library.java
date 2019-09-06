@@ -14,7 +14,7 @@ public class Library {
 
     private BorderPane pane;
 
-    public Library() {
+    Library() {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
@@ -22,18 +22,14 @@ public class Library {
 
 
         Text descrip = SceneBuilder.makeText();
-        StringBuilder build = new StringBuilder();
 
-        build.append("Welcome to the Whitebridge library. \nHere you can read book about the human history and the races of Shorin.");
-        descrip.setText(build.toString());
+        descrip.setText("You enter the Whitebridge library. \nHere you can read books about the human history and the races of Shorin.");
 
         flow.getChildren().addAll(descrip);
 
         Button back = SceneBuilder.makeButton();
         back.setText("Back to Whitebridge");
-        back.setOnMouseClicked(event -> {
-            Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane()));
-        });
+        back.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
         //todo make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war
 
         dritte.getChildren().addAll(back);

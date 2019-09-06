@@ -20,6 +20,7 @@ public class Platz {
 
     }
 
+
     public Text getOrtText (){
 
         return ingamebeschreibung;
