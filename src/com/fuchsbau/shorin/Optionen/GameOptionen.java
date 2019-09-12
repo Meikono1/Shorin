@@ -18,7 +18,7 @@ public class GameOptionen {
 
     public static double width = 1280;
     public static double height = 720;
-    public static double buttonwidth = 140;
+    public static double buttonwidth = 160;
     public static Insets padding = new Insets(5, 10, 5, 10);
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Paint timestamp = Paint.valueOf("734b4b");
@@ -67,7 +67,7 @@ public class GameOptionen {
         resoneb.setOnMouseClicked(event -> {
             GameOptionen.width = 1280;
             GameOptionen.height = 720;
-            GameOptionen.buttonwidth = 140;
+            GameOptionen.buttonwidth = 160;
             Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
         });
         Label restwol = new Label();

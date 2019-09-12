@@ -88,10 +88,10 @@ public class Charaktererstellung {
             Text e = SceneBuilder.makeText();
             e.setText(", the main capital. ");
 
-            // TODO: 22.08.2019 Namen für die Armee einführen  /Grey Manace mit Pakz bereden.
-
             Text f = SceneBuilder.makeText();
-            f.setText("Here you are living in a house near the barracks, where you voluntarily joined the army to become a soldier.\n\n");
+            f.setText("Here you are living in a house near the barracks, where you voluntarily joined Grey's Manace to become a soldier.\n\n");
+
+            // TODO: 12.09.2019  Grey manace color
 
             Text g = SceneBuilder.makeText();
             g.setText("Your mission:\n");
@@ -154,7 +154,7 @@ public class Charaktererstellung {
         }
         if (stage == 3) {
             Button cont = SceneBuilder.makeButton();
-            cont.setText("Start youe story");
+            cont.setText("Start your story");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
 
             rowone.getChildren().addAll(cont);

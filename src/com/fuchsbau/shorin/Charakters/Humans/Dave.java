@@ -36,8 +36,8 @@ public class Dave {
 
         Text text = SceneBuilder.makeText();
 
-        String build = "Yes i heard about this Beasts. They are rumors that they read your mind and controll it.\n " +
-                "Maybe i wake up one morning and i'm gay." +
+        String build = "\"Yes i heard about this Beasts. They are rumors that they read your mind and controll it.\n " +
+                "Maybe i wake up one morning and i'm gay.\"" +
                 "\n\n\nHe says Laughing";
         text.setText(build);
 
@@ -76,9 +76,10 @@ public class Dave {
             Text b = Game.getInstance().spieler.getName();
 
             Text c = SceneBuilder.makeText();
-            c.setText(" seems we are both on the same mission, to escort some traders." +
-                    "\n\n" +
-                    "I hope you bought some potions, or this will be a hard tour.");
+            c.setText("\"Seems we are both on the same mission, to escort some traders." +
+                    "\n" +
+                    "I hope you bought some potions, or this will be a hard tour.\"");
+            // TODO: 12.09.2019 textfarben
 
 
             haupt.getChildren().addAll(a, b, c);

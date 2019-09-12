@@ -11,34 +11,170 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Joshua {
+    public int gone = 0;
     private BorderPane pane;
-    // TODO: 02.09.2019 make yoshua
+    private int favor = 0;
+    /*
+    case favor
+    0 = nicht geredet
+    1 = zugesagt
+    2 = abgesagt
+     */
+
+    private int stage;
+    /*
+    case Stage
+    0 = erster talk
+    1 = über Mission reden
+    2 = Favor angenommen
+    3 = Favor abgelehnt
+    4 = über Familie reden
+    5 = über barracken reden
+     */
 
 
     private void makePane() {
 
-        TextFlow text = SceneBuilder.mainFlow();
+        TextFlow flow = SceneBuilder.mainFlow();
 
-        Text a = SceneBuilder.makeText();
-        a.setText("Hey, my Boy. How you doing ? \nI hope this mission is not to hard for you. I mean its the first time that you make such a long journey.");
+        if (stage == 0) {
+            Text a = SceneBuilder.makeText();
+            if (favor == 2) {
+                a.setText("\"Hey, ");
+                Text b = Game.getInstance().spieler.getName();
+                Text c = SceneBuilder.makeText();
+                c.setText(" what's up?\"");
+                flow.getChildren().addAll(a, b, c);
+            } else {
+                a.setText("\"Hey, my Boy. How you doing ? \nI hope this mission is not to hard for you. I mean its the first time that you make such a long journey.\"");
+                flow.getChildren().addAll(a);
+            }
 
-        text.getChildren().addAll(a);
+        }
+
+        HBox erste = SceneBuilder.makeButtonrow();
+
+        if (stage == 1) {
+            missionTalk(erste, flow);
+        }
+
+        if (stage == 2) {
+            Text a = SceneBuilder.makeText();
+            a.setText("He gives you a Hug\n\n");
+            a.setText("\"Thank you. I knew i can rely on you, if you find something there, you know where to find me. I would really appriciate a gift\"");
+            flow.getChildren().addAll(a);
+        }
+
+        if (stage == 3) {
+            Text a = SceneBuilder.makeText();
+            a.setText("\"Ok, i understand that you have no time. Maybe i find someone else.\"");
+            flow.getChildren().addAll(a);
+        }
+
+        if (stage == 4) {
+
+            Text a = SceneBuilder.makeText();
+            a.setText("\"Yes, they died when you were a small kid.\"\n\nYou see that sadness overcomes him\n\"They were good people. I meet them, when your mother was heavy pragnent. " +
+                    "They lived in the East, your father was always training the sword, preparing for the next Attack. It was a scary time\"\n\n He sights \n\"The Weres... rebelled and a bloody war raged right besides us in the woods." +
+                    " I mean, thanks to the rebellion, the Orcs stayed away. But....\n\n\"Let's talk again some other time. I need some rest\"");
+
+            gone = 10;
+
+
+            //todo textfarbe
+            flow.getChildren().add(a);
+        } else if (stage != 1) {
+            Button family = SceneBuilder.makeButton();
+            family.setText("Talk about Family");
+            family.setOnMouseClicked(event -> {
+                Main.getStage().setScene(new Scene(getPane(4)));
+            });
+            erste.getChildren().add(family);
+        }
+
+        if (stage == 5) {
+
+            Text a = SceneBuilder.makeText();
+            a.setText("These old Barrack? \n there is nothing special about them");
+
+            flow.getChildren().add(a);
+
+        } else if (stage != 1 && stage != 4) {
+            Button barracks = SceneBuilder.makeButton();
+            barracks.setText("Talk about barracks");
+            barracks.setOnMouseClicked(event -> {
+                Main.getStage().setScene(new Scene(getPane(5)));
+            });
+            erste.getChildren().add(barracks);
+
+        }
 
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button zurueck = SceneBuilder.makeButton();
-        zurueck.setText("Back to the barracks");
-        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.barracks.getPane())));
+        if (stage != 1) {
+            if (favor == 0 && stage != 4) {
+                Button mission = SceneBuilder.makeButton();
+                mission.setText("Thoughts about mission");
+                mission.setOnMouseClicked(event -> {
+                    Main.getStage().setScene(new Scene(getPane(1)));
+                });
+                erste.getChildren().add(mission);
+            }
 
-        dritte.getChildren().addAll(zurueck);
 
-        pane = SceneBuilder.buildGameScene(null, null, dritte, text);
+            Button zurueck = SceneBuilder.makeButton();
+            zurueck.setText("Back to barracks");
+            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.barracks.getPane())));
+
+
+            dritte.getChildren().addAll(zurueck);
+
+        }
+
+        pane = SceneBuilder.buildGameScene(erste, null, dritte, flow);
 
 
     }
 
-    public BorderPane getPane() {
+    private void missionTalk(HBox erste, TextFlow flow) {
+
+        Text a = SceneBuilder.makeText();
+        a.setText("Yes~~, i though this would be a good mission for you.\nGetting out of this missery we call ");
+
+        Text b = Game.getInstance().whitebridge.getOrtText();
+
+        Text c = SceneBuilder.makeText();
+        c.setText(".The 'white' city, so clean and cultivated you might get sick by looking at it. And the 'bridge' to our greates city and Capital ");
+
+        Text d = Game.getInstance().sudbury.getOrtText();
+
+        Text e = SceneBuilder.makeText();
+        e.setText(". \nMaybe one day i can visit the east again. Even if only war brought me there, i want to go back.\n\nCan i ask you for a favor?\n" +
+                "In the east there is a river that formes out of 3 rivers. There is a special city, pls if you visit this place, tell me how it's going ? ");
+
+        Button yes = SceneBuilder.makeButton();
+        yes.setText("Sure");
+        yes.setOnMouseClicked(event -> {
+            favor = 1;
+            Main.getStage().setScene(new Scene(getPane(2)));
+
+        });
+
+        Button ne = SceneBuilder.makeButton();
+        ne.setText("No, sorry");
+        ne.setOnMouseClicked(event -> {
+            favor = 2;
+            Main.getStage().setScene(new Scene(getPane(3)));
+        });
+
+        flow.getChildren().addAll(a, b, c, d, e);
+        erste.getChildren().addAll(yes, ne);
+
+    }
+
+    public BorderPane getPane(int stage) {
+        this.stage = stage;
         makePane();
 
         return pane;

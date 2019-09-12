@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin;
 
+import com.fuchsbau.shorin.Spiel.Game;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -13,7 +14,19 @@ public class Main extends Application {
         launch(args);
     }
 
+    private static  void update(){
+
+        if(Game.getInstance().joshua.gone>0){
+            Game.getInstance().joshua.gone-=1;
+        }
+
+    }
+
     public static Stage getStage() {
+
+        update();
+
+
         return stage;
     }
 

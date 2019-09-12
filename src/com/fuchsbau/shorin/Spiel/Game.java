@@ -6,11 +6,13 @@ import com.fuchsbau.shorin.Spiel.Lore.BirthofMagic;
 import com.fuchsbau.shorin.Spiel.Lore.GreatWar;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;
 import com.fuchsbau.shorin.Spiel.Orte.Sudbury.Sudbury;
+import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks.Joshua;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Whitebridge;
 
 public class Game {
     private static Game ourInstance = new Game();
     public Player spieler = new Player();
+    public Joshua joshua = new Joshua();
     public Dave dave = new Dave();
     public Whitebridge whitebridge = new Whitebridge("Whitebridge", "The City of Whitebridge is located near the Capital Sudbury and the Coty where you are born. This City contains a Library, Barracks and an Inn.");
     public Platz unbridledland = new Platz("Unbridled Land", "Land of the kitsune");

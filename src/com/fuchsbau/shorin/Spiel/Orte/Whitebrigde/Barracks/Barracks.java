@@ -13,8 +13,8 @@ import javafx.scene.text.TextFlow;
 
 public class Barracks {
 
+
     private BorderPane pane;
-    private Joshua joshua = new Joshua();
     private YourRoom yourRoom = new YourRoom();
     private Training trainroom = new Training();
 
@@ -37,12 +37,15 @@ public class Barracks {
 
         HBox erste = SceneBuilder.makeButtonrow();
 
-        Button jush = SceneBuilder.makeButton();
-        jush.setText("look for Joshua");
-        jush.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(joshua.getPane())));
+        if (Game.getInstance().joshua.gone == 0) {
+            Button jush = SceneBuilder.makeButton();
+            jush.setText("Look for Joshua");
+            jush.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().joshua.getPane(0))));
+            erste.getChildren().add(jush);
+        }
 
         Button yroom = SceneBuilder.makeButton();
-        yroom.setText("go to your old room");
+        yroom.setText("Go to your old room");
         yroom.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(yourRoom.getPane())));
 
         Button training = SceneBuilder.makeButton();
@@ -50,7 +53,7 @@ public class Barracks {
         training.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(trainroom.getPane())));
 
 
-        erste.getChildren().addAll(jush, yroom, training);
+        erste.getChildren().addAll(yroom, training);
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
