@@ -1,8 +1,8 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
-import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
+import com.fuchsbau.shorin.Main;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;

@@ -1,8 +1,8 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
-import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
+import com.fuchsbau.shorin.Main;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
@@ -13,6 +13,9 @@ import javafx.scene.text.TextFlow;
 public class Inn {
 
     private BorderPane pane;
+    private Barkeeper barkeeper = new Barkeeper();
+
+
 
     Inn() {
 
@@ -34,6 +37,12 @@ public class Inn {
         flow.getChildren().addAll(intro);
 
         //TODO Make Barkeeper
+        Button bar = SceneBuilder.makeButton();
+        bar.setText("Talk to barkeeper");
+        bar.setOnMouseClicked(event -> {
+            Main.getStage().setScene(new Scene(barkeeper.getPane()));
+        });
+
         dritte.getChildren().add(back);
 
         //Todo let buy drink
@@ -44,6 +53,22 @@ public class Inn {
 
     public BorderPane getPane() {
         return pane;
+    }
+
+
+    private class Barkeeper {
+
+        BorderPane pane;
+
+        private Barkeeper() {
+
+        }
+
+
+        private BorderPane getPane(){
+            return pane;
+        }
+
     }
 
 

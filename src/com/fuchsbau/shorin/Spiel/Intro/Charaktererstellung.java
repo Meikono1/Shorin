@@ -38,7 +38,7 @@ public class Charaktererstellung {
             StringBuilder name;
             name = new StringBuilder();
             name.append("Welcome to the World of Shorin\n\n");
-            name.append("In this world you are a 19 year old Soldier, who just signed for his first official Mission.\nYour name is ...");
+            name.append("In this world you are a 19 year old soldier, who just signed for his first official mission.\nYour name is ...");
             Text a = SceneBuilder.makeText();
             a.setText(name.toString());
 
@@ -89,32 +89,36 @@ public class Charaktererstellung {
             e.setText(", the main capital. ");
 
             Text f = SceneBuilder.makeText();
-            f.setText("Here you are living in a house near the barracks, where you voluntarily joined Grey's Manace to become a soldier.\n\n");
+            f.setText("Here you are living in a house near the barracks, where you voluntarily joined ");
 
-            // TODO: 12.09.2019  Grey manace color
+            Text g = Game.getInstance().greysmanace.getName();
 
-            Text g = SceneBuilder.makeText();
-            g.setText("Your mission:\n");
-            g.setFill(GameOptionen.highlightBlue);
 
             Text h = SceneBuilder.makeText();
-            h.setText("In 14 days there will be a convoy heading to ");
-            h.setFill(GameOptionen.missionDescription);
+            h.setText(" to become a soldier.\n\n");
 
-            Text i = Game.getInstance().shallowmill.getOrtText();
+            Text i = SceneBuilder.makeText();
+            i.setText("Your mission:\n");
+            i.setFill(GameOptionen.highlightBlue);
 
             Text j = SceneBuilder.makeText();
-            j.setText(". \nYou will guard them on the journey and protect them if something should happen.\nThere are no dangers expected, but you will come close to the ");
+            j.setText("In 14 days there will be a convoy heading to ");
             j.setFill(GameOptionen.missionDescription);
 
-            Text k = Game.getInstance().unbridledland.getOrtText();
+            Text k = Game.getInstance().shallowmill.getOrtText();
 
             Text l = SceneBuilder.makeText();
-            l.setText(".\nWatch out, you may encounter some thieves, so prepare and be mindful. You should also read a book about the Kitsune, as this is their homeland.");
+            l.setText(". \nYou will guard them on the journey and protect them if something should happen.\nThere are no dangers expected, but you will come close to the ");
             l.setFill(GameOptionen.missionDescription);
 
+            Text m = Game.getInstance().unbridledland.getOrtText();
 
-            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l);
+            Text n = SceneBuilder.makeText();
+            n.setText(".\nWatch out, you may encounter some thieves, so prepare and be mindful. You should also read a book about the Kitsune, as this is their homeland.");
+            n.setFill(GameOptionen.missionDescription);
+
+
+            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
         }
 
 

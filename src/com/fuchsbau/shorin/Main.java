@@ -14,19 +14,11 @@ public class Main extends Application {
         launch(args);
     }
 
-    private static  void update(){
 
-        if(Game.getInstance().joshua.gone>0){
-            Game.getInstance().joshua.gone-=1;
-        }
-
-    }
 
     public static Stage getStage() {
 
-        update();
-
-
+        Game.getInstance().update();
         return stage;
     }
 

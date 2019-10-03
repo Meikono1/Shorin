@@ -81,7 +81,6 @@ public class Joshua {
             gone = 10;
 
 
-            //todo textfarbe
             flow.getChildren().add(a);
         } else if (stage != 1) {
             Button family = SceneBuilder.makeButton();
@@ -178,6 +177,12 @@ public class Joshua {
         makePane();
 
         return pane;
+    }
+
+    public void update() {
+        if (gone > 0) {
+            gone++;
+        }
     }
 
 }

@@ -9,7 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -117,7 +116,7 @@ public class SceneBuilder {
         inventory.setFitHeight(200);
         inventory.setFitWidth(200);
 
-        ImageView map = new ImageView("/images/map.jpg");
+        ImageView map = new ImageView("/images/ShorinMap3.png");
         map.setFitHeight(200);
         map.setFitWidth(200);
 

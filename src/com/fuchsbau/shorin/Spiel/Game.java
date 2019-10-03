@@ -1,13 +1,14 @@
 package com.fuchsbau.shorin.Spiel;
 
-import com.fuchsbau.shorin.Charakters.Humans.Dave;
-import com.fuchsbau.shorin.Charakters.Humans.Player;
-import com.fuchsbau.shorin.Spiel.Lore.BirthofMagic;
-import com.fuchsbau.shorin.Spiel.Lore.GreatWar;
+import com.fuchsbau.shorin.Humans.Player;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;
-import com.fuchsbau.shorin.Spiel.Orte.Sudbury.Sudbury;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks.Joshua;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Whitebridge;
+import com.fuchsbau.shorin.Humans.Dave;
+import com.fuchsbau.shorin.Spiel.Lore.Armies.Greysmanace;
+import com.fuchsbau.shorin.Spiel.Lore.Time.BirthofMagic;
+import com.fuchsbau.shorin.Spiel.Lore.Time.GreatWar;
+import com.fuchsbau.shorin.Spiel.Orte.Sudbury.Sudbury;
 
 public class Game {
     private static Game ourInstance = new Game();
@@ -19,6 +20,7 @@ public class Game {
     public Platz shallowmill = new Platz("Shallow-Mill", "A Village in the north, located in a small deepening");
     public BirthofMagic birthofMagic = new BirthofMagic("Birth of Magic");
     public GreatWar greatWar = new GreatWar("Great War");
+    public Greysmanace greysmanace = new Greysmanace("Grey's Manace");
     public Sudbury sudbury = new Sudbury("Sudbury", "The Human capital. The King Rogg and his Family lives here in his Castle. Laws are made in the Council by the king," +
             " 5 Huamn agents and 2 representatives of each race. \n The main entrance leads to Whitebridge.");
 
@@ -30,6 +32,10 @@ public class Game {
 
     public static Game getInstance() {
         return ourInstance;
+    }
+
+    public void update() {
+        joshua.update();
     }
 
 }

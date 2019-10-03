@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin;
 
-import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
