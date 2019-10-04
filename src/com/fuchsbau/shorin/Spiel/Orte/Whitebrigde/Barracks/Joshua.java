@@ -174,7 +174,7 @@ public class Joshua {
 
     public void update() {
         if (gone > 0) {
-            gone++;
+            gone--;
         }
     }
 
