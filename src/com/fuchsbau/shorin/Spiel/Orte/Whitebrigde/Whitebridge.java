@@ -1,21 +1,24 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
-import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks.Barracks;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Whitebridge extends Platz {
 
     public Barracks barracks = new Barracks();
-    private Pane pane;
+    private Inn inn = new Inn();
+    private Library library = new Library();
+    private Shop shop = new Shop();
+    private Entrance entrance = new Entrance();
+    private Scene scene;
     private int ort = 1;
     private int whitebridgestage = 0;
     /*    Stage 0 = Anfang. => geschichte wird gezeigt.
@@ -77,7 +80,7 @@ public class Whitebridge extends Platz {
                 h.setText("Your old friend Dave is walking around the town centre.");
 
                 Button dave = SceneBuilder.makeButton();
-                dave.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().dave.getPane(ort))));
+                dave.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().dave.getScene(ort)));
                 dave.setText("Greet Dave");
                 erste.getChildren().add(dave);
                 break;
@@ -98,35 +101,36 @@ public class Whitebridge extends Platz {
 
         Button library = SceneBuilder.makeButton();
         library.setText("Library");
-        library.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(new Library().getPane())));
+        library.setOnMouseClicked(event -> Main.getStage().setScene(this.library.getScene()));
 
         Button shop = SceneBuilder.makeButton();
         shop.setText("Shop");
-        // TODO: Make Shop
+        shop.setOnMouseClicked(event -> Main.getStage().setScene(this.shop.getScene()));
 
         Button entrance = SceneBuilder.makeButton();
         entrance.setText("Main Entrance");
-        // TODO: Make Entrance
+        entrance.setOnMouseClicked(event -> Main.getStage().setScene(this.entrance.getScene()));
 
         Button barracks = SceneBuilder.makeButton();
         barracks.setText("Barracks");
-        barracks.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(this.barracks.getPane())));
+        barracks.setOnMouseClicked(event -> Main.getStage().setScene(this.barracks.getScene()));
 
         Button inn = SceneBuilder.makeButton();
         inn.setText("Inn");
-        inn.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(new Inn().getPane())));
+        inn.setOnMouseClicked(event -> Main.getStage().setScene(this.inn.getScene()));
 
 
         dritte.getChildren().addAll(entrance, shop, inn, library, barracks);
 
-        pane = SceneBuilder.buildGameScene(erste, null, dritte, flow);
+        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
 
     }
 
 
-    public Pane getPane() {
+    public Scene getScene() {
         makePane();
-        return pane;
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
 
     }
 }

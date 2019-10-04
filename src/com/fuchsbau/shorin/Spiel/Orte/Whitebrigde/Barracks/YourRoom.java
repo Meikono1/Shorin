@@ -1,11 +1,10 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks;
 
-import com.fuchsbau.shorin.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -13,14 +12,10 @@ import javafx.scene.text.TextFlow;
 
 public class YourRoom {
 
-    private BorderPane pane;
-
-    YourRoom() {
+    private Scene scene;
 
 
-    }
-
-    private void makePane(int stage) {
+    private void makeScene(int stage) {
 
 
         TextFlow flow = SceneBuilder.mainFlow();
@@ -46,10 +41,7 @@ public class YourRoom {
         if (stage == 0) {
             Button bed = SceneBuilder.makeButton();
             bed.setText("Sit on your old bed");
-            bed.setOnMouseClicked(event -> {
-                makePane(1);
-                Main.getStage().setScene(new Scene(pane));
-            });
+            bed.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
 
             erste.getChildren().addAll(bed);
         }
@@ -59,18 +51,19 @@ public class YourRoom {
 
         Button zurueck = SceneBuilder.makeButton();
         zurueck.setText("Back to the Barracks");
-        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.barracks.getPane())));
+        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene()));
 
         dritte.getChildren().addAll(zurueck);
 
 
-        pane = SceneBuilder.buildGameScene(erste, null, dritte, flow);
+        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
 
     }
 
 
-    public BorderPane getPane() {
-        makePane(0);
-        return pane;
+    public Scene getScene(int stage) {
+        makeScene(stage);
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 }

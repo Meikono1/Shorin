@@ -1,7 +1,7 @@
-package com.fuchsbau.shorin.Humans;
+package com.fuchsbau.shorin.Characters.Humans;
 
-import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,7 +13,7 @@ import javafx.scene.text.TextFlow;
 public class Dave {
 
 
-    private BorderPane pane;
+    private Scene scene;
     private int ort;
     /*ort
      1 = Whitebridge
@@ -30,7 +30,7 @@ public class Dave {
     }
 
 
-    private BorderPane kitsuneTalk() {
+    private Scene kitsuneTalk() {
 
         TextFlow field = SceneBuilder.mainFlow();
 
@@ -46,19 +46,19 @@ public class Dave {
 
         Button zurueck = SceneBuilder.makeButton();
         zurueck.setText("Back");
-        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(getPane(ort))));
+        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(getScene(ort)));
 
         dritte.getChildren().add(zurueck);
         field.getChildren().add(text);
 
-        pane = SceneBuilder.buildGameScene(null, null, dritte, field);
+        scene = new Scene(SceneBuilder.buildGameScene(null, null, dritte, field));
 
 
-        return pane;
+        return scene;
     }
 
 
-    private void buildPane(int ort) {
+    private void buildScene(int ort) {
 
         this.ort = ort;
 
@@ -87,7 +87,7 @@ public class Dave {
         if (Game.getInstance().spieler.kitsune == 1) {
             Button kitsune = SceneBuilder.makeButton();
             kitsune.setText("Talk about Kitsune");
-            kitsune.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(kitsuneTalk())));
+            kitsune.setOnMouseClicked(event -> Main.getStage().setScene(kitsuneTalk()));
         }
 
 
@@ -95,20 +95,20 @@ public class Dave {
 
         if (ort == 1) {
             zurueck.setText("Back to Whitebridge");
-            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
+            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
             dritte.getChildren().add(zurueck);
         }
 
 
-        pane = SceneBuilder.buildGameScene(erste, null, dritte, haupt);
+        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, haupt));
 
     }
 
-    public BorderPane getPane(int ort) {
+    public Scene getScene(int ort) {
 
-        buildPane(ort);
-
-        return pane;
+        buildScene(ort);
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 
 }

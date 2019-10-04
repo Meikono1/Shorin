@@ -1,15 +1,14 @@
 package com.fuchsbau.shorin.Spiel.Intro;
 
-import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
@@ -17,10 +16,10 @@ import javafx.scene.text.TextFlow;
 
 public class Charaktererstellung {
 
-    private Pane pane;
+    private Scene scene;
 
 
-    public Charaktererstellung(int stage) {
+    public void makeScene(int stage) {
 
 
         VBox controls = new VBox();
@@ -141,7 +140,7 @@ public class Charaktererstellung {
                 } else {
                     Game.getInstance().spieler.setName(eingabe.getText());
                 }
-                Main.getStage().setScene(new Scene(new Charaktererstellung(2).getPane()));
+                Main.getStage().setScene(getScene(2));
 
 
             });
@@ -152,25 +151,27 @@ public class Charaktererstellung {
         if (stage == 2) {
             Button cont = SceneBuilder.makeButton();
             cont.setText("Continue");
-            cont.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(new Charaktererstellung(3).getPane())));
+            cont.setOnMouseClicked(event -> Main.getStage().setScene(getScene(3)));
 
             rowone.getChildren().addAll(cont);
         }
         if (stage == 3) {
             Button cont = SceneBuilder.makeButton();
             cont.setText("Start your story");
-            cont.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
+            cont.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
 
             rowone.getChildren().addAll(cont);
         }
 
 
-        pane = SceneBuilder.buildGameScene(rowone, rowtwo, rowthree, spieltext);
+        scene = new Scene(SceneBuilder.buildGameScene(rowone, rowtwo, rowthree, spieltext));
 
     }
 
 
-    public Pane getPane() {
-        return pane;
+    public Scene getScene(int stage) {
+        makeScene(stage);
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 }

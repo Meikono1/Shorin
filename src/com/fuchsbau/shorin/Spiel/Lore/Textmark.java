@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Spiel.Lore;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class Textmark {

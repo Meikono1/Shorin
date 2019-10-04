@@ -1,23 +1,20 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
-import com.fuchsbau.shorin.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Inn {
 
-    private BorderPane pane;
+    private Scene scene;
     private Barkeeper barkeeper = new Barkeeper();
 
-
-
-    Inn() {
+    private void makeScene() {
 
 
         HBox dritte = SceneBuilder.makeButtonrow();
@@ -32,41 +29,43 @@ public class Inn {
         Button back = SceneBuilder.makeButton();
 
         back.setText("Back to Whitebridge");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
+        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
 
         flow.getChildren().addAll(intro);
 
         //TODO Make Barkeeper
         Button bar = SceneBuilder.makeButton();
         bar.setText("Talk to barkeeper");
-        bar.setOnMouseClicked(event -> {
-            Main.getStage().setScene(new Scene(barkeeper.getPane()));
-        });
+        bar.setOnMouseClicked(event -> Main.getStage().setScene(barkeeper.getScene()));
 
         dritte.getChildren().add(back);
 
         //Todo let buy drink
-        pane = SceneBuilder.buildGameScene(null, null, dritte, flow);
+        scene = new Scene(SceneBuilder.buildGameScene(null, null, dritte, flow));
 
     }
 
 
-    public BorderPane getPane() {
-        return pane;
+    public Scene getScene() {
+        makeScene();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 
 
     private class Barkeeper {
 
-        BorderPane pane;
+        Scene scene;
 
-        private Barkeeper() {
+        private void makeScene() {
 
         }
 
 
-        private BorderPane getPane(){
-            return pane;
+        private Scene getScene() {
+            makeScene();
+            Game.getInstance().spieler.setAktuell(scene);
+            return scene;
         }
 
     }

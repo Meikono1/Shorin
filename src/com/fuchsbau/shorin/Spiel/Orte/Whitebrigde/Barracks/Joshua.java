@@ -1,18 +1,17 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks;
 
-import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Joshua {
     public int gone = 0;
-    private BorderPane pane;
+    private Scene scene;
     private int favor = 0;
     /*
     case favor
@@ -33,7 +32,7 @@ public class Joshua {
      */
 
 
-    private void makePane() {
+    private void makeScene() {
 
         TextFlow flow = SceneBuilder.mainFlow();
 
@@ -85,9 +84,7 @@ public class Joshua {
         } else if (stage != 1) {
             Button family = SceneBuilder.makeButton();
             family.setText("Talk about Family");
-            family.setOnMouseClicked(event -> {
-                Main.getStage().setScene(new Scene(getPane(4)));
-            });
+            family.setOnMouseClicked(event -> Main.getStage().setScene(getScene(4)));
             erste.getChildren().add(family);
         }
 
@@ -101,9 +98,7 @@ public class Joshua {
         } else if (stage != 1 && stage != 4) {
             Button barracks = SceneBuilder.makeButton();
             barracks.setText("Talk about barracks");
-            barracks.setOnMouseClicked(event -> {
-                Main.getStage().setScene(new Scene(getPane(5)));
-            });
+            barracks.setOnMouseClicked(event -> Main.getStage().setScene(getScene(5)));
             erste.getChildren().add(barracks);
 
         }
@@ -115,23 +110,21 @@ public class Joshua {
             if (favor == 0 && stage != 4) {
                 Button mission = SceneBuilder.makeButton();
                 mission.setText("Thoughts about mission");
-                mission.setOnMouseClicked(event -> {
-                    Main.getStage().setScene(new Scene(getPane(1)));
-                });
+                mission.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
                 erste.getChildren().add(mission);
             }
 
 
             Button zurueck = SceneBuilder.makeButton();
             zurueck.setText("Back to barracks");
-            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.barracks.getPane())));
+            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene()));
 
 
             dritte.getChildren().addAll(zurueck);
 
         }
 
-        pane = SceneBuilder.buildGameScene(erste, null, dritte, flow);
+        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
 
 
     }
@@ -156,7 +149,7 @@ public class Joshua {
         yes.setText("Sure");
         yes.setOnMouseClicked(event -> {
             favor = 1;
-            Main.getStage().setScene(new Scene(getPane(2)));
+            Main.getStage().setScene(getScene(2));
 
         });
 
@@ -164,7 +157,7 @@ public class Joshua {
         ne.setText("No, sorry");
         ne.setOnMouseClicked(event -> {
             favor = 2;
-            Main.getStage().setScene(new Scene(getPane(3)));
+            Main.getStage().setScene(getScene(3));
         });
 
         flow.getChildren().addAll(a, b, c, d, e);
@@ -172,11 +165,11 @@ public class Joshua {
 
     }
 
-    public BorderPane getPane(int stage) {
+    public Scene getScene(int stage) {
         this.stage = stage;
-        makePane();
-
-        return pane;
+        makeScene();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 
     public void update() {

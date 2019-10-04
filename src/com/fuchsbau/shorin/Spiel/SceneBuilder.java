@@ -1,7 +1,7 @@
-package com.fuchsbau.shorin;
+package com.fuchsbau.shorin.Spiel;
 
+import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
-import com.fuchsbau.shorin.Spiel.Game;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -17,6 +17,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class SceneBuilder {
+    private static Inventory inv = new Inventory();
 
     public static BorderPane buildBorderPane(Node top, Node right, Node left, Node buttom) {
         BorderPane haupt = new BorderPane();
@@ -43,6 +44,34 @@ public class SceneBuilder {
 
     }
 
+    public static BorderPane buildInventory(HBox erste) {
+
+        BorderPane haupt = new BorderPane();
+        haupt.setPrefHeight(GameOptionen.height);
+        haupt.setPrefWidth(GameOptionen.width);
+        haupt.setMaxHeight(GameOptionen.height);
+        haupt.setMaxWidth(GameOptionen.width);
+        haupt.setBackground(GameOptionen.hintergrund);
+
+        if (erste == null) {
+            erste = makeButtonrow();
+        }
+
+        int lauf = erste.getChildren().size();
+        for (int i = 0; i < (7 - lauf); i++) {
+
+            Button a = new Button();
+            a.setPrefWidth(GameOptionen.buttonwidth);
+            erste.getChildren().add(a);
+        }
+
+
+        haupt.setBottom(erste);
+
+
+        return haupt;
+    }
+
     /***
      * Baut die Borderpane auf die notfalls aufgefüllt wird, Bereits vorhanden sind die 3 Buttons links.
      * @param erste Buttenreihe 1
@@ -54,14 +83,13 @@ public class SceneBuilder {
     public static BorderPane buildGameScene(HBox erste, HBox zweite, HBox dritte, TextFlow text) {
         BorderPane haupt = new BorderPane();
 
-
         haupt.setPrefHeight(GameOptionen.height);
         haupt.setPrefWidth(GameOptionen.width);
         haupt.setMaxHeight(GameOptionen.height);
         haupt.setMaxWidth(GameOptionen.width);
 
-        if(erste==null){
-            erste=makeButtonrow();
+        if (erste == null) {
+            erste = makeButtonrow();
         }
         int lauf = erste.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
@@ -71,8 +99,8 @@ public class SceneBuilder {
             erste.getChildren().add(a);
         }
 
-        if(zweite==null){
-            zweite=makeButtonrow();
+        if (zweite == null) {
+            zweite = makeButtonrow();
         }
         lauf = zweite.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
@@ -83,8 +111,8 @@ public class SceneBuilder {
 
         }
 
-        if(dritte==null){
-            dritte=makeButtonrow();
+        if (dritte == null) {
+            dritte = makeButtonrow();
         }
         lauf = dritte.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
@@ -103,22 +131,26 @@ public class SceneBuilder {
         VBox charakter = new VBox();
 
         Label name = new Label();
+        name.setFont(Font.font("Cambria", 19));
         name.setTextFill(Paint.valueOf("868686"));
         name.setText(Game.getInstance().spieler.getName().getText());
-        name.prefHeight(80);
+        name.setAlignment(Pos.CENTER);
+        name.setPrefWidth(GameOptionen.imagewidth);
+        name.prefHeight(GameOptionen.imageheight);
 
 
         ImageView ich = new ImageView("/images/meikonol.jpg");
-        ich.setFitHeight(200);
-        ich.setFitWidth(200);
+        ich.setFitHeight(GameOptionen.imageheight);
+        ich.setFitWidth(GameOptionen.imagewidth);
 
         ImageView inventory = new ImageView("/images/plastic_bag.png");
-        inventory.setFitHeight(200);
-        inventory.setFitWidth(200);
+        inventory.setOnMouseClicked(event -> Main.getStage().setScene(inv.getScene()));
+        inventory.setFitHeight(GameOptionen.imageheight);
+        inventory.setFitWidth(GameOptionen.imagewidth);
 
         ImageView map = new ImageView("/images/ShorinMap3.png");
-        map.setFitHeight(200);
-        map.setFitWidth(200);
+        map.setFitHeight(GameOptionen.imageheight);
+        map.setFitWidth(GameOptionen.imagewidth);
 
         charakter.getChildren().addAll(name, ich, inventory, map);
 
@@ -140,9 +172,9 @@ public class SceneBuilder {
         return box;
     }
 
-    public static Text makeText(){
+    public static Text makeText() {
         Text text = new Text();
-        text.setFont(Font.font("Cambria", 21));
+        text.setFont(Font.font("Cambria", GameOptionen.textsize));
         text.setFill(Paint.valueOf("868686"));
         return text;
     }

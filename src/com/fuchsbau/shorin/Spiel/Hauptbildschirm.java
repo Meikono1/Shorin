@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin;
+package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
@@ -12,10 +12,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 public class Hauptbildschirm {
-    private BorderPane pane;
+    private Charaktererstellung charaktererstellung = new Charaktererstellung();
+    private Scene scene;
     private String patchnotes = "Shorin Patch : 0.1";
 
-    public Hauptbildschirm() {
+    private void makeScene() {
         VBox top = new VBox();
         top.setPadding(new Insets(10, 0, 0, 0));
         top.setAlignment(Pos.CENTER);
@@ -32,18 +33,19 @@ public class Hauptbildschirm {
         start.setOnMouseClicked(event -> {
 
 
-
             Main.getStage().setTitle("Charaktererstellung");
-            Main.getStage().setScene(new Scene(new Charaktererstellung(1).getPane()));
+            Main.getStage().setScene(charaktererstellung.getScene(1));
 
         });
         start.setPrefWidth(GameOptionen.buttonwidth);
+
         Button laden = new Button("Load Game");
         laden.setPrefWidth(GameOptionen.buttonwidth);
+
         Button optionen = new Button("Optionen");
         optionen.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin - Optionen");
-            Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
+            Main.getStage().setScene(new GameOptionen().getScene());
             Main.getStage().setResizable(false);
         });
         optionen.setPrefWidth(GameOptionen.buttonwidth);
@@ -54,18 +56,17 @@ public class Hauptbildschirm {
         patch.setTextFill(Paint.valueOf("868686"));
 
 
-        pane = SceneBuilder.buildBorderPane(top, null, null, boxone);
+        BorderPane pane = SceneBuilder.buildBorderPane(top, null, null, boxone);
         pane.setBackground(GameOptionen.hintergrund);
+        scene = new Scene(pane);
 
     }
 
 
-    public BorderPane getPane() {
-        return pane = new Hauptbildschirm().pane;
-    }
-
-    public Scene getOptions() {
-        return new Scene(new GameOptionen().getPane());
+    public Scene getScene() {
+        makeScene();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 
 }

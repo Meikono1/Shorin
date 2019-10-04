@@ -1,8 +1,8 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Spiel.Main;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
@@ -12,9 +12,9 @@ import javafx.scene.text.TextFlow;
 
 public class Library {
 
-    private BorderPane pane;
+    private Scene scene;
 
-    Library() {
+    private void makeScene() {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
@@ -29,17 +29,20 @@ public class Library {
 
         Button back = SceneBuilder.makeButton();
         back.setText("Back to Whitebridge");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
+        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
         //todo make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war
 
         dritte.getChildren().addAll(back);
 
-        pane = SceneBuilder.buildGameScene(null, null, dritte, flow);
+        BorderPane pane = SceneBuilder.buildGameScene(null, null, dritte, flow);
+        scene = new Scene(pane);
     }
 
 
-    public BorderPane getPane() {
-        return pane;
+    public Scene getScene() {
+        makeScene();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 
 }

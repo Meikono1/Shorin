@@ -1,8 +1,9 @@
 package com.fuchsbau.shorin.Optionen;
 
-import com.fuchsbau.shorin.Hauptbildschirm;
-import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.Game;
+import com.fuchsbau.shorin.Spiel.Hauptbildschirm;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,6 +20,9 @@ public class GameOptionen {
     public static double width = 1280;
     public static double height = 720;
     public static double buttonwidth = 160;
+    public static double imagewidth = 170;
+    public static double imageheight = 170;
+    public static int textsize = 21;
     public static Insets padding = new Insets(5, 10, 5, 10);
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Paint timestamp = Paint.valueOf("734b4b");
@@ -27,10 +31,10 @@ public class GameOptionen {
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint ortcolor = Paint.valueOf("409970");
 
-    private BorderPane pane;
+    private Scene scene;
 
 
-    public GameOptionen() {
+    private void makePane() {
 
 
         ScrollPane optionsfenster = new ScrollPane();
@@ -66,10 +70,12 @@ public class GameOptionen {
         resoneb.setText("720p");
         resoneb.setPadding(padding);
         resoneb.setOnMouseClicked(event -> {
-            GameOptionen.width = 1280;
-            GameOptionen.height = 720;
-            GameOptionen.buttonwidth = 160;
-            Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
+            width = 1280;
+            height = 720;
+            buttonwidth = 160;
+            Main.getStage().setWidth(width);
+            Main.getStage().setHeight(height);
+            Main.getStage().setScene(new GameOptionen().getScene());
         });
         Label restwol = new Label();
         restwol.setPadding(padding);
@@ -79,10 +85,12 @@ public class GameOptionen {
         restwob.setText("1080p");
         restwob.setPadding(padding);
         restwob.setOnMouseClicked(event -> {
-            GameOptionen.width = 1900;
-            GameOptionen.height = 1080;
-            GameOptionen.buttonwidth = 220;
-            Main.getStage().setScene(new Scene(new GameOptionen().getPane()));
+            width = 1900;
+            height = 1080;
+            buttonwidth = 220;
+            Main.getStage().setWidth(width);
+            Main.getStage().setHeight(height);
+            Main.getStage().setScene(new GameOptionen().getScene());
         });
 
         optiontwo.getChildren().addAll(restwol, restwob);
@@ -97,20 +105,22 @@ public class GameOptionen {
         Button back = new Button("Zurück");
         back.setOnMouseClicked(event -> {
 
-            Main.getStage().setScene(new Scene(new Hauptbildschirm().getPane()));
+            Main.getStage().setScene(new Hauptbildschirm().getScene());
             Main.getStage().setTitle("Shorin");
 
         });
 
         buttongroup.getChildren().setAll(back);
 
-
-        pane = SceneBuilder.buildBorderPane(null, null, null, buttongroup);
+        BorderPane pane = SceneBuilder.buildBorderPane(null, null, null, buttongroup);
         pane.setCenter(optionsfenster);
+        scene = new Scene(pane);
     }
 
 
-    public Pane getPane() {
-        return pane;
+    public Scene getScene() {
+        makePane();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 }

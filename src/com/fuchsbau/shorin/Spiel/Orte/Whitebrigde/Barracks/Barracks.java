@@ -1,11 +1,10 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks;
 
-import com.fuchsbau.shorin.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -14,7 +13,7 @@ import javafx.scene.text.TextFlow;
 public class Barracks {
 
 
-    private BorderPane pane;
+    private Scene scene;
     private YourRoom yourRoom = new YourRoom();
     private Training trainroom = new Training();
 
@@ -23,7 +22,7 @@ public class Barracks {
     }
 
 
-    private void makePane() {
+    private void makeScene() {
 
 
         TextFlow text = SceneBuilder.mainFlow();
@@ -40,17 +39,17 @@ public class Barracks {
         if (Game.getInstance().joshua.gone == 0) {
             Button jush = SceneBuilder.makeButton();
             jush.setText("Look for Joshua");
-            jush.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().joshua.getPane(0))));
+            jush.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().joshua.getScene(0)));
             erste.getChildren().add(jush);
         }
 
         Button yroom = SceneBuilder.makeButton();
         yroom.setText("Go to your old room");
-        yroom.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(yourRoom.getPane())));
+        yroom.setOnMouseClicked(event -> Main.getStage().setScene(yourRoom.getScene(0)));
 
         Button training = SceneBuilder.makeButton();
         training.setText("To the trainingsroom");
-        training.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(trainroom.getPane())));
+        training.setOnMouseClicked(event -> Main.getStage().setScene(trainroom.getScene()));
 
 
         erste.getChildren().addAll(yroom, training);
@@ -59,18 +58,19 @@ public class Barracks {
 
         Button zurueck = SceneBuilder.makeButton();
         zurueck.setText("Back to Whitebridge");
-        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.getPane())));
+        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
 
 
         dritte.getChildren().addAll(zurueck);
 
-        pane = SceneBuilder.buildGameScene(erste, null, dritte, text);
+        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, text));
 
     }
 
 
-    public BorderPane getPane() {
-        makePane();
-        return pane;
+    public Scene getScene() {
+        makeScene();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 }

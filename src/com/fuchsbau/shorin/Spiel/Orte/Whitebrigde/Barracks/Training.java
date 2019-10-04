@@ -1,21 +1,20 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks;
 
-import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class Training {
 
-    private BorderPane pane;
+    private Scene scene;
 
 
-    private void makePane() {
+    private void makeScene() {
 
         TextFlow flow = SceneBuilder.mainFlow();
 
@@ -28,19 +27,20 @@ public class Training {
 
         Button zurueck = SceneBuilder.makeButton();
         zurueck.setText("Back to the barracks");
-        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(new Scene(Game.getInstance().whitebridge.barracks.getPane())));
+        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene()));
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
         dritte.getChildren().addAll(zurueck);
 
 
-        pane = SceneBuilder.buildGameScene(null, null, dritte, flow);
+        scene = new Scene(SceneBuilder.buildGameScene(null, null, dritte, flow));
     }
 
-    public BorderPane getPane() {
+    public Scene getScene() {
 
-        makePane();
-        return pane;
+        makeScene();
+        Game.getInstance().spieler.setAktuell(scene);
+        return scene;
     }
 }

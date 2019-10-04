@@ -1,13 +1,18 @@
-package com.fuchsbau.shorin.Humans;
+package com.fuchsbau.shorin.Characters;
 
-
-import com.fuchsbau.shorin.SceneBuilder;
+import com.fuchsbau.shorin.Items.Inventory;
+import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import javafx.scene.Scene;
 import javafx.scene.text.Text;
 
 
 public class Player {
 
-    int kitsune = 0;
+
+    private Scene aktuell;
+    private Inventory inventory = new Inventory();
+
+    public int kitsune = 0;
 
     /*
     0 = keine erfahrungen
@@ -28,5 +33,14 @@ public class Player {
     public void setName(String name) {
         this.name.setText(name);
 
+    }
+
+    public void setAktuell(Scene aktuell) {
+        this.aktuell = aktuell;
+    }
+    public Scene getAktuell(){
+        
+
+        return aktuell;
     }
 }

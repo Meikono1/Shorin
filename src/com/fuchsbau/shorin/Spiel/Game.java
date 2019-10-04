@@ -1,10 +1,10 @@
 package com.fuchsbau.shorin.Spiel;
 
-import com.fuchsbau.shorin.Humans.Player;
+import com.fuchsbau.shorin.Characters.Humans.Dave;
+import com.fuchsbau.shorin.Characters.Player;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks.Joshua;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Whitebridge;
-import com.fuchsbau.shorin.Humans.Dave;
 import com.fuchsbau.shorin.Spiel.Lore.Armies.Greysmanace;
 import com.fuchsbau.shorin.Spiel.Lore.Time.BirthofMagic;
 import com.fuchsbau.shorin.Spiel.Lore.Time.GreatWar;
@@ -26,7 +26,6 @@ public class Game {
 
 
     private Game() {
-
 
     }
 
