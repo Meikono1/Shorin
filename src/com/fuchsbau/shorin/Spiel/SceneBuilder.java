@@ -2,15 +2,15 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.sun.prism.paint.Color;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -44,7 +44,7 @@ public class SceneBuilder {
 
     }
 
-    public static BorderPane buildInventory(HBox erste) {
+    public static BorderPane buildInventory(HBox erste, ScrollPane scroll) {
 
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOptionen.height);
@@ -65,7 +65,41 @@ public class SceneBuilder {
             erste.getChildren().add(a);
         }
 
+        HBox box = new HBox();
 
+        Text a = makeText();
+        a.setText("Blahblab          ");
+
+        Text b = makeText();
+        b.setText("Blahbdfgsfdhjhjfgdlab               ");
+        Text c = makeText();
+        c.setFill(Paint.valueOf("fcba03"));
+        c.setText("Bsdasdlahblab");
+
+
+        HBox boxd = new HBox();
+
+        Text pakz = SceneBuilder.makeText();
+        pakz.setText("Pakz <3<3<3    ");
+        pakz.setFill(Paint.valueOf("fc0303"));
+
+        boxd.getChildren().add(pakz);
+
+        box.getChildren().addAll(a, b);
+
+        HBox boxt = new HBox();
+        boxt.getChildren().add(c);
+
+        VBox pane = new VBox();
+
+        pane.getChildren().addAll(box, boxt,boxd);
+        pane.setBackground(GameOptionen.hintergrund);
+        pane.setPrefHeight(800);
+        pane.setPrefWidth(GameOptionen.width);
+
+        scroll.setContent(pane);
+
+        haupt.setCenter(scroll);
         haupt.setBottom(erste);
 
 
@@ -195,5 +229,15 @@ public class SceneBuilder {
         return button;
     }
 
+    public static ScrollPane makeScrollpane() {
+
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        scrollPane.setBackground(GameOptionen.hintergrund);
+
+
+        return scrollPane;
+    }
 
 }

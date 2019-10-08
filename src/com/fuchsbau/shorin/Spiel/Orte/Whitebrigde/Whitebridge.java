@@ -32,7 +32,7 @@ public class Whitebridge extends Platz {
 
     }
 
-    private void makePane() {
+    private void makeScene() {
 
         TextFlow flow = SceneBuilder.mainFlow();
 
@@ -128,7 +128,7 @@ public class Whitebridge extends Platz {
 
 
     public Scene getScene() {
-        makePane();
+        makeScene();
         Game.getInstance().spieler.setAktuell(scene);
         return scene;
 
