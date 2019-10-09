@@ -18,6 +18,8 @@ public class Inventory {
 
     public Inventory() {
 
+
+
     }
 
     private void makeScene() {

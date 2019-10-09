@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Shop.Shop;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;

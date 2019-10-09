@@ -6,7 +6,6 @@ import javafx.scene.text.Text;
 
 public class Platz {
 
-
     private String name;
     private String beschreibung;
     private Text ingamebeschreibung= SceneBuilder.makeText();
@@ -19,6 +18,8 @@ public class Platz {
         ingamebeschreibung.setFill(GameOptionen.ortcolor);
 
     }
+
+
 
 
     public Text getOrtText (){
