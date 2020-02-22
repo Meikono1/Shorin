@@ -26,7 +26,7 @@ public class Main extends Application {
     public void start(Stage stage) {
 
         Main.stage = stage;
-        Main.stage.setResizable(false);
+        Main.stage.setResizable(true);
         stage.setHeight(GameOptionen.height);
         stage.setWidth(GameOptionen.width);
         stage.setTitle("Shorin");

@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Inventory;
+import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,8 +18,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import java.util.Iterator;
+import java.util.List;
+
 public class SceneBuilder {
-    private static Inventory inv = new Inventory();
 
     public static BorderPane buildBorderPane(Node top, Node right, Node left, Node buttom) {
         BorderPane haupt = new BorderPane();
@@ -45,16 +48,7 @@ public class SceneBuilder {
 
     }
 
-
-    public static BorderPane shopping() {
-        BorderPane haupt = new BorderPane();
-
-
-        return haupt;
-    }
-
-    public static BorderPane buildInventory(HBox erste, ScrollPane scroll) {
-
+    public static BorderPane buildShop(HBox erste, HBox zweite, ScrollPane scrole, List<Item> liste) {
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOptionen.height);
         haupt.setPrefWidth(GameOptionen.width);
@@ -62,29 +56,46 @@ public class SceneBuilder {
         haupt.setMaxWidth(GameOptionen.width);
         haupt.setBackground(GameOptionen.hintergrund);
 
-        if (erste == null) {
-            erste = makeButtonrow();
-        }
-        if (scroll == null) {
-            scroll = SceneBuilder.makeScrollpane();
+        int lauf = zweite.getChildren().size();
+        for (int i = 0; i < 7 - lauf; i++) {
+            Button a = new Button();
+            a.setPrefWidth(GameOptionen.buttonwidth);
+            zweite.getChildren().add(a);
         }
 
-        int lauf = erste.getChildren().size();
+        lauf = erste.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
-
             Button a = new Button();
             a.setPrefWidth(GameOptionen.buttonwidth);
             erste.getChildren().add(a);
         }
 
+        HBox box = new HBox();
 
-        makePlayerInventory(scroll);
+        VBox pane = new VBox();
 
-        haupt.setCenter(scroll);
-        haupt.setBottom(erste);
+        Iterator<Item> iter = liste.iterator();
 
+        while (iter.hasNext()) {
+            pane.getChildren().add(createItem(iter.next()));
+        }
+
+        pane.getChildren().addAll(box);
+        pane.setBackground(GameOptionen.hintergrund);
+        pane.setPrefHeight(800);
+        pane.setPrefWidth(GameOptionen.width);
+
+        scrole.setContent(pane);
+
+        VBox unten = new VBox();
+        unten.getChildren().addAll(erste, zweite);
+
+
+        haupt.setCenter(scrole);
+        haupt.setBottom(unten);
 
         return haupt;
+
     }
 
     /***
@@ -144,9 +155,10 @@ public class SceneBuilder {
         unten.getChildren().addAll(erste, zweite, dritte);
 
         VBox charakter = new VBox();
+        charakter.setPrefWidth(GameOptionen.imagewidth + 15);
 
         Label name = new Label();
-        name.setFont(Font.font("Cambria", 19));
+        name.setFont(Font.font("Cambria", 22));
         name.setTextFill(Paint.valueOf("868686"));
         name.setText(Game.getInstance().spieler.getName().getText());
         name.setAlignment(Pos.CENTER);
@@ -159,7 +171,7 @@ public class SceneBuilder {
         ich.setFitWidth(GameOptionen.imagewidth);
 
         ImageView inventory = new ImageView("/images/plastic_bag.png");
-        inventory.setOnMouseClicked(event -> Main.getStage().setScene(inv.getScene()));
+        inventory.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().inventory.getScene()));
         inventory.setFitHeight(GameOptionen.imageheight);
         inventory.setFitWidth(GameOptionen.imagewidth);
 
@@ -213,7 +225,7 @@ public class SceneBuilder {
 
     public static Button makeButton() {
         Button button = new Button();
-        button.setPrefWidth(GameOptionen.buttonwidth);
+        button.setMinWidth(GameOptionen.buttonwidth);
         return button;
     }
 
@@ -221,14 +233,28 @@ public class SceneBuilder {
 
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setBackground(GameOptionen.hintergrund);
-
 
         return scrollPane;
     }
 
-    private static ScrollPane makePlayerInventory(ScrollPane scrole) {
+    public static BorderPane makePlayerInventory(HBox erste, ScrollPane scrole, List<Item> liste) {
+
+        BorderPane haupt = new BorderPane();
+        haupt.setPrefHeight(GameOptionen.height);
+        haupt.setPrefWidth(GameOptionen.width);
+        haupt.setMaxHeight(GameOptionen.height);
+        haupt.setMaxWidth(GameOptionen.width);
+        haupt.setBackground(GameOptionen.hintergrund);
+
+        int lauf = erste.getChildren().size();
+        for (int i = 0; i < (7 - lauf); i++) {
+            Button a = new Button();
+            a.setPrefWidth(GameOptionen.buttonwidth);
+            erste.getChildren().add(a);
+        }
+
         HBox box = new HBox();
 
         Text a = makeText();
@@ -255,6 +281,13 @@ public class SceneBuilder {
 
         VBox pane = new VBox();
 
+        Iterator<Item> iter = liste.iterator();
+
+        while (iter.hasNext()) {
+            pane.getChildren().add(createItem(iter.next()));
+        }
+
+
         pane.getChildren().addAll(box, boxt, boxd);
         pane.setBackground(GameOptionen.hintergrund);
         pane.setPrefHeight(800);
@@ -262,7 +295,18 @@ public class SceneBuilder {
 
         scrole.setContent(pane);
 
-        return scrole;
+        haupt.setCenter(scrole);
+        haupt.setBottom(erste);
+
+        return haupt;
     }
+
+    private static HBox createItem(Item item) {
+        HBox zurueck = new HBox();
+        zurueck.getChildren().addAll(item.getBeschreibung());
+
+        return zurueck;
+    }
+
 
 }

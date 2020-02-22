@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Inventory {
@@ -17,8 +18,7 @@ public class Inventory {
 
 
     public Inventory() {
-
-
+        liste = new ArrayList<>();
 
     }
 
@@ -35,7 +35,12 @@ public class Inventory {
 
         erste.getChildren().add(back);
 
-        scene = new Scene(SceneBuilder.buildInventory(erste, pane));
+        scene = new Scene(SceneBuilder.makePlayerInventory(erste, pane, liste));
+
+    }
+
+    public  void addItem(Item item) {
+        liste.add(item);
 
     }
 

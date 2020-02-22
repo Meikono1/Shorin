@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.text.Text;
 
 
-public class Player {
+public class Player extends Char {
 
 
     private Scene aktuell;
@@ -23,7 +23,7 @@ public class Player {
 
 
     public Player() {
-
+        super(100);
     }
 
     public Text getName() {
@@ -38,8 +38,9 @@ public class Player {
     public void setAktuell(Scene aktuell) {
         this.aktuell = aktuell;
     }
-    public Scene getAktuell(){
-        
+
+    public Scene getAktuell() {
+
 
         return aktuell;
     }

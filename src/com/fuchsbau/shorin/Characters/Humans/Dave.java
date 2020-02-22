@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Characters.Humans;
 
+import com.fuchsbau.shorin.Characters.Char;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
@@ -10,7 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Dave {
+public class Dave extends Char {
 
 
     private Scene scene;
@@ -25,6 +26,7 @@ public class Dave {
 
 
     public Dave() {
+        super(100);
         this.stage = 0;
 
     }

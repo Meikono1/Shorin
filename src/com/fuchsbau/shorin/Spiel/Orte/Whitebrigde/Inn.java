@@ -1,5 +1,9 @@
 package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
 
+import com.fuchsbau.shorin.Characters.Player;
+import com.fuchsbau.shorin.Items.Inventory;
+import com.fuchsbau.shorin.Items.Item;
+import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
@@ -40,8 +44,19 @@ public class Inn {
 
         dritte.getChildren().add(back);
 
+        HBox erste = SceneBuilder.makeButtonrow();
+
+        Button buy = SceneBuilder.makeButton();
+        buy.setText("Buy Beer");
+        buy.setOnMouseClicked(mouseEvent -> {
+            Potion bear = new Potion("beer");
+            Game.getInstance().inventory.addItem(bear);
+
+        });
+        erste.getChildren().add(buy);
+
         //Todo let buy drink
-        scene = new Scene(SceneBuilder.buildGameScene(null, null, dritte, flow));
+        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
 
     }
 
