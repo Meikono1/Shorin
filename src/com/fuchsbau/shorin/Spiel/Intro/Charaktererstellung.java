@@ -44,7 +44,7 @@ public class Charaktererstellung {
             spieltext.getChildren().addAll(a);
         }
 
-        if (stage == 2) {//intro to surroundings
+        if (stage == 2) {//intro to you
 
             Text a = SceneBuilder.makeText();
             a.setText("Welcome to the World of Shorin\n\nIn this world you are a 19 year old freshly trained soldier, who was just signed for his first official mission.\nYour name is ");
@@ -52,6 +52,11 @@ public class Charaktererstellung {
             Text b = Game.getInstance().spieler.getName();
 
             Text c = SceneBuilder.makeText();
+
+            Text d = SceneBuilder.makeText("\nYour Parents died ");
+
+
+            /*
 
             c.setText(".\n" + "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
                     "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +
@@ -65,9 +70,9 @@ public class Charaktererstellung {
 
             Text e = SceneBuilder.makeText();
             e.setText(".\n\nThere are more Races but they are not important right now.");
+*/
 
-
-            spieltext.getChildren().addAll(a, b, c, d, e);
+            spieltext.getChildren().addAll(a, b, c);
 
 
         }

@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.Characters;
 import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
 
@@ -32,6 +33,7 @@ public class Player extends Char {
 
     public void setName(String name) {
         this.name.setText(name);
+        this.name.setFill(Paint.valueOf("#ACB069"));
 
     }
 

@@ -166,11 +166,11 @@ public class SceneBuilder {
         name.prefHeight(GameOptionen.imageheight);
 
 
-        ImageView ich = new ImageView("/images/meikonol.jpg");
+        ImageView ich = new ImageView("/images/char.jpg");
         ich.setFitHeight(GameOptionen.imageheight);
         ich.setFitWidth(GameOptionen.imagewidth);
 
-        ImageView inventory = new ImageView("/images/plastic_bag.png");
+        ImageView inventory = new ImageView("/images/inv.png");
         inventory.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().inventory.getScene()));
         inventory.setFitHeight(GameOptionen.imageheight);
         inventory.setFitWidth(GameOptionen.imagewidth);
