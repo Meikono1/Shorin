@@ -8,7 +8,7 @@ public class Platz {
 
     private String name;
     private String beschreibung;
-    private Text ingamebeschreibung= SceneBuilder.makeText();
+    private Text ingamebeschreibung = SceneBuilder.makeText();
 
     public Platz(String name, String beschreibung) {
 
@@ -20,11 +20,13 @@ public class Platz {
     }
 
 
+    public Text getOrtText() {
 
+        Text ret = SceneBuilder.makeText();
+        ret.setText(name);
+        ret.setFill(GameOptionen.ortcolor);
 
-    public Text getOrtText (){
-
-        return ingamebeschreibung;
+        return ret;
     }
 
 

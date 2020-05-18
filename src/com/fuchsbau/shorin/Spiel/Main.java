@@ -2,7 +2,6 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.application.Application;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {

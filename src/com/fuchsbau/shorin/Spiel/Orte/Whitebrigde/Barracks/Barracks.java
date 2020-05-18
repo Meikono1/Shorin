@@ -67,6 +67,13 @@ public class Barracks {
 
     }
 
+    public YourRoom yourroom() {
+        return yourRoom;
+    }
+
+    public Training getTrainroom() {
+        return trainroom;
+    }
 
     public Scene getScene() {
         makeScene();

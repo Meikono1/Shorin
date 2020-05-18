@@ -66,7 +66,7 @@ public class Whitebridge extends Platz {
 
 
         Text i = SceneBuilder.makeText();
-        i.setText("Your hut is next to the barracks. Next to the town centre is a library. You can also go into the tavern to inquire about rumours concerning the surroundings.\n" +
+        i.setText("Next to the town centre is a library. You can also go into the tavern to inquire about rumours concerning the surroundings.\n" +
                 "If you have the money you may visit the local shop.\n\n");
 
 

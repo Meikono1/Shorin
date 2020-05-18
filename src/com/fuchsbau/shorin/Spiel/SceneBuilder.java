@@ -166,7 +166,8 @@ public class SceneBuilder {
         name.prefHeight(GameOptionen.imageheight);
 
 
-        ImageView ich = new ImageView("/images/char.jpg");
+        ImageView ich = new ImageView("/images/char.png");
+
         ich.setFitHeight(GameOptionen.imageheight);
         ich.setFitWidth(GameOptionen.imagewidth);
 
@@ -180,6 +181,7 @@ public class SceneBuilder {
         map.setFitWidth(GameOptionen.imagewidth);
 
         charakter.getChildren().addAll(name, ich, inventory, map);
+        charakter.setSpacing(10);
 
         haupt.setLeft(charakter);
         haupt.setBottom(unten);

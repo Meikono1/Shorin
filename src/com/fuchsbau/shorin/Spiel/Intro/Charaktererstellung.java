@@ -37,7 +37,7 @@ public class Charaktererstellung {
             StringBuilder name;
             name = new StringBuilder();
             name.append("Welcome to the World of Shorin\n\n");
-            name.append("In this world you are a 19 year old soldier, who just signed for his first official mission.\nYour name is ...");
+            name.append("In this world you are a 17 year old soldier, who just signed for his first official mission.\nYour name is ...");
             Text a = SceneBuilder.makeText();
             a.setText(name.toString());
 
@@ -47,16 +47,18 @@ public class Charaktererstellung {
         if (stage == 2) {//intro to you
 
             Text a = SceneBuilder.makeText();
-            a.setText("Welcome to the World of Shorin\n\nIn this world you are a 19 year old freshly trained soldier, who was just signed for his first official mission.\nYour name is ");
+            a.setText("Welcome to the World of Shorin\n\nIn this world you are a 17 year old freshly trained soldier, who was just signed for his first official mission.\nYour name is ");
 
             Text b = Game.getInstance().spieler.getName();
 
             Text c = SceneBuilder.makeText();
+//todo check Text
+            Text d = SceneBuilder.makeText("\nYour Parents died in the Great war when you were 5 Years old. You didn't knew them well, but people say,  they were brave Soldiers fighting for Humanity.\nYoshua a Familyfriend and mentor, took care of you. Your wish is to take revange and defend Humanity against the Evil forces across the Rivers. Especially against the Orcs, since they killed your Parents.\n\n");
 
-            Text d = SceneBuilder.makeText("\nYour Parents died ");
+            Text e = SceneBuilder.makeText("At the Age of 12 you oficially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humans.\nYou spent most of the Time clearing disputes and Helping the Locals. But this Mission will change your live.");
 
 
-            /*
+            /*//todo aufräumen
 
             c.setText(".\n" + "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
                     "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +
@@ -72,7 +74,7 @@ public class Charaktererstellung {
             e.setText(".\n\nThere are more Races but they are not important right now.");
 */
 
-            spieltext.getChildren().addAll(a, b, c);
+            spieltext.getChildren().addAll(a, b, c, d, e);
 
 
         }
@@ -84,7 +86,7 @@ public class Charaktererstellung {
 
             Text b = Game.getInstance().whitebridge.getOrtText();
 
-            Text c = SceneBuilder.makeText();
+            Text c = SceneBuilder.makeText();//todo check text
             c.setText(", the first city outside the walls from ");
 
             Text d = Game.getInstance().sudbury.getOrtText();
@@ -106,23 +108,34 @@ public class Charaktererstellung {
             i.setFill(GameOptionen.highlightBlue);
 
             Text j = SceneBuilder.makeText();
-            j.setText("In 14 days there will be a convoy heading to ");
+            j.setText("In 2 days a convoy is heading towards ");
             j.setFill(GameOptionen.missionDescription);
 
             Text k = Game.getInstance().shallowmill.getOrtText();
 
             Text l = SceneBuilder.makeText();
-            l.setText(". \nYou will guard them on the journey and protect them if something should happen.\nThere are no dangers expected, but you will come close to the ");
+            l.setText(".\n");
             l.setFill(GameOptionen.missionDescription);
+
+            Text la = Game.getInstance().spieler.getName();
+
+//todo make Dave NPC color
+            Text lb = SceneBuilder.makeText(" and Dave will guard them on the journey and protect them against Human/Orc Thieves.\nThere are no dangers expected, but the party will come close to the ");
+            lb.setFill(GameOptionen.missionDescription);
 
             Text m = Game.getInstance().unbridledland.getOrtText();
 
-            Text n = SceneBuilder.makeText();
-            n.setText(".\nWatch out, you may encounter some thieves, so prepare and be mindful. You should also read a book about the Kitsune, as this is their homeland.");
+            Text n = SceneBuilder.makeText();//todo check text
+            n.setText(".\nIf there are Kitsune spottet, avoid the Fight. They wont attack and are no Threat to the group.\nWe expect to reach ");
             n.setFill(GameOptionen.missionDescription);
 
+            Text o = Game.getInstance().shallowmill.getOrtText();
 
-            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, m, n);
+            Text p = SceneBuilder.makeText(" in 3 Days. After Arrival The Caravan will depart again 2 Days Later.");
+            p.setFill(GameOptionen.missionDescription);
+
+
+            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, m, n, o, p);
         }
 
 
@@ -163,7 +176,7 @@ public class Charaktererstellung {
         if (stage == 3) {
             Button cont = SceneBuilder.makeButton();
             cont.setText("Start your story");
-            cont.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
+            cont.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.yourroom().getScene(0)));
 
             rowone.getChildren().addAll(cont);
         }

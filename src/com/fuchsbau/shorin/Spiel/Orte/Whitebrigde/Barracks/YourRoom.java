@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 
 
 public class YourRoom {
@@ -15,6 +16,13 @@ public class YourRoom {
     private Scene scene;
 
 
+    /***
+     *
+     * @param stage
+     * 0 = Vom Startbildschirm
+     * 1 = Visit
+     * 2 = Sit on Bed
+     */
     private void makeScene(int stage) {
 
 
@@ -22,8 +30,8 @@ public class YourRoom {
 
         if (stage == 0) {
             Text a = SceneBuilder.makeText();
-            a.setText("This is your old barracks room. \n\nIt´s a four bed room with a stone table for every person. Here you met Dave, he doesn't like xenos or in other words, non humans, but i can rely  on him and his skills." +
-                    "\nThe bed in the left Corner is your old one. 8 Years you lived on this bed");
+            a.setText("You're in your Barracksroom. \n\nIt´s a four bed room with a stone table for every person. Here you met Dave, he doesn't like xenos or in other words, non humans, but i can rely on him and his skills." +
+                    "\nThe bed in the left backcorner is yours. 8 Years you lived on this bed");
 
             flow.getChildren().addAll(a);
         } else if (stage == 1) {
