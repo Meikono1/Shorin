@@ -19,7 +19,7 @@ public class Waffe implements Item {
         this.zustand = zustand;
 
         beschreibung = SceneBuilder.makeText();
-        beschreibung.setText(material + " broadsword");
+        beschreibung.setText(material.getBeschreibung() + " Broadsword");
 
     }
 

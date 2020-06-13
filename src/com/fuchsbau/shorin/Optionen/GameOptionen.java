@@ -30,6 +30,7 @@ public class GameOptionen {
     public static Paint missionDescription = Paint.valueOf("638387");
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint ortcolor = Paint.valueOf("409970");
+    public static Paint goodPaint = Paint.valueOf("589214");
 
     private Scene scene;
 

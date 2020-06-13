@@ -6,11 +6,13 @@ import com.fuchsbau.shorin.Items.Waffen.Faust;
 public class Char {
 
     private int health;
+    private String beschreibung;
     Item Waffe = new Faust();
 
 
     public Char(int health) {
         this.health = health;
+        beschreibung = "Keine gesetzt";
     }
 
 
@@ -26,4 +28,11 @@ public class Char {
         return health;
     }
 
+    public void setBeschreibung(String beschreibung) {
+        this.beschreibung = beschreibung;
+    }
+
+    public String getBeschreibung() {
+        return beschreibung;
+    }
 }

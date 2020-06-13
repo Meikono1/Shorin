@@ -31,7 +31,7 @@ public class YourRoom {
         if (stage == 0) {
             Text a = SceneBuilder.makeText();
             a.setText("You're in your Barracksroom. \n\nIt´s a four bed room with a stone table for every person. Here you met Dave, he doesn't like xenos or in other words, non humans, but i can rely on him and his skills." +
-                    "\nThe bed in the left backcorner is yours. 8 Years you lived on this bed");
+                    "\nThe bed in the left backcorner is yours. 5 Years you lived on this bed");
 
             flow.getChildren().addAll(a);
         } else if (stage == 1) {

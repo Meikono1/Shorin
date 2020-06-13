@@ -52,13 +52,13 @@ public class Charaktererstellung {
             Text b = Game.getInstance().spieler.getName();
 
             Text c = SceneBuilder.makeText();
-//todo check Text
-            Text d = SceneBuilder.makeText("\nYour Parents died in the Great war when you were 5 Years old. You didn't knew them well, but people say,  they were brave Soldiers fighting for Humanity.\nYoshua a Familyfriend and mentor, took care of you. Your wish is to take revange and defend Humanity against the Evil forces across the Rivers. Especially against the Orcs, since they killed your Parents.\n\n");
+            //TODO check Text
+            Text d = SceneBuilder.makeText("\nYour Parents died in the Great war when you were 5 Years old. You didn't knew them well, but people say,  they were brave Soldiers fighting for Humanity.\nYoshua a Familyfriend and mentor, took care of you. Your wish is to take revange and defend Humanity against the Evil forces across the Rivers.\nEspecially against the Orcs, since they killed your Parents.\n\n");
 
             Text e = SceneBuilder.makeText("At the Age of 12 you oficially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humans.\nYou spent most of the Time clearing disputes and Helping the Locals. But this Mission will change your live.");
 
 
-            /*//todo aufräumen
+            /*//TODO aufräumen
 
             c.setText(".\n" + "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
                     "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +
@@ -86,7 +86,7 @@ public class Charaktererstellung {
 
             Text b = Game.getInstance().whitebridge.getOrtText();
 
-            Text c = SceneBuilder.makeText();//todo check text
+            Text c = SceneBuilder.makeText();//TODO check text
             c.setText(", the first city outside the walls from ");
 
             Text d = Game.getInstance().sudbury.getOrtText();
@@ -119,13 +119,13 @@ public class Charaktererstellung {
 
             Text la = Game.getInstance().spieler.getName();
 
-//todo make Dave NPC color
+            //TODO make Dave NPC color
             Text lb = SceneBuilder.makeText(" and Dave will guard them on the journey and protect them against Human/Orc Thieves.\nThere are no dangers expected, but the party will come close to the ");
             lb.setFill(GameOptionen.missionDescription);
 
             Text m = Game.getInstance().unbridledland.getOrtText();
 
-            Text n = SceneBuilder.makeText();//todo check text
+            Text n = SceneBuilder.makeText();//TODO check text
             n.setText(".\nIf there are Kitsune spottet, avoid the Fight. They wont attack and are no Threat to the group.\nWe expect to reach ");
             n.setFill(GameOptionen.missionDescription);
 
@@ -152,15 +152,12 @@ public class Charaktererstellung {
             Button annahme = SceneBuilder.makeButton();
             annahme.setText("Accept");
             annahme.setOnMouseClicked(event -> {
-
                 if (eingabe.getText().equals("")) {
                     Game.getInstance().spieler.setName("Jan");
                 } else {
                     Game.getInstance().spieler.setName(eingabe.getText());
                 }
                 Main.getStage().setScene(getScene(2));
-
-
             });
 
             rowone.getChildren().addAll(name, eingabe, annahme);

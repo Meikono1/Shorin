@@ -1,6 +1,5 @@
 package com.fuchsbau.shorin.Spiel;
 
-import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.geometry.Insets;
@@ -10,9 +9,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -77,7 +74,7 @@ public class SceneBuilder {
         Iterator<Item> iter = liste.iterator();
 
         while (iter.hasNext()) {
-            pane.getChildren().add(createItem(iter.next()));
+            pane.getChildren().add(createShopItem(iter.next()));
         }
 
         pane.getChildren().addAll(box);
@@ -241,7 +238,7 @@ public class SceneBuilder {
         return scrollPane;
     }
 
-    public static BorderPane makePlayerInventory(HBox erste, ScrollPane scrole, List<Item> liste) {
+    public static BorderPane makePlayerInventory(HBox erste, List<Item> liste, List<Item> equip) {
 
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOptionen.height);
@@ -250,6 +247,60 @@ public class SceneBuilder {
         haupt.setMaxWidth(GameOptionen.width);
         haupt.setBackground(GameOptionen.hintergrund);
 
+        //TODO Inventar erstellen
+
+        //Linken Abschnitt, Stats und Equipment
+        VBox left = new VBox();
+        left.setPrefWidth(200);
+
+        //Stats
+        VBox stats = new VBox();
+        Text health = makeText();
+        health.setText("Health: " + Game.getInstance().spieler.getHealth());
+        health.setFill(GameOptionen.goodPaint);
+        stats.getChildren().addAll(health);
+
+        //Equipment
+        VBox equipt = new VBox();
+        {
+            Iterator<Item> iter = equip.iterator();
+            while (iter.hasNext()) {
+                equipt.getChildren().add(createInventarItem(iter.next()));
+            }
+        }
+
+        left.getChildren().addAll(stats, equipt);
+
+        //Center Abschnitt
+        VBox center = new VBox();
+        center.setBackground(GameOptionen.hintergrund);
+        center.setPrefHeight(800);
+        center.setPrefWidth(GameOptionen.width);
+
+        //Beschreibung
+        VBox beschreibung = new VBox();
+        beschreibung.setPrefHeight(600);
+        Text allgemein = makeText();
+        allgemein.setText("Spieler: \n"+Game.getInstance().spieler.getBeschreibung());
+        //TODO spieler beschreibung generieren und einfügen.
+        beschreibung.getChildren().addAll(allgemein);
+
+        //Items abschnitt
+        //Items einfügen in Liste
+        VBox items = new VBox();
+        items.setBackground(GameOptionen.hintergrund);
+        {
+            Iterator<Item> iter = liste.iterator();
+            while (iter.hasNext()) {
+                items.getChildren().add(createInventarItem(iter.next()));
+            }
+        }
+
+
+        center.getChildren().addAll(beschreibung, items);
+
+        //Unteren Abschnitt
+        //Knöpfe unten auffüllen.
         int lauf = erste.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
             Button a = new Button();
@@ -257,55 +308,34 @@ public class SceneBuilder {
             erste.getChildren().add(a);
         }
 
-        HBox box = new HBox();
 
-        Text a = makeText();
-        a.setText("Blahblab          ");
-
-        Text b = makeText();
-        b.setText("Blahbdfgsfdhjhjfgdlab               ");
-        Text c = makeText();
-        c.setFill(Paint.valueOf("fcba03"));
-        c.setText("Bsdasdlahblab");
-
-        HBox boxd = new HBox();
-
-        Text pakz = SceneBuilder.makeText();
-        pakz.setText("Pakz <3<3<3    ");
-        pakz.setFill(Paint.valueOf("fc0303"));
-
-        boxd.getChildren().add(pakz);
-
-        box.getChildren().addAll(a, b);
-
-        HBox boxt = new HBox();
-        boxt.getChildren().add(c);
-
-        VBox pane = new VBox();
-
-        Iterator<Item> iter = liste.iterator();
-
-        while (iter.hasNext()) {
-            pane.getChildren().add(createItem(iter.next()));
-        }
-
-
-        pane.getChildren().addAll(box, boxt, boxd);
-        pane.setBackground(GameOptionen.hintergrund);
-        pane.setPrefHeight(800);
-        pane.setPrefWidth(GameOptionen.width);
-
-        scrole.setContent(pane);
-
-        haupt.setCenter(scrole);
+        haupt.setLeft(left);
+        haupt.setCenter(center);
         haupt.setBottom(erste);
 
         return haupt;
     }
 
-    private static HBox createItem(Item item) {
+    private static HBox createInventarItem(Item item) {
         HBox zurueck = new HBox();
-        zurueck.getChildren().addAll(item.getBeschreibung());
+        Button use = SceneBuilder.makeButton();
+        use.setBackground(GameOptionen.hintergrund);
+        use.setText("Use");
+        //TODO Button aussehen bearbeiten.
+        //TODO Use button funktion geben, von item abhängig.
+        zurueck.getChildren().addAll(item.getBeschreibung(), use);
+        zurueck.setBackground(GameOptionen.hintergrund);
+
+        return zurueck;
+    }
+
+    private static HBox createShopItem(Item item) {
+        HBox zurueck = new HBox();
+        // Button use = SceneBuilder.makeButton();
+        //use.setText("Buy");
+        //TODO Button aussehen bearbeiten.
+        //TODO Use button funktion geben, kaufen.
+        zurueck.getChildren().addAll(item.getBeschreibung()/*,use*/);
 
         return zurueck;
     }

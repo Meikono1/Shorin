@@ -30,7 +30,7 @@ public class Library {
         Button back = SceneBuilder.makeButton();
         back.setText("Back to Whitebridge");
         back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
-        //todo make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war
+        //TODO make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war
 
         dritte.getChildren().addAll(back);
 

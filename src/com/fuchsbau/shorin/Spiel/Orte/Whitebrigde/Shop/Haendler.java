@@ -21,11 +21,13 @@ public class Haendler {
 
     private void makeScene() {
 
+        //TODO Items hinzufügen
         Breitschwert breitschwert = new Breitschwert(1, 1, 1, Materialen.eisen);
-        Button broatbuy = SceneBuilder.makeButton();
-        broatbuy.setText("Buy Broadsword");
-        broatbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(breitschwert);
+        Button broadbuy = SceneBuilder.makeButton();
+
+        broadbuy.setText("Buy Broadsword");
+        broadbuy.setOnMouseClicked(mouseEvent -> {
+            Game.getInstance().inventory.addItem(new Breitschwert(1, 1, 1, Materialen.eisen));
         });
         liste.add(breitschwert);
 
@@ -40,7 +42,7 @@ public class Haendler {
 
         HBox erste = SceneBuilder.makeButtonrow();
 
-        erste.getChildren().addAll(broatbuy, healbuy);
+        erste.getChildren().addAll(broadbuy, healbuy);
 
 
         HBox zweite = SceneBuilder.makeButtonrow();

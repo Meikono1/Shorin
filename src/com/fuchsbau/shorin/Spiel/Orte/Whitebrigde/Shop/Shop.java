@@ -14,8 +14,6 @@ public class Shop {
 
     private void makeScene() {
 
-
-
         HBox erste = SceneBuilder.makeButtonrow();
 
         Button shopping = SceneBuilder.makeButton();

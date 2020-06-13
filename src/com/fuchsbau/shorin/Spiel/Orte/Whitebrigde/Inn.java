@@ -55,7 +55,7 @@ public class Inn {
         });
         erste.getChildren().add(buy);
 
-        //Todo let buy drink
+        //TODO let buy drink
         scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
 
     }
