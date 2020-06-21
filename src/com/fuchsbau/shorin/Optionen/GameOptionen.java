@@ -25,6 +25,7 @@ public class GameOptionen {
     public static int textsize = 21;
     public static Insets padding = new Insets(5, 10, 5, 10);
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
+    public static Background testbackground = new Background(new BackgroundFill(Color.valueOf("23423c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Paint timestamp = Paint.valueOf("734b4b");
     public static Paint highlightBlue = Paint.valueOf("4b6673");
     public static Paint missionDescription = Paint.valueOf("638387");

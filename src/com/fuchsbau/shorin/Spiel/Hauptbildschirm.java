@@ -2,11 +2,13 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -15,6 +17,8 @@ public class Hauptbildschirm {
     private Charaktererstellung charaktererstellung = new Charaktererstellung();
     private Scene scene;
     private String patchnotes = "Shorin Patch : 0.1";
+    int i = 0;
+    int j = 0;
 
     private void makeScene() {
         VBox top = new VBox();
@@ -41,6 +45,23 @@ public class Hauptbildschirm {
 
         Button laden = new Button("Load Game");
         laden.setPrefWidth(GameOptionen.buttonwidth);
+
+        laden.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getText()) {
+                    case "1":
+                        i++;
+                        System.out.println("Meikono: " + i);
+
+                        break;
+                    case "2":
+                        j++;
+                        System.out.println("Pakz: " + j);
+                        break;
+                }
+            }
+        });
 
         Button optionen = new Button("Optionen");
         optionen.setOnMouseClicked(event -> {

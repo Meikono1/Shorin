@@ -247,21 +247,26 @@ public class SceneBuilder {
         haupt.setMaxWidth(GameOptionen.width);
         haupt.setBackground(GameOptionen.hintergrund);
 
-        //TODO Inventar erstellen
-
         //Linken Abschnitt, Stats und Equipment
         VBox left = new VBox();
-        left.setPrefWidth(200);
+        left.setPrefWidth(250);
 
         //Stats
         VBox stats = new VBox();
+        stats.setPrefHeight(350);
+        Text stat = makeText();
+        stat.setText("Stats: ");
         Text health = makeText();
         health.setText("Health: " + Game.getInstance().spieler.getHealth());
         health.setFill(GameOptionen.goodPaint);
-        stats.getChildren().addAll(health);
+
+        stats.getChildren().addAll(stat, health);
 
         //Equipment
         VBox equipt = new VBox();
+        Text equ = makeText();
+        equ.setText("Equipped: ");
+        equipt.getChildren().addAll(equ);
         {
             Iterator<Item> iter = equip.iterator();
             while (iter.hasNext()) {
@@ -273,31 +278,61 @@ public class SceneBuilder {
 
         //Center Abschnitt
         VBox center = new VBox();
+        center.setPadding(GameOptionen.padding);
         center.setBackground(GameOptionen.hintergrund);
-        center.setPrefHeight(800);
-        center.setPrefWidth(GameOptionen.width);
+        center.setPrefWidth(780);
 
         //Beschreibung
-        VBox beschreibung = new VBox();
-        beschreibung.setPrefHeight(600);
+        TextFlow flow = new TextFlow();
+        flow.setPrefWidth(780);
+        flow.setPrefHeight(350);
         Text allgemein = makeText();
-        allgemein.setText("Spieler: \n"+Game.getInstance().spieler.getBeschreibung());
+        allgemein.setText("Spieler: \n" + Game.getInstance().spieler.getBeschreibung());
         //TODO spieler beschreibung generieren und einfügen.
-        beschreibung.getChildren().addAll(allgemein);
+        flow.getChildren().addAll(allgemein);
 
         //Items abschnitt
         //Items einfügen in Liste
         VBox items = new VBox();
-        items.setBackground(GameOptionen.hintergrund);
+
+        ScrollPane pane = new ScrollPane();
+        //TODO Color korrigieren
+        pane.prefHeight(350);
+        pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        pane.setVisible(false);
+        pane.setBackground(GameOptionen.hintergrund);
+
         {
             Iterator<Item> iter = liste.iterator();
             while (iter.hasNext()) {
                 items.getChildren().add(createInventarItem(iter.next()));
+                pane.setVisible(true);
             }
         }
+        pane.setContent(items);
 
+        center.getChildren().addAll(flow, pane);
 
-        center.getChildren().addAll(beschreibung, items);
+        //Rechter Abschnitt
+        VBox rechts = new VBox();
+        rechts.setPrefWidth(250);
+
+        //Relations
+        VBox relations = new VBox();
+        relations.setPrefHeight(350);
+        Text rel = makeText();
+        rel.setText("Relations: ");
+        relations.getChildren().addAll(rel);
+
+        //Follower
+        VBox follower = new VBox();
+        Text fol = makeText();
+        fol.setText("Entourage: ");
+        follower.getChildren().addAll(fol);
+
+        rechts.getChildren().addAll(relations, follower);
+
 
         //Unteren Abschnitt
         //Knöpfe unten auffüllen.
@@ -312,19 +347,24 @@ public class SceneBuilder {
         haupt.setLeft(left);
         haupt.setCenter(center);
         haupt.setBottom(erste);
+        haupt.setRight(rechts);
 
         return haupt;
     }
 
     private static HBox createInventarItem(Item item) {
         HBox zurueck = new HBox();
+        zurueck.setMinWidth(780);
         Button use = SceneBuilder.makeButton();
-        use.setBackground(GameOptionen.hintergrund);
+        use.prefWidth(230);
         use.setText("Use");
         //TODO Button aussehen bearbeiten.
         //TODO Use button funktion geben, von item abhängig.
-        zurueck.getChildren().addAll(item.getBeschreibung(), use);
+        Text beschreibung = item.getBeschreibung();
+        beschreibung.setWrappingWidth(550);
+        zurueck.getChildren().addAll(beschreibung, use);
         zurueck.setBackground(GameOptionen.hintergrund);
+        zurueck.setPadding(GameOptionen.padding);
 
         return zurueck;
     }

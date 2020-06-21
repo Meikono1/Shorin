@@ -35,7 +35,7 @@ public class Player extends Char {
         this.name.setText(name);
         this.name.setFill(Paint.valueOf("#ACB069"));
 
-        setBeschreibung("Your name is: "+name+".\nYou are an average Human with a height of 1.8 Meters. Do to your training you have a masculine Body.\n");
+        setBeschreibung("Your name is: "+name+".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
     }
 
     public void setAktuell(Scene aktuell) {
