@@ -8,5 +8,10 @@ public interface Item {
 
     public void setBeschreibung(Text beschreibung);
 
+    String getuseText();
+
+    void itemUse();
+
+    void dequip();
 }
 

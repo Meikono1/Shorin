@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Item;
+import com.fuchsbau.shorin.Items.Waffe;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -249,7 +250,7 @@ public class SceneBuilder {
 
         //Linken Abschnitt, Stats und Equipment
         VBox left = new VBox();
-        left.setPrefWidth(250);
+        left.setPrefWidth(300);
 
         //Stats
         VBox stats = new VBox();
@@ -270,7 +271,8 @@ public class SceneBuilder {
         {
             Iterator<Item> iter = equip.iterator();
             while (iter.hasNext()) {
-                equipt.getChildren().add(createInventarItem(iter.next()));
+                equipt.getChildren().add(createEquipItem(iter.next()));
+                //@TODO Methode für Equipte Items einfügen
             }
         }
 
@@ -300,14 +302,13 @@ public class SceneBuilder {
         pane.prefHeight(350);
         pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        pane.setVisible(false);
-        pane.setBackground(GameOptionen.hintergrund);
+        pane.setStyle("-fx-background: rgb(19,20,28);\n -fx-background-color: rgb(19,20,28)");
 
         {
             Iterator<Item> iter = liste.iterator();
             while (iter.hasNext()) {
-                items.getChildren().add(createInventarItem(iter.next()));
-                pane.setVisible(true);
+                HBox next = createInventarItem(iter.next());
+                items.getChildren().add(next);
             }
         }
         pane.setContent(items);
@@ -352,14 +353,35 @@ public class SceneBuilder {
         return haupt;
     }
 
+    private static HBox createEquipItem(Item item) {
+        HBox zurueck = new HBox();
+        Button use = SceneBuilder.makeItemButton();
+        use.setText("Unequip");
+        use.setOnMouseClicked(event -> {
+            item.dequip();
+            Main.getStage().setScene(Game.getInstance().inventory.getScene());
+        });
+        //TODO Button aussehen bearbeiten.
+        Text beschreibung = item.getBeschreibung();
+        beschreibung.setWrappingWidth(0);
+        zurueck.getChildren().addAll(beschreibung, use);
+        zurueck.setBackground(GameOptionen.hintergrund);
+        zurueck.setPadding(GameOptionen.padding);
+
+        return zurueck;
+    }
+
     private static HBox createInventarItem(Item item) {
         HBox zurueck = new HBox();
         zurueck.setMinWidth(780);
-        Button use = SceneBuilder.makeButton();
+        Button use = SceneBuilder.makeItemButton();
         use.prefWidth(230);
-        use.setText("Use");
+        use.setText(item.getuseText());
+        use.setOnMouseClicked(event -> {
+            item.itemUse();
+            Main.getStage().setScene(Game.getInstance().inventory.getScene());
+        });
         //TODO Button aussehen bearbeiten.
-        //TODO Use button funktion geben, von item abhängig.
         Text beschreibung = item.getBeschreibung();
         beschreibung.setWrappingWidth(550);
         zurueck.getChildren().addAll(beschreibung, use);
@@ -367,6 +389,12 @@ public class SceneBuilder {
         zurueck.setPadding(GameOptionen.padding);
 
         return zurueck;
+    }
+
+    private static Button makeItemButton() {
+        Button button = new Button();
+        button.setMinWidth(GameOptionen.itembuttonwidth);
+        return button;
     }
 
     private static HBox createShopItem(Item item) {

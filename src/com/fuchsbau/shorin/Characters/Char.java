@@ -35,4 +35,8 @@ public class Char {
     public String getBeschreibung() {
         return beschreibung;
     }
+
+    public void heal(int i) {
+        health += i;
+    }
 }

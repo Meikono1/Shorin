@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Items;
 
+import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
@@ -32,5 +33,20 @@ public class Waffe implements Item {
     @Override
     public void setBeschreibung(Text beschreibung) {
         this.beschreibung = beschreibung;
+    }
+
+    @Override
+    public String getuseText() {
+        return "Equip";
+    }
+
+    @Override
+    public void itemUse() {
+        Game.getInstance().inventory.equip(this);
+    }
+
+    @Override
+    public void dequip() {
+        Game.getInstance().inventory.dequip(this);
     }
 }

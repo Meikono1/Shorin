@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Items;
 
+import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
@@ -19,5 +20,22 @@ public class Potion implements Item {
     @Override
     public void setBeschreibung(Text beschreibung) {
         this.beschreibung = beschreibung;
+    }
+
+    @Override
+    public String getuseText() {
+        return "Drink";
+    }
+
+    @Override
+    public void itemUse() {
+        Game.getInstance().spieler.heal(50);
+        Game.getInstance().inventory.remove(this);
+    }
+
+    @Override
+    public void dequip() {
+        //cant be dequiped
+        return;
     }
 }

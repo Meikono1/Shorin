@@ -20,6 +20,7 @@ public class GameOptionen {
     public static double width = 1280;
     public static double height = 720;
     public static double buttonwidth = 160;
+    public static double itembuttonwidth = 100;
     public static double imagewidth = 170;
     public static double imageheight = 170;
     public static int textsize = 21;
@@ -32,6 +33,7 @@ public class GameOptionen {
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint ortcolor = Paint.valueOf("409970");
     public static Paint goodPaint = Paint.valueOf("589214");
+
 
     private Scene scene;
 

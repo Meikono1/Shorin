@@ -48,4 +48,19 @@ public class Inventory {
         makeScene();
         return scene;
     }
+
+    public void equip(Waffe waffe) {
+        equip.add(waffe);
+        items.remove(waffe);
+    }
+
+    public void dequip(Waffe waffe) {
+        equip.remove(waffe);
+        items.add(waffe);
+    }
+
+    public void remove(Item item) {
+        items.remove(item);
+
+    }
 }
