@@ -14,7 +14,6 @@ public class Main extends Application {
     }
 
 
-
     public static Stage getStage() {
 
         Game.getInstance().update();
@@ -28,6 +27,8 @@ public class Main extends Application {
         Main.stage.setResizable(true);
         stage.setHeight(GameOptionen.height);
         stage.setWidth(GameOptionen.width);
+        stage.setMinWidth(GameOptionen.width);
+        stage.setMinHeight(GameOptionen.height);
         stage.setTitle("Shorin");
         stage.setScene(new Hauptbildschirm().getScene());
         stage.show();

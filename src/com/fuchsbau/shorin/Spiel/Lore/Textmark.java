@@ -6,15 +6,16 @@ import javafx.scene.text.Text;
 
 public class Textmark {
 
-    private Text name = SceneBuilder.makeText();
+    private String name;
 
     public Textmark(String name) {
-        this.name.setText(name);
-        this.name.setFill(GameOptionen.timestamp);
+        this.name = name;
 
     }
 
     public Text getName() {
-        return name;
+        Text back = SceneBuilder.makeText(name);
+        back.setFill(GameOptionen.timestamp);
+        return back;
     }
 }

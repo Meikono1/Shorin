@@ -1,6 +1,5 @@
 package com.fuchsbau.shorin.Characters;
 
-import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.paint.Paint;
@@ -11,7 +10,6 @@ public class Player extends Char {
 
 
     private Scene aktuell;
-    private Inventory inventory = new Inventory();
 
     public int kitsune = 0;
 
@@ -20,7 +18,7 @@ public class Player extends Char {
     1 = buch gelesen in Bibliothek
 
      */
-    private Text name = SceneBuilder.makeText();
+    private String name;
 
 
     public Player() {
@@ -28,14 +26,16 @@ public class Player extends Char {
     }
 
     public Text getName() {
-        return name;
+        Text back = SceneBuilder.makeText(name);
+        back.setFill(Paint.valueOf("#ACB069"));
+        return back;
     }
 
     public void setName(String name) {
-        this.name.setText(name);
-        this.name.setFill(Paint.valueOf("#ACB069"));
+        this.name = name;
 
-        setBeschreibung("Your name is: "+name+".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
+        //@TODO name color
+        setBeschreibung("Your name is: " + name + ".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
     }
 
     public void setAktuell(Scene aktuell) {

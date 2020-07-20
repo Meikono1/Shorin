@@ -28,7 +28,7 @@ public class Hauptbildschirm {
         top.getChildren().add(patch);
 
         HBox boxone = new HBox();
-        boxone.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        boxone.setBackground(GameOptionen.rowHintergrund);
         boxone.setSpacing(10);
         boxone.setPrefHeight(100);
         boxone.setAlignment(Pos.CENTER);
@@ -46,28 +46,11 @@ public class Hauptbildschirm {
         Button laden = new Button("Load Game");
         laden.setPrefWidth(GameOptionen.buttonwidth);
 
-        laden.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                switch (event.getText()) {
-                    case "1":
-                        i++;
-                        System.out.println("Meikono: " + i);
-
-                        break;
-                    case "2":
-                        j++;
-                        System.out.println("Pakz: " + j);
-                        break;
-                }
-            }
-        });
 
         Button optionen = new Button("Optionen");
         optionen.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin - Optionen");
-            Main.getStage().setScene(new GameOptionen().getScene());
-            Main.getStage().setResizable(false);
+            Main.getStage().setScene(Game.getInstance().optionen.getScene(0));
         });
         optionen.setPrefWidth(GameOptionen.buttonwidth);
 

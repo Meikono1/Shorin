@@ -55,10 +55,10 @@ public class Charaktererstellung {
             //TODO check Text
             Text d = SceneBuilder.makeText("\nYour Parents died in the Great war when you were 5 Years old. You didn't knew them well, but people say,  they were brave Soldiers fighting for Humanity.\nYoshua a Familyfriend and mentor, took care of you. Your wish is to take revange and defend Humanity against the Evil forces across the Rivers.\nEspecially against the Orcs, since they killed your Parents.\n\n");
 
-            Text e = SceneBuilder.makeText("At the Age of 12 you oficially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humans.\nYou spent most of the Time clearing disputes and Helping the Locals. But this Mission will change your live.");
+            Text e = SceneBuilder.makeText("At the Age of 12 you officially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humans.\nYou spent most of the Time clearing disputes and Helping the Locals. But this Mission will change your live.");
 
 
-            /*//TODO aufräumen
+            /*//TODO aufräumen in book
 
             c.setText(".\n" + "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
                     "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +

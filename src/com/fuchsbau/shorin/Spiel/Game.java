@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.Spiel;
 import com.fuchsbau.shorin.Characters.Humans.Dave;
 import com.fuchsbau.shorin.Characters.Player;
 import com.fuchsbau.shorin.Items.Inventory;
+import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Orte.Platz;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks.Joshua;
 import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Whitebridge;
@@ -13,6 +14,7 @@ import com.fuchsbau.shorin.Spiel.Orte.Sudbury.Sudbury;
 
 public class Game {
     private static Game ourInstance = new Game();
+    public GameOptionen optionen = new GameOptionen();
     public Inventory inventory = new Inventory();
     public Player spieler = new Player();
     public Joshua joshua = new Joshua();

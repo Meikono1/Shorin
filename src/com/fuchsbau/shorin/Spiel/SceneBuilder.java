@@ -11,11 +11,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import javax.swing.*;
 import java.util.Iterator;
 import java.util.List;
 
@@ -149,11 +151,13 @@ public class SceneBuilder {
         }
 
         VBox unten = new VBox();
+        unten.setBackground(GameOptionen.rowHintergrund);
 
         unten.getChildren().addAll(erste, zweite, dritte);
 
         VBox charakter = new VBox();
         charakter.setPrefWidth(GameOptionen.imagewidth + 15);
+        charakter.setMaxWidth(GameOptionen.imagewidth + 40);
 
         Label name = new Label();
         name.setFont(Font.font("Cambria", 22));
@@ -240,7 +244,6 @@ public class SceneBuilder {
     }
 
     public static BorderPane makePlayerInventory(HBox erste, List<Item> liste, List<Item> equip) {
-
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOptionen.height);
         haupt.setPrefWidth(GameOptionen.width);
@@ -275,6 +278,7 @@ public class SceneBuilder {
                 //@TODO Methode für Equipte Items einfügen
             }
         }
+
 
         left.getChildren().addAll(stats, equipt);
 
@@ -338,11 +342,18 @@ public class SceneBuilder {
         //Unteren Abschnitt
         //Knöpfe unten auffüllen.
         int lauf = erste.getChildren().size();
-        for (int i = 0; i < (7 - lauf); i++) {
+        for (int i = 0; i < (6 - lauf); i++) {
             Button a = new Button();
             a.setPrefWidth(GameOptionen.buttonwidth);
             erste.getChildren().add(a);
         }
+        Button option = makeButton();
+        option.setText("Options");
+        option.setOnMouseClicked(event -> {
+            Main.getStage().setTitle("Shorin - Optionen");
+            Main.getStage().setScene(Game.getInstance().optionen.getScene(1));
+        });
+        erste.getChildren().add(option);
 
 
         haupt.setLeft(left);
