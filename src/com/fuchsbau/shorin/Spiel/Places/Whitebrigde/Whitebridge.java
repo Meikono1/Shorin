@@ -1,11 +1,11 @@
-package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
+package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
 import com.fuchsbau.shorin.Spiel.Main;
-import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Shop.Shop;
+import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop.Shop;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Orte.Platz;
-import com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks.Barracks;
+import com.fuchsbau.shorin.Spiel.Places.Platz;
+import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks.Barracks;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;

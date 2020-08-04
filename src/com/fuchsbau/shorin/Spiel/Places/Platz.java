@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Spiel.Orte;
+package com.fuchsbau.shorin.Spiel.Places;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;

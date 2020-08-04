@@ -1,6 +1,6 @@
-package com.fuchsbau.shorin.Spiel.Orte.Sudbury;
+package com.fuchsbau.shorin.Spiel.Places.Sudbury;
 
-import com.fuchsbau.shorin.Spiel.Orte.Platz;
+import com.fuchsbau.shorin.Spiel.Places.Platz;
 
 public class Sudbury extends Platz {
 

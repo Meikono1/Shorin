@@ -5,11 +5,11 @@ import com.fuchsbau.shorin.Items.Waffe;
 
 public class Faust extends Waffe {
     public Faust() {
-        super(2,1,1,Materialen.stein);
+        super(2, 1, 1, Materialen.stein, "Steinfaust");
 
     }
 
-    public Faust(int schaden, int zustand, int qualitaet, Materialen material) {
-        super(schaden, zustand, qualitaet, material);
+    public Faust(int schaden, int zustand, int qualitaet, Materialen material, String text) {
+        super(schaden, zustand, qualitaet, material, text);
     }
 }

@@ -12,7 +12,7 @@ public class Waffe implements Item {
     private int schaden;
     private int zustand;
 
-    public Waffe(int schaden, int zustand, int qualitaet, Materialen material) {
+    public Waffe(int schaden, int zustand, int qualitaet, Materialen material, String text) {
 
         this.material = material;
         this.qualitaet = qualitaet;
@@ -20,7 +20,7 @@ public class Waffe implements Item {
         this.zustand = zustand;
 
         beschreibung = SceneBuilder.makeText();
-        beschreibung.setText(material.getBeschreibung() + " Broadsword");
+        beschreibung.setText(material.getBeschreibung() + "  " + text);
 
     }
 
@@ -48,5 +48,16 @@ public class Waffe implements Item {
     @Override
     public void dequip() {
         Game.getInstance().inventory.dequip(this);
+    }
+
+    @Override
+    public String toString() {
+        return "Waffe{" +
+                "beschreibung=" + beschreibung.getText() +
+                ", material=" + material +
+                ", qualitaet=" + qualitaet +
+                ", schaden=" + schaden +
+                ", zustand=" + zustand +
+                '}';
     }
 }

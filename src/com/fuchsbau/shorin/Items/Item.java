@@ -13,5 +13,8 @@ public interface Item {
     void itemUse();
 
     void dequip();
+
+    @Override
+    String toString();
 }
 

@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
+package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop;
 
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
@@ -7,11 +7,22 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 
-public class Entrance {
-    // TODO: 23.09.2019  make entrance
+public class Shop {
+
+    // TODO: 02.09.2019  Make shop
     private Scene scene;
 
-    private void makeScene(){
+    private void makeScene() {
+
+        HBox erste = SceneBuilder.makeButtonrow();
+
+        Button shopping = SceneBuilder.makeButton();
+        shopping.setText("Buy Items");
+        shopping.setOnMouseClicked(event -> {
+            Main.getStage().setScene(new Haendler().getScene());
+        });
+
+        erste.getChildren().add(shopping);
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
@@ -21,12 +32,13 @@ public class Entrance {
 
         dritte.getChildren().addAll(back);
 
-        scene = new Scene(SceneBuilder.buildGameScene(null,null,dritte,null));
+        scene = new Scene(SceneBuilder.buildGameScene(erste,null,dritte,null));
 
     }
 
 
     public Scene getScene() {
+
         makeScene();
         Game.getInstance().spieler.setAktuell(scene);
         return scene;

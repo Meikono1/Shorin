@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Shop;
+package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Materialen;
@@ -22,12 +22,12 @@ public class Haendler {
     private void makeScene() {
 
         //TODO Items hinzufügen
-        Breitschwert breitschwert = new Breitschwert(1, 1, 1, Materialen.eisen);
+        Breitschwert breitschwert = new Breitschwert(1, 1, 1, Materialen.eisen, "Iron Broadsword");
         Button broadbuy = SceneBuilder.makeButton();
 
         broadbuy.setText("Buy Broadsword");
         broadbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(new Breitschwert(1, 1, 1, Materialen.eisen));
+            Game.getInstance().inventory.addItem(new Breitschwert(1, 1, 1, Materialen.eisen, "Iron Broadsword"));
         });
         liste.add(breitschwert);
 

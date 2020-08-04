@@ -1,8 +1,5 @@
-package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
+package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
-import com.fuchsbau.shorin.Characters.Player;
-import com.fuchsbau.shorin.Items.Inventory;
-import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;

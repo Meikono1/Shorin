@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde;
+package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;

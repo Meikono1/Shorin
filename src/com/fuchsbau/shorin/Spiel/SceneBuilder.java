@@ -243,7 +243,7 @@ public class SceneBuilder {
         return scrollPane;
     }
 
-    public static BorderPane makePlayerInventory(HBox erste, List<Item> liste, List<Item> equip) {
+    public static BorderPane makePlayerInventory(HBox erste, List<Item> liste, Item head, Item chest, Item arms, Item pants, Item boots, Item weapon) {
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOptionen.height);
         haupt.setPrefWidth(GameOptionen.width);
@@ -272,11 +272,15 @@ public class SceneBuilder {
         equ.setText("Equipped: ");
         equipt.getChildren().addAll(equ);
         {
-            Iterator<Item> iter = equip.iterator();
-            while (iter.hasNext()) {
-                equipt.getChildren().add(createEquipItem(iter.next()));
-                //@TODO Methode für Equipte Items einfügen
-            }
+
+            equipt.getChildren().add(createEquipItem(head));
+            equipt.getChildren().add(createEquipItem(chest));
+            equipt.getChildren().add(createEquipItem(arms));
+            equipt.getChildren().add(createEquipItem(pants));
+            equipt.getChildren().add(createEquipItem(boots));
+            equipt.getChildren().add(createEquipItem(weapon));
+            //@TODO Methode für Equipte Items einfügen
+
         }
 
 

@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Spiel.Orte.Whitebrigde.Barracks;
+package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks;
 
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
@@ -8,7 +8,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 
 
 public class YourRoom {
@@ -49,6 +48,7 @@ public class YourRoom {
         if (stage == 0) {
             Button bed = SceneBuilder.makeButton();
             bed.setText("Sit on your old bed");
+            //@TODO Tagebuch einführen mit geschichte
             bed.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
 
             erste.getChildren().addAll(bed);
