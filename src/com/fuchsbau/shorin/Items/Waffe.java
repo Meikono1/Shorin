@@ -6,7 +6,7 @@ import javafx.scene.text.Text;
 
 public class Waffe implements Item {
 
-    private Text beschreibung = SceneBuilder.makeText();
+    private String beschreibung;
     private Materialen material;
     private int qualitaet;
     private int schaden;
@@ -19,19 +19,20 @@ public class Waffe implements Item {
         this.schaden = schaden;
         this.zustand = zustand;
 
-        beschreibung = SceneBuilder.makeText();
-        beschreibung.setText(material.getBeschreibung() + "  " + text);
+        beschreibung = text;
+
 
     }
 
 
     @Override
     public Text getBeschreibung() {
-        return beschreibung;
+        return SceneBuilder.makeText(beschreibung);
+
     }
 
     @Override
-    public void setBeschreibung(Text beschreibung) {
+    public void setBeschreibung(String beschreibung) {
         this.beschreibung = beschreibung;
     }
 
@@ -53,7 +54,7 @@ public class Waffe implements Item {
     @Override
     public String toString() {
         return "Waffe{" +
-                "beschreibung=" + beschreibung.getText() +
+                "beschreibung=" + beschreibung+
                 ", material=" + material +
                 ", qualitaet=" + qualitaet +
                 ", schaden=" + schaden +

@@ -5,20 +5,20 @@ import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class Potion implements Item {
-    private Text beschreibung = SceneBuilder.makeText();
+    private String beschreibung;
 
     public Potion(String text) {
-        beschreibung.setText(text);
+        beschreibung = text;
     }
 
 
     @Override
     public Text getBeschreibung() {
-        return beschreibung;
+        return SceneBuilder.makeText(beschreibung);
     }
 
     @Override
-    public void setBeschreibung(Text beschreibung) {
+    public void setBeschreibung(String beschreibung) {
         this.beschreibung = beschreibung;
     }
 

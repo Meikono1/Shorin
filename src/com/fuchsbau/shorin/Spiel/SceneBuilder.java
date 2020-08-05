@@ -368,8 +368,10 @@ public class SceneBuilder {
         return haupt;
     }
 
-    private static HBox createEquipItem(Item item) {
-        HBox zurueck = new HBox();
+    private static VBox createEquipItem(Item item) {
+        VBox back = new VBox();
+
+        HBox oben = new HBox();
         Button use = SceneBuilder.makeItemButton();
         use.setText("Unequip");
         use.setOnMouseClicked(event -> {
@@ -378,12 +380,23 @@ public class SceneBuilder {
         });
         //TODO Button aussehen bearbeiten.
         Text beschreibung = item.getBeschreibung();
-        beschreibung.setWrappingWidth(0);
-        zurueck.getChildren().addAll(beschreibung, use);
-        zurueck.setBackground(GameOptionen.hintergrund);
-        zurueck.setPadding(GameOptionen.padding);
+        beschreibung.prefWidth(150);
+        beschreibung.minWidth(150);
+        beschreibung.maxWidth(150);
+        //beschreibung.setWrappingWidth(0);
 
-        return zurueck;
+        HBox size = new HBox();
+        size.getChildren().add(beschreibung);
+        size.setMinWidth(180);
+        oben.getChildren().addAll(size, use);
+        oben.setBackground(GameOptionen.hintergrund);
+        oben.setPadding(GameOptionen.padding);
+
+        Text unten = makeText("Stats  0,   0,   0");
+
+        back.getChildren().addAll(oben, unten);
+
+        return back;
     }
 
     private static HBox createInventarItem(Item item) {

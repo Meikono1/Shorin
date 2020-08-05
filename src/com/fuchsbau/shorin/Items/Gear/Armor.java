@@ -6,21 +6,21 @@ import javafx.scene.text.Text;
 
 public class Armor implements Item {
 
-    private Text beschreibung;
+    private String beschreibung;
     private Slot slot;
 
     public Armor(int armor, int qualitaet, String text, Slot slot) {
         this.slot = slot;
-        beschreibung = SceneBuilder.makeText(text);
+        beschreibung = text;
     }
 
     @Override
     public Text getBeschreibung() {
-        return beschreibung;
+        return SceneBuilder.makeText(beschreibung);
     }
 
     @Override
-    public void setBeschreibung(Text beschreibung) {
+    public void setBeschreibung(String beschreibung) {
         this.beschreibung = beschreibung;
 
     }

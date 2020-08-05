@@ -6,7 +6,7 @@ public interface Item {
 
     public Text getBeschreibung();
 
-    public void setBeschreibung(Text beschreibung);
+    public void setBeschreibung(String beschreibung);
 
     String getuseText();
 
