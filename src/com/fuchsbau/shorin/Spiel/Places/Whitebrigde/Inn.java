@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -10,7 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Inn {
+public class Inn implements Saveble {
 
     private Scene scene;
     private Barkeeper barkeeper = new Barkeeper();
@@ -30,14 +31,14 @@ public class Inn {
         Button back = SceneBuilder.makeButton();
 
         back.setText("Back to Whitebridge");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
+        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
 
         flow.getChildren().addAll(intro);
 
         //TODO Make Barkeeper
         Button bar = SceneBuilder.makeButton();
         bar.setText("Talk to barkeeper");
-        bar.setOnMouseClicked(event -> Main.getStage().setScene(barkeeper.getScene()));
+        bar.setOnMouseClicked(event -> Main.getStage().setScene(barkeeper.getScene(0)));
 
         dritte.getChildren().add(back);
 
@@ -57,15 +58,15 @@ public class Inn {
 
     }
 
-
-    public Scene getScene() {
+@Override
+    public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 
 
-    private class Barkeeper {
+    private class Barkeeper implements Saveble {
 
         Scene scene;
 
@@ -73,10 +74,10 @@ public class Inn {
 
         }
 
-
-        private Scene getScene() {
+        @Override
+        public Scene getScene(int stage) {
             makeScene();
-            Game.getInstance().spieler.setAktuell(scene);
+            Game.getInstance().spieler.setAktuell(this, stage);
             return scene;
         }
 

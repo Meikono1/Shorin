@@ -13,7 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
-public class Hauptbildschirm {
+public class Hauptbildschirm implements Saveble {
     private Charaktererstellung charaktererstellung = new Charaktererstellung();
     private Scene scene;
     private String patchnotes = "Shorin Patch : 0.1";
@@ -66,10 +66,10 @@ public class Hauptbildschirm {
 
     }
 
-
-    public Scene getScene() {
+    @Override
+    public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 

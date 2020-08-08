@@ -110,7 +110,7 @@ public class GameOptionen {
         back.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin");
             if (stage == 0) {
-                Main.getStage().setScene(new Hauptbildschirm().getScene());
+                Main.getStage().setScene(new Hauptbildschirm().getScene(0));
             } else {
                 Main.getStage().setScene(Game.getInstance().inventory.getScene());
             }

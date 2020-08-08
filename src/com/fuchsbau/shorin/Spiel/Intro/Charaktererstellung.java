@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Spiel.Intro;
 
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
@@ -14,7 +15,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Charaktererstellung {
+public class Charaktererstellung implements Saveble {
 
     private Scene scene;
 
@@ -183,10 +184,10 @@ public class Charaktererstellung {
 
     }
 
-
+    @Override
     public Scene getScene(int stage) {
         makeScene(stage);
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 }

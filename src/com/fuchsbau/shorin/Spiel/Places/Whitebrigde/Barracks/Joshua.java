@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks;
 
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -9,7 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Joshua {
+public class Joshua implements Saveble {
     public int gone = 0;
     private Scene scene;
     private int favor = 0;
@@ -79,7 +80,6 @@ public class Joshua {
 
             gone = 10;
 
-
             flow.getChildren().add(a);
         } else if (stage != 1) {
             Button family = SceneBuilder.makeButton();
@@ -117,7 +117,7 @@ public class Joshua {
 
             Button zurueck = SceneBuilder.makeButton();
             zurueck.setText("Back to barracks");
-            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene()));
+            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene(0)));
 
 
             dritte.getChildren().addAll(zurueck);
@@ -168,7 +168,7 @@ public class Joshua {
     public Scene getScene(int stage) {
         this.stage = stage;
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 
@@ -177,5 +177,6 @@ public class Joshua {
             gone--;
         }
     }
+
 
 }

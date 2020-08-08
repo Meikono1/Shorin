@@ -7,6 +7,7 @@ import com.fuchsbau.shorin.Items.Gear.Oberkörper.Clothchest;
 import com.fuchsbau.shorin.Items.Gear.Schuhe.Clothboots;
 import com.fuchsbau.shorin.Items.Gear.Unterkörper.Clothpants;
 import com.fuchsbau.shorin.Items.Waffen.Faust;
+import com.fuchsbau.shorin.Items.Waffen.Waffe;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;

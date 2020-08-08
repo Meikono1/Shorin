@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop.Shop;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Places.Platz;
@@ -12,7 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Whitebridge extends Platz {
+public class Whitebridge extends Platz implements Saveble {
 
     public Barracks barracks = new Barracks();
     private Inn inn = new Inn();
@@ -64,7 +65,6 @@ public class Whitebridge extends Platz {
             flow.getChildren().addAll(f, g, h);
         }
 
-
         Text i = SceneBuilder.makeText();
         i.setText("Next to the town centre is a library. You can also go into the tavern to inquire about rumours concerning the surroundings.\n" +
                 "If you have the money you may visit the local shop.\n\n");
@@ -102,23 +102,23 @@ public class Whitebridge extends Platz {
 
         Button library = SceneBuilder.makeButton();
         library.setText("Library");
-        library.setOnMouseClicked(event -> Main.getStage().setScene(this.library.getScene()));
+        library.setOnMouseClicked(event -> Main.getStage().setScene(this.library.getScene(0)));
 
         Button shop = SceneBuilder.makeButton();
         shop.setText("Shop");
-        shop.setOnMouseClicked(event -> Main.getStage().setScene(this.shop.getScene()));
+        shop.setOnMouseClicked(event -> Main.getStage().setScene(this.shop.getScene(0)));
 
         Button entrance = SceneBuilder.makeButton();
         entrance.setText("Main Entrance");
-        entrance.setOnMouseClicked(event -> Main.getStage().setScene(this.entrance.getScene()));
+        entrance.setOnMouseClicked(event -> Main.getStage().setScene(this.entrance.getScene(0)));
 
         Button barracks = SceneBuilder.makeButton();
         barracks.setText("Barracks");
-        barracks.setOnMouseClicked(event -> Main.getStage().setScene(this.barracks.getScene()));
+        barracks.setOnMouseClicked(event -> Main.getStage().setScene(this.barracks.getScene(0)));
 
         Button inn = SceneBuilder.makeButton();
         inn.setText("Inn");
-        inn.setOnMouseClicked(event -> Main.getStage().setScene(this.inn.getScene()));
+        inn.setOnMouseClicked(event -> Main.getStage().setScene(this.inn.getScene(0)));
 
 
         dritte.getChildren().addAll(entrance, shop, inn, library, barracks);
@@ -127,11 +127,10 @@ public class Whitebridge extends Platz {
 
     }
 
-
-    public Scene getScene() {
+    @Override
+    public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
-
     }
 }

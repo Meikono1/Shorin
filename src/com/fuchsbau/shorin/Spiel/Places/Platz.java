@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Spiel.Places;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import javafx.scene.Scene;
 import javafx.scene.text.Text;
 
 public class Platz {

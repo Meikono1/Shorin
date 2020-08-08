@@ -1,7 +1,6 @@
 package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Item;
-import com.fuchsbau.shorin.Items.Waffe;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,13 +10,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import javax.swing.*;
 import java.util.Iterator;
 import java.util.List;
 

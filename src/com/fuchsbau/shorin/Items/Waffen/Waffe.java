@@ -1,5 +1,7 @@
-package com.fuchsbau.shorin.Items;
+package com.fuchsbau.shorin.Items.Waffen;
 
+import com.fuchsbau.shorin.Items.Item;
+import com.fuchsbau.shorin.Items.Materialen;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;

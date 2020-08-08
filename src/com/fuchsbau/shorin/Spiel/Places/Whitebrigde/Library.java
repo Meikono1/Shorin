@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
@@ -10,7 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Library {
+public class Library implements Saveble {
 
     private Scene scene;
 
@@ -29,7 +30,7 @@ public class Library {
 
         Button back = SceneBuilder.makeButton();
         back.setText("Back to Whitebridge");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
+        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
         //TODO make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war
 
         dritte.getChildren().addAll(back);
@@ -38,10 +39,10 @@ public class Library {
         scene = new Scene(pane);
     }
 
-
-    public Scene getScene() {
+    @Override
+    public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 

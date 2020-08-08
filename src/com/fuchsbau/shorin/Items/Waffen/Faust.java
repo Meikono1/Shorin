@@ -1,7 +1,6 @@
 package com.fuchsbau.shorin.Items.Waffen;
 
 import com.fuchsbau.shorin.Items.Materialen;
-import com.fuchsbau.shorin.Items.Waffe;
 
 public class Faust extends Waffe {
     public Faust() {

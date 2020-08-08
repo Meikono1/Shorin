@@ -6,6 +6,7 @@ import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Items.Waffen.Breitschwert;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -14,7 +15,7 @@ import javafx.scene.layout.HBox;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Haendler {
+public class Haendler implements Saveble {
     private Scene scene;
     private List<Item> liste = new ArrayList<Item>();
 
@@ -51,7 +52,7 @@ public class Haendler {
 
         back.setText("back to the shop");
         back.setOnMouseClicked(event -> {
-            Main.getStage().setScene(new Shop().getScene());
+            Main.getStage().setScene(new Shop().getScene(0));
         });
 
 
@@ -62,9 +63,10 @@ public class Haendler {
 
     }
 
-    public Scene getScene() {
+    @Override
+    public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 }

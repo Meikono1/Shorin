@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Characters.Humans;
 
 import com.fuchsbau.shorin.Characters.Char;
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
@@ -11,7 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Dave extends Char {
+public class Dave extends Char implements Saveble {
 
 
     private Scene scene;
@@ -97,7 +98,7 @@ public class Dave extends Char {
 
         if (ort == 1) {
             zurueck.setText("Back to Whitebridge");
-            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene()));
+            zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
             dritte.getChildren().add(zurueck);
         }
 
@@ -106,10 +107,11 @@ public class Dave extends Char {
 
     }
 
+    @Override
     public Scene getScene(int ort) {
 
         buildScene(ort);
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, ort);
         return scene;
     }
 

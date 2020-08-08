@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks;
 
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
@@ -9,7 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Training {
+public class Training implements Saveble {
 
     private Scene scene;
 
@@ -27,7 +28,7 @@ public class Training {
 
         Button zurueck = SceneBuilder.makeButton();
         zurueck.setText("Back to the barracks");
-        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene()));
+        zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene(0)));
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
@@ -37,10 +38,11 @@ public class Training {
         scene = new Scene(SceneBuilder.buildGameScene(null, null, dritte, flow));
     }
 
-    public Scene getScene() {
+    @Override
+    public Scene getScene(int stage) {
 
         makeScene();
-        Game.getInstance().spieler.setAktuell(scene);
+        Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
 }
