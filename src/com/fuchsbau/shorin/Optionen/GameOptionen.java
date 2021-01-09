@@ -28,12 +28,14 @@ public class GameOptionen {
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background testbackground = new Background(new BackgroundFill(Color.valueOf("23423c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background rowHintergrund = new Background(new BackgroundFill(Color.valueOf("0c0c12"), CornerRadii.EMPTY, Insets.EMPTY));
+    public static Paint player = Paint.valueOf("2c5f78");
     public static Paint timestamp = Paint.valueOf("734b4b");
     public static Paint highlightBlue = Paint.valueOf("4b6673");
     public static Paint missionDescription = Paint.valueOf("638387");
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint ortcolor = Paint.valueOf("409970");
     public static Paint goodPaint = Paint.valueOf("589214");
+    public static int inventarbuttonwidth = 450;
 
 
     private Scene scene;
@@ -65,6 +67,7 @@ public class GameOptionen {
             imageheight = 170;
             buttonwidth = 160;
             textsize = 21;
+            inventarbuttonwidth = 450;
             Main.getStage().setScene(Game.getInstance().optionen.getScene(stage));
         });
 
@@ -80,6 +83,7 @@ public class GameOptionen {
             imageheight = 230;
             buttonwidth = 190;
             textsize = 23;
+            inventarbuttonwidth = 700;
             Main.getStage().setScene(Game.getInstance().optionen.getScene(stage));
         });
         HBox optionnthree = makeOption("Resolution", res1600);
@@ -94,6 +98,7 @@ public class GameOptionen {
             imageheight = 270;
             buttonwidth = 220;
             textsize = 26;
+            inventarbuttonwidth = 1050;
             Main.getStage().setScene(Game.getInstance().optionen.getScene(stage));
         });
 

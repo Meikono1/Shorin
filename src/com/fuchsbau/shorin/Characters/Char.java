@@ -2,6 +2,8 @@ package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Waffen.Faust;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.text.TextFlow;
 
 public class Char {
 
@@ -12,7 +14,7 @@ public class Char {
 
     public Char(int health) {
         this.health = health;
-        beschreibung = "Keine gesetzt";
+        beschreibung = "None";
     }
 
 
@@ -26,6 +28,11 @@ public class Char {
 
     public int getHealth() {
         return health;
+    }
+
+    public TextFlow makeBeschreibung(TextFlow pane) {
+
+        return pane;
     }
 
     public void setBeschreibung(String beschreibung) {

@@ -293,10 +293,9 @@ public class SceneBuilder {
         TextFlow flow = new TextFlow();
         flow.setPrefWidth(780);
         flow.setPrefHeight(350);
-        Text allgemein = makeText();
-        allgemein.setText("Spieler: \n" + Game.getInstance().spieler.getBeschreibung());
-        //TODO spieler beschreibung generieren und einfügen.
-        flow.getChildren().addAll(allgemein);
+
+        Game.getInstance().spieler.makeBeschreibung(flow);
+
 
         //Items abschnitt
         //Items einfügen in Liste
@@ -375,7 +374,7 @@ public class SceneBuilder {
             item.dequip();
             Main.getStage().setScene(Game.getInstance().inventory.getScene());
         });
-        //TODO Button aussehen bearbeiten.
+
         Text beschreibung = item.getBeschreibung();
         beschreibung.prefWidth(150);
         beschreibung.minWidth(150);
@@ -384,7 +383,7 @@ public class SceneBuilder {
 
         HBox size = new HBox();
         size.getChildren().add(beschreibung);
-        size.setMinWidth(180);
+        size.setMinWidth(220);
         oben.getChildren().addAll(size, use);
         oben.setBackground(GameOptionen.hintergrund);
         oben.setPadding(GameOptionen.padding);
@@ -406,10 +405,15 @@ public class SceneBuilder {
             item.itemUse();
             Main.getStage().setScene(Game.getInstance().inventory.getScene());
         });
-        //TODO Button aussehen bearbeiten.
+
         Text beschreibung = item.getBeschreibung();
         beschreibung.setWrappingWidth(550);
-        zurueck.getChildren().addAll(beschreibung, use);
+
+        HBox size = new HBox();
+        size.getChildren().add(beschreibung);
+        size.setMinWidth(GameOptionen.inventarbuttonwidth);
+
+        zurueck.getChildren().addAll(size, use);
         zurueck.setBackground(GameOptionen.hintergrund);
         zurueck.setPadding(GameOptionen.padding);
 

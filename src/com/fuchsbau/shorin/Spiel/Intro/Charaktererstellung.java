@@ -38,7 +38,8 @@ public class Charaktererstellung implements Saveble {
             StringBuilder name;
             name = new StringBuilder();
             name.append("Welcome to the World of Shorin\n\n");
-            name.append("In this world you are a 17 year old soldier, who just signed for his first official mission.\nYour name is ...");
+            name.append("Please tell me your Name, for a 18 Years old Human Soldier. ");
+            //@TODO Check Text
             Text a = SceneBuilder.makeText();
             a.setText(name.toString());
 
@@ -48,18 +49,18 @@ public class Charaktererstellung implements Saveble {
         if (stage == 2) {//intro to you
 
             Text a = SceneBuilder.makeText();
-            a.setText("Welcome to the World of Shorin\n\nIn this world you are a 17 year old freshly trained soldier, who was just signed for his first official mission.\nYour name is ");
+            a.setText("Welcome to the World of Shorin\n\nYou are a 18 year old freshly trained soldier, who was just assigned for his first official mission.\nYour name is ");
 
             Text b = Game.getInstance().spieler.getName();
 
             Text c = SceneBuilder.makeText();
-            //TODO check Text
-            Text d = SceneBuilder.makeText("\nYour Parents died in the Great war when you were 5 Years old. You didn't knew them well, but people say,  they were brave Soldiers fighting for Humanity.\nYoshua a Familyfriend and mentor, took care of you. Your wish is to take revange and defend Humanity against the Evil forces across the Rivers.\nEspecially against the Orcs, since they killed your Parents.\n\n");
+            //@TODO check Text
+            Text d = SceneBuilder.makeText("\n\n14 Years ago your Parents died in the Great war when you were only 4 Years old. You didn't knew them well, but people say, they were brave Soldiers fighting for Humanity.\nYoshua ,a Familyfriend, took you in and treated you like his own Son.\nHe Loved to tell stories about your Parents and the war, but since a few Month he grew Tired and wants Peace in his Life. \n\nThe Story about the death of your Parents, marked you the most.\nYour wish is to take revange and defend Humanity against the Evil forces across the Rivers: Fen and Hedge.\n\n");
 
-            Text e = SceneBuilder.makeText("At the Age of 12 you officially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humans.\nYou spent most of the Time clearing disputes and Helping the Locals. But this Mission will change your live.");
+            Text e = SceneBuilder.makeText("At the Age of 12 you officially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humanoids.\nYou spent most of the Time clearing disputes and Helping the Locals. But finally you can leave this City and change your live.");
 
 
-            /*//TODO aufräumen in book
+            /*//@TODO aufräumen in book
 
             c.setText(".\n" + "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
                     "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +
@@ -83,7 +84,7 @@ public class Charaktererstellung implements Saveble {
         if (stage == 3) {//home
 
             Text a = SceneBuilder.makeText();
-            a.setText("You live in the city of ");
+            a.setText("You currently live in the city of ");
 
             Text b = Game.getInstance().whitebridge.getOrtText();
 
@@ -96,7 +97,7 @@ public class Charaktererstellung implements Saveble {
             e.setText(", the main capital. ");
 
             Text f = SceneBuilder.makeText();
-            f.setText("Here you are living in a house near the barracks, where you voluntarily joined ");
+            f.setText("Here you live in a house near the barracks, where you voluntarily joined ");
 
             Text g = Game.getInstance().greysmanace.getName();
 
@@ -127,16 +128,20 @@ public class Charaktererstellung implements Saveble {
             Text m = Game.getInstance().unbridledland.getOrtText();
 
             Text n = SceneBuilder.makeText();//TODO check text
-            n.setText(".\nIf there are Kitsune spottet, avoid the Fight. They wont attack and are no Threat to the group.\nWe expect to reach ");
+            n.setText(".\nIf there are Kitsune spottet, avoid the Fight. They will not attack and are no Threat to the group.\nWe expect to reach ");
             n.setFill(GameOptionen.missionDescription);
 
             Text o = Game.getInstance().shallowmill.getOrtText();
 
-            Text p = SceneBuilder.makeText(" in 3 Days. After Arrival The Caravan will depart again 2 Days Later.");
+            Text p = SceneBuilder.makeText(" in 3 Days. After Arrival The Caravan will depart again 2 Days later, returning to ");
             p.setFill(GameOptionen.missionDescription);
 
+            Text q = Game.getInstance().whitebridge.getOrtText();
 
-            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, m, n, o, p);
+            Text r = SceneBuilder.makeText(" .");
+
+
+            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, m, n, o, p,q,r);
         }
 
 

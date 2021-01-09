@@ -73,8 +73,9 @@ public class Joshua implements Saveble {
 
         if (stage == 4) {
 
-            Text a = SceneBuilder.makeText();
-            a.setText("\"Yes, they died when you were a small kid.\"\n\nYou see that sadness overcomes him\n\"They were good people. I meet them, when your mother was heavy pragnent. " +
+            //TODO Text neu schreiben
+             Text a = SceneBuilder.makeText();
+            a.setText("\"Yes, they died when you were a small kid.\"\n\nYou see that sadness overcomes him\n\"They were good people. I meet them, when your mother was heavyly pragnent. " +
                     "They lived in the East, your father was always training the sword, preparing for the next Attack. It was a scary time\"\n\n He sights \n\"The Weres... rebelled and a bloody war raged right besides us in the woods." +
                     " I mean, thanks to the rebellion, the Orcs stayed away. But....\n\n\"Let's talk again some other time. I need some rest\"");
 

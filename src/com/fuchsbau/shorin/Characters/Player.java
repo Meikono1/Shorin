@@ -1,10 +1,13 @@
 package com.fuchsbau.shorin.Characters;
 
+import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 
 public class Player extends Char {
@@ -33,11 +36,28 @@ public class Player extends Char {
         return back;
     }
 
+
     public void setName(String name) {
         this.name = name;
 
-        //@TODO name color
         setBeschreibung("Your name is: " + name + ".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
+    }
+
+    @Override
+    public TextFlow makeBeschreibung(TextFlow pane) {
+        setBeschreibung("Your name is: " + name + ".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
+
+        //@TODO neue Beschreibung
+        pane.getChildren().add(SceneBuilder.makeText("Your name is: "));
+
+        Text text = SceneBuilder.makeText(name);
+        text.setFill(GameOptionen.player);
+        pane.getChildren().add(text);
+
+        pane.getChildren().add(SceneBuilder.makeText(".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n"));
+
+
+        return pane;
     }
 
     public void setAktuell(Saveble aktuell, int stage) {

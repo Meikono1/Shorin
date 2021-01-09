@@ -4,7 +4,7 @@ import com.fuchsbau.shorin.Items.Materialen;
 
 public class Faust extends Waffe {
     public Faust() {
-        super(2, 1, 1, Materialen.stein, "Steinfaust");
+        super(2, 1, 1, Materialen.stein, "Unarmed");
 
     }
 

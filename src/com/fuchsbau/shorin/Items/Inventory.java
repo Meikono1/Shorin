@@ -22,7 +22,6 @@ public class Inventory {
 
     private Scene scene;
     private List<Item> items;
-    // private List<Item> equip;
 
     private Armor head;
     private Armor chest;
@@ -34,7 +33,6 @@ public class Inventory {
 
     public Inventory() {
         items = new ArrayList<>();
-        //equip = new ArrayList<>();
 
         head = new Clothhelm();
         chest = new Clothchest();
@@ -43,8 +41,11 @@ public class Inventory {
         arms = new Freearms();
         pants = new Clothpants();
 
+        //TODO Mehr Items hinzufügen.
+        //TODO Standart Melee weapon hinzufügen.
+        //TODO ausziehen hinnzufügen
 
-        //TODO hinzufügen und entfernen von Items in Equipment
+
 
     }
 

@@ -35,11 +35,8 @@ public class Hauptbildschirm implements Saveble {
 
         Button start = new Button("Game Start");
         start.setOnMouseClicked(event -> {
-
-
             Main.getStage().setTitle("Charaktererstellung");
             Main.getStage().setScene(charaktererstellung.getScene(1));
-
         });
         start.setPrefWidth(GameOptionen.buttonwidth);
 
