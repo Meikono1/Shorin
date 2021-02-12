@@ -1,11 +1,11 @@
 package com.fuchsbau.shorin.Items;
 
-import com.fuchsbau.shorin.Items.Gear.Arme.Freearms;
+import com.fuchsbau.shorin.Items.Gear.Arms.Freearms;
 import com.fuchsbau.shorin.Items.Gear.Armor;
-import com.fuchsbau.shorin.Items.Gear.Kopf.Clothhelm;
-import com.fuchsbau.shorin.Items.Gear.Oberkörper.Clothchest;
-import com.fuchsbau.shorin.Items.Gear.Schuhe.Clothboots;
-import com.fuchsbau.shorin.Items.Gear.Unterkörper.Clothpants;
+import com.fuchsbau.shorin.Items.Gear.Head.Clothhelm;
+import com.fuchsbau.shorin.Items.Gear.UpperBody.Clothchest;
+import com.fuchsbau.shorin.Items.Gear.Boots.Clothboots;
+import com.fuchsbau.shorin.Items.Gear.LowerBody.Clothpants;
 import com.fuchsbau.shorin.Items.Waffen.Faust;
 import com.fuchsbau.shorin.Items.Waffen.Waffe;
 import com.fuchsbau.shorin.Spiel.Game;
@@ -51,7 +51,6 @@ public class Inventory {
 
     private void makeScene() {
 
-
         HBox erste = SceneBuilder.makeButtonrow();
         Button back = SceneBuilder.makeButton();
         back.setText("Back");
@@ -62,7 +61,6 @@ public class Inventory {
         erste.getChildren().add(back);
 
         scene = new Scene(SceneBuilder.makePlayerInventory(erste, items, head, chest, arms, pants, boots, weapon));
-
     }
 
     public void addItem(Item item) {
@@ -89,11 +87,9 @@ public class Inventory {
             weapon = new Faust();
             items.add(waffe);
         }
-
     }
 
     public void remove(Item item) {
         items.remove(item);
-
     }
 }

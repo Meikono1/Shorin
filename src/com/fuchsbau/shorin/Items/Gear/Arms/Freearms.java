@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Items.Gear.Arme;
+package com.fuchsbau.shorin.Items.Gear.Arms;
 
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Gear.Slot;

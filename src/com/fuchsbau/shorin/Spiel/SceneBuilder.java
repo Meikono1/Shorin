@@ -41,8 +41,6 @@ public class SceneBuilder {
         }
 
         return haupt;
-
-
     }
 
     public static BorderPane buildShop(HBox erste, HBox zweite, ScrollPane scrole, List<Item> liste) {
@@ -269,7 +267,6 @@ public class SceneBuilder {
         equ.setText("Equipped: ");
         equipt.getChildren().addAll(equ);
         {
-
             equipt.getChildren().add(createEquipItem(head));
             equipt.getChildren().add(createEquipItem(chest));
             equipt.getChildren().add(createEquipItem(arms));
@@ -277,7 +274,6 @@ public class SceneBuilder {
             equipt.getChildren().add(createEquipItem(boots));
             equipt.getChildren().add(createEquipItem(weapon));
             //@TODO Methode für Equipte Items einfügen
-
         }
 
 

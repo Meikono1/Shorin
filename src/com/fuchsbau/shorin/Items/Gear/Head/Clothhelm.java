@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Items.Gear.Kopf;
+package com.fuchsbau.shorin.Items.Gear.Head;
 
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Gear.Slot;

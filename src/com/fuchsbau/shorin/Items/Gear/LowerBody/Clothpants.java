@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Items.Gear.Unterkörper;
+package com.fuchsbau.shorin.Items.Gear.LowerBody;
 
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Gear.Slot;

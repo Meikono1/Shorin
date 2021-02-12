@@ -2,7 +2,6 @@ package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Waffen.Faust;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.text.TextFlow;
 
 public class Char {
