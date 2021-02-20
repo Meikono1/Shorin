@@ -25,12 +25,11 @@ public class Training implements Saveble {
 
         flow.getChildren().addAll(a);
 
+        HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button zurueck = SceneBuilder.makeButton();
+        Button zurueck = SceneBuilder.makeButton(dritte);
         zurueck.setText("Back to the barracks");
         zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene(0)));
-
-        HBox dritte = SceneBuilder.makeButtonrow();
 
         dritte.getChildren().addAll(zurueck);
 

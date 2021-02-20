@@ -38,17 +38,17 @@ public class Barracks implements Saveble {
         HBox erste = SceneBuilder.makeButtonrow();
 
         if (Game.getInstance().joshua.gone == 0) {
-            Button jush = SceneBuilder.makeButton();
+            Button jush = SceneBuilder.makeButton(erste);
             jush.setText("Look for Joshua");
             jush.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().joshua.getScene(0)));
             erste.getChildren().add(jush);
         }
 
-        Button yroom = SceneBuilder.makeButton();
+        Button yroom = SceneBuilder.makeButton(erste);
         yroom.setText("Go to your old room");
         yroom.setOnMouseClicked(event -> Main.getStage().setScene(yourRoom.getScene(0)));
 
-        Button training = SceneBuilder.makeButton();
+        Button training = SceneBuilder.makeButton(erste);
         training.setText("To the trainingsroom");
         training.setOnMouseClicked(event -> Main.getStage().setScene(trainroom.getScene(0)));
 
@@ -57,7 +57,7 @@ public class Barracks implements Saveble {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button zurueck = SceneBuilder.makeButton();
+        Button zurueck = SceneBuilder.makeButton(dritte);
         zurueck.setText("Back to Whitebridge");
         zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
 

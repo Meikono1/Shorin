@@ -28,7 +28,7 @@ public class Library implements Saveble {
 
         flow.getChildren().addAll(descrip);
 
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(dritte);
         back.setText("Back to Whitebridge");
         back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
         //TODO make Book Kitsune, Orc, Norse, Dryads, Gnome, Human history, Great war

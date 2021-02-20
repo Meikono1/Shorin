@@ -16,7 +16,7 @@ public class Entrance implements Saveble {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(dritte);
         back.setText("Back to Whitebridge");
         back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
 

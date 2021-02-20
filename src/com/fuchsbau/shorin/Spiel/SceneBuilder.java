@@ -2,6 +2,9 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.NumberBinding;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -66,9 +69,7 @@ public class SceneBuilder {
         }
 
         HBox box = new HBox();
-
         VBox pane = new VBox();
-
         Iterator<Item> iter = liste.iterator();
 
         while (iter.hasNext()) {
@@ -85,12 +86,10 @@ public class SceneBuilder {
         VBox unten = new VBox();
         unten.getChildren().addAll(erste, zweite);
 
-
         haupt.setCenter(scrole);
         haupt.setBottom(unten);
 
         return haupt;
-
     }
 
     /***
@@ -114,9 +113,7 @@ public class SceneBuilder {
         }
         int lauf = erste.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
-
-            Button a = new Button();
-            a.setPrefWidth(GameOptionen.buttonwidth);
+            Button a = makeButton(erste );
             erste.getChildren().add(a);
         }
 
@@ -126,10 +123,8 @@ public class SceneBuilder {
         lauf = zweite.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
 
-            Button a = new Button();
-            a.setPrefWidth(GameOptionen.buttonwidth);
+            Button a = makeButton(zweite);
             zweite.getChildren().add(a);
-
         }
 
         if (dritte == null) {
@@ -138,11 +133,8 @@ public class SceneBuilder {
         lauf = dritte.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
 
-            Button a = new Button();
-            a.setMinWidth(GameOptionen.buttonwidth);
+            Button a = makeButton(dritte);
             dritte.getChildren().add(a);
-
-
         }
 
         VBox unten = new VBox();
@@ -194,7 +186,6 @@ public class SceneBuilder {
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER);
 
-
         return box;
     }
 
@@ -222,11 +213,19 @@ public class SceneBuilder {
         return flow;
     }
 
-    public static Button makeButton() {
+   /* public static Button makeButton(Pane pane, int buttons) {
         Button button = new Button();
-        button.setMinWidth(GameOptionen.buttonwidth);
+        button.prefWidthProperty().bind(Bindings.divide(pane.widthProperty(), buttons));
         return button;
     }
+    */
+
+    public static Button makeButton(Pane pane) {
+        Button button = new Button();
+        button.prefWidthProperty().bind(Bindings.divide(pane.widthProperty(), 7));
+        return button;
+    }
+
 
     public static ScrollPane makeScrollpane() {
 
@@ -343,7 +342,7 @@ public class SceneBuilder {
             a.setPrefWidth(GameOptionen.buttonwidth);
             erste.getChildren().add(a);
         }
-        Button option = makeButton();
+        Button option = makeButton(erste);
         option.setText("Options");
         option.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin - Optionen");

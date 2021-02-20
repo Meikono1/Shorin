@@ -45,14 +45,12 @@ public class Inventory {
         //TODO Standart Melee weapon hinzufügen.
         //TODO ausziehen hinnzufügen
 
-
-
     }
 
     private void makeScene() {
 
         HBox erste = SceneBuilder.makeButtonrow();
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(erste);
         back.setText("Back");
         back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().spieler.getAktuell()));
 

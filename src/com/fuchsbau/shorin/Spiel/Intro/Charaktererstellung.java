@@ -5,6 +5,7 @@ import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import com.fuchsbau.shorin.Spiel.Game;
+import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -24,15 +25,13 @@ public class Charaktererstellung implements Saveble {
 
 
         VBox controls = new VBox();
-        HBox rowone = SceneBuilder.makeButtonrow();
+        HBox erste = SceneBuilder.makeButtonrow();
         HBox rowtwo = SceneBuilder.makeButtonrow();
         HBox rowthree = SceneBuilder.makeButtonrow();
 
-        controls.getChildren().addAll(rowone, rowtwo, rowthree);
-
+        controls.getChildren().addAll(erste, rowtwo, rowthree);
 
         TextFlow spieltext = SceneBuilder.mainFlow();
-
 
         if (stage == 1) {//intro
             StringBuilder name;
@@ -146,16 +145,16 @@ public class Charaktererstellung implements Saveble {
 
 
         TextField eingabe = new TextField();
-        eingabe.setPrefWidth(GameOptionen.buttonwidth);
+        eingabe.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(), 7));
+
         if (stage == 1) {
             Label name = new Label();
-            name.minWidth(GameOptionen.buttonwidth);
-            name.setPrefWidth(GameOptionen.buttonwidth);
+            name.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(),7));
             name.setTextFill(Paint.valueOf("ffffff"));
             name.setText("Name :");
 
 
-            Button annahme = SceneBuilder.makeButton();
+            Button annahme = SceneBuilder.makeButton(erste);
             annahme.setText("Accept");
             annahme.setOnMouseClicked(event -> {
                 if (eingabe.getText().equals("")) {
@@ -166,26 +165,26 @@ public class Charaktererstellung implements Saveble {
                 Main.getStage().setScene(getScene(2));
             });
 
-            rowone.getChildren().addAll(name, eingabe, annahme);
+            erste.getChildren().addAll(name, eingabe, annahme);
         }
 
         if (stage == 2) {
-            Button cont = SceneBuilder.makeButton();
+            Button cont = SceneBuilder.makeButton(erste);
             cont.setText("Continue");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(getScene(3)));
 
-            rowone.getChildren().addAll(cont);
+            erste.getChildren().addAll(cont);
         }
         if (stage == 3) {
-            Button cont = SceneBuilder.makeButton();
+            Button cont = SceneBuilder.makeButton(erste);
             cont.setText("Start your story");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.yourroom().getScene(0)));
 
-            rowone.getChildren().addAll(cont);
+            erste.getChildren().addAll(cont);
         }
 
 
-        scene = new Scene(SceneBuilder.buildGameScene(rowone, rowtwo, rowthree, spieltext));
+        scene = new Scene(SceneBuilder.buildGameScene(erste, rowtwo, rowthree, spieltext));
 
     }
 

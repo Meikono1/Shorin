@@ -45,7 +45,7 @@ public class YourRoom implements Saveble {
 
         HBox erste = SceneBuilder.makeButtonrow();
         if (stage == 0) {
-            Button bed = SceneBuilder.makeButton();
+            Button bed = SceneBuilder.makeButton(erste);
             bed.setText("Sit on your old bed");
             //@TODO Tagebuch einführen mit geschichte
             bed.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
@@ -56,15 +56,13 @@ public class YourRoom implements Saveble {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button zurueck = SceneBuilder.makeButton();
+        Button zurueck = SceneBuilder.makeButton(dritte);
         zurueck.setText("Back to the Barracks");
         zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene(0)));
 
         dritte.getChildren().addAll(zurueck);
 
-
         scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
-
     }
 
     @Override

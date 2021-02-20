@@ -17,7 +17,7 @@ public class Shop implements Saveble {
 
         HBox erste = SceneBuilder.makeButtonrow();
 
-        Button shopping = SceneBuilder.makeButton();
+        Button shopping = SceneBuilder.makeButton(erste);
         shopping.setText("Buy Items");
         shopping.setOnMouseClicked(event -> {
             Main.getStage().setScene(new Haendler().getScene(0));
@@ -27,7 +27,7 @@ public class Shop implements Saveble {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(dritte);
         back.setText("Back to Whitebridge");
         back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
 

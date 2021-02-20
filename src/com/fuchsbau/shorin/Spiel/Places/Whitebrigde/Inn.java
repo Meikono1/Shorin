@@ -28,7 +28,7 @@ public class Inn implements Saveble {
         intro.setText("You're in the Whitebrige Tavern. \nYou can talk to the barkeeper or buy a drink");
 
 
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(dritte);
 
         back.setText("Back to Whitebridge");
         back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
@@ -36,7 +36,7 @@ public class Inn implements Saveble {
         flow.getChildren().addAll(intro);
 
         //TODO Make Barkeeper
-        Button bar = SceneBuilder.makeButton();
+        Button bar = SceneBuilder.makeButton(dritte);
         bar.setText("Talk to barkeeper");
         bar.setOnMouseClicked(event -> Main.getStage().setScene(barkeeper.getScene(0)));
 
@@ -44,7 +44,7 @@ public class Inn implements Saveble {
 
         HBox erste = SceneBuilder.makeButtonrow();
 
-        Button buy = SceneBuilder.makeButton();
+        Button buy = SceneBuilder.makeButton(erste);
         buy.setText("Buy Beer");
         buy.setOnMouseClicked(mouseEvent -> {
             Potion bear = new Potion("beer");
@@ -67,7 +67,6 @@ public class Inn implements Saveble {
 
 
     private class Barkeeper implements Saveble {
-
         Scene scene;
 
         private void makeScene() {

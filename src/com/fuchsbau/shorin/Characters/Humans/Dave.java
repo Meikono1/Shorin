@@ -47,7 +47,7 @@ public class Dave extends Char implements Saveble {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button zurueck = SceneBuilder.makeButton();
+        Button zurueck = SceneBuilder.makeButton(dritte);
         zurueck.setText("Back");
         zurueck.setOnMouseClicked(event -> Main.getStage().setScene(getScene(ort)));
 
@@ -88,13 +88,15 @@ public class Dave extends Char implements Saveble {
 
 
         if (Game.getInstance().spieler.kitsune == 1) {
-            Button kitsune = SceneBuilder.makeButton();
+            Button kitsune = SceneBuilder.makeButton(erste);
             kitsune.setText("Talk about Kitsune");
             kitsune.setOnMouseClicked(event -> Main.getStage().setScene(kitsuneTalk()));
+            // TODO: 19.02.2021 prüfen
+            erste.getChildren().add(kitsune);
         }
 
 
-        Button zurueck = SceneBuilder.makeButton();
+        Button zurueck = SceneBuilder.makeButton(dritte);
 
         if (ort == 1) {
             zurueck.setText("Back to Whitebridge");

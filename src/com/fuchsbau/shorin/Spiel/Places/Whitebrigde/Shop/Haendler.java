@@ -22,9 +22,11 @@ public class Haendler implements Saveble {
 
     private void makeScene() {
 
+        HBox erste = SceneBuilder.makeButtonrow();
+
         //TODO Items hinzufügen
         Breitschwert breitschwert = new Breitschwert(1, 1, 1, Materialen.eisen, "Iron Broadsword");
-        Button broadbuy = SceneBuilder.makeButton();
+        Button broadbuy = SceneBuilder.makeButton(erste);
 
         broadbuy.setText("Buy Broadsword");
         broadbuy.setOnMouseClicked(mouseEvent -> {
@@ -33,22 +35,18 @@ public class Haendler implements Saveble {
         liste.add(breitschwert);
 
         Potion heal = new Potion("Heiltrank");
-        Button healbuy = SceneBuilder.makeButton();
+        Button healbuy = SceneBuilder.makeButton(erste);
         healbuy.setText("Buy Healpotion");
         healbuy.setOnMouseClicked(mouseEvent -> {
             Game.getInstance().inventory.addItem(new Potion("Heiltrank"));
         });
         liste.add(heal);
 
-
-        HBox erste = SceneBuilder.makeButtonrow();
-
         erste.getChildren().addAll(broadbuy, healbuy);
-
 
         HBox zweite = SceneBuilder.makeButtonrow();
 
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(zweite);
 
         back.setText("back to the shop");
         back.setOnMouseClicked(event -> {

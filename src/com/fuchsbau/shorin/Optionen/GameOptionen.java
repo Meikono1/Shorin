@@ -4,6 +4,7 @@ import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Hauptbildschirm;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import javafx.beans.binding.NumberBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -42,6 +43,7 @@ public class GameOptionen {
 
 
     private void makePane(int stage) {
+        NumberBinding binding;
 
         ScrollPane optionsfenster = new ScrollPane();
         optionsfenster.setBackground(hintergrund);
@@ -58,59 +60,12 @@ public class GameOptionen {
         center.setPadding(padding);
         optionsfenster.setContent(center);
 
-        //Option 1
-        Button res1280 = makeButton("1280");
-        res1280.setOnMouseClicked(event -> {
-            width = 1280;
-            height = 720;
-            imagewidth = 170;
-            imageheight = 170;
-            buttonwidth = 160;
-            textsize = 21;
-            inventarbuttonwidth = 450;
-            Main.getStage().setScene(Game.getInstance().optionen.getScene(stage));
-        });
-
-        HBox optionone = makeOption("Resolution", res1280);
-        center.getChildren().add(optionone);
-
-        //Option 3
-        Button res1600 = makeButton("1600");
-        res1600.setOnMouseClicked(event -> {
-            width = 1600;
-            height = 1280;
-            imagewidth = 230;
-            imageheight = 230;
-            buttonwidth = 190;
-            textsize = 23;
-            inventarbuttonwidth = 700;
-            Main.getStage().setScene(Game.getInstance().optionen.getScene(stage));
-        });
-        HBox optionnthree = makeOption("Resolution", res1600);
-        center.getChildren().add(optionnthree);
-
-        //Option 2
-        Button res1900 = makeButton("1900");
-        res1900.setOnMouseClicked(event -> {
-            width = 1900;
-            height = 1080;
-            imagewidth = 270;
-            imageheight = 270;
-            buttonwidth = 220;
-            textsize = 26;
-            inventarbuttonwidth = 1050;
-            Main.getStage().setScene(Game.getInstance().optionen.getScene(stage));
-        });
-
-        HBox optiontwo = makeOption("Resolution", res1900);
-        center.getChildren().add(optiontwo);
-
 
         HBox buttongroup = SceneBuilder.makeButtonrow();
         buttongroup.setBackground(GameOptionen.rowHintergrund);
         buttongroup.setPrefHeight(100);
 
-        Button back = SceneBuilder.makeButton();
+        Button back = SceneBuilder.makeButton(buttongroup);
         back.setText("Back");
         back.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin");

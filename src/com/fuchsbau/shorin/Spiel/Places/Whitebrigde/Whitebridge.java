@@ -80,7 +80,7 @@ public class Whitebridge extends Platz implements Saveble {
             case 1:
                 h.setText("Your old friend Dave is walking around the town centre.");
 
-                Button dave = SceneBuilder.makeButton();
+                Button dave = SceneBuilder.makeButton(erste);
                 dave.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().dave.getScene(ort)));
                 dave.setText("Greet Dave");
                 erste.getChildren().add(dave);
@@ -100,23 +100,23 @@ public class Whitebridge extends Platz implements Saveble {
 
         HBox dritte = SceneBuilder.makeButtonrow();
 
-        Button library = SceneBuilder.makeButton();
+        Button library = SceneBuilder.makeButton(dritte);
         library.setText("Library");
         library.setOnMouseClicked(event -> Main.getStage().setScene(this.library.getScene(0)));
 
-        Button shop = SceneBuilder.makeButton();
+        Button shop = SceneBuilder.makeButton(dritte);
         shop.setText("Shop");
         shop.setOnMouseClicked(event -> Main.getStage().setScene(this.shop.getScene(0)));
 
-        Button entrance = SceneBuilder.makeButton();
+        Button entrance = SceneBuilder.makeButton(dritte);
         entrance.setText("Main Entrance");
         entrance.setOnMouseClicked(event -> Main.getStage().setScene(this.entrance.getScene(0)));
 
-        Button barracks = SceneBuilder.makeButton();
+        Button barracks = SceneBuilder.makeButton(dritte);
         barracks.setText("Barracks");
         barracks.setOnMouseClicked(event -> Main.getStage().setScene(this.barracks.getScene(0)));
 
-        Button inn = SceneBuilder.makeButton();
+        Button inn = SceneBuilder.makeButton(dritte);
         inn.setText("Inn");
         inn.setOnMouseClicked(event -> Main.getStage().setScene(this.inn.getScene(0)));
 

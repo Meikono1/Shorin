@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
+import javafx.beans.binding.Bindings;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -38,10 +39,10 @@ public class Hauptbildschirm implements Saveble {
             Main.getStage().setTitle("Charaktererstellung");
             Main.getStage().setScene(charaktererstellung.getScene(1));
         });
-        start.setPrefWidth(GameOptionen.buttonwidth);
+        start.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
 
         Button laden = new Button("Load Game");
-        laden.setPrefWidth(GameOptionen.buttonwidth);
+        laden.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
 
 
         Button optionen = new Button("Optionen");
@@ -49,7 +50,7 @@ public class Hauptbildschirm implements Saveble {
             Main.getStage().setTitle("Shorin - Optionen");
             Main.getStage().setScene(Game.getInstance().optionen.getScene(0));
         });
-        optionen.setPrefWidth(GameOptionen.buttonwidth);
+        optionen.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
 
         boxone.getChildren().addAll(start, laden, optionen);
 
@@ -60,7 +61,6 @@ public class Hauptbildschirm implements Saveble {
         BorderPane pane = SceneBuilder.buildBorderPane(top, null, null, boxone);
         pane.setBackground(GameOptionen.hintergrund);
         scene = new Scene(pane);
-
     }
 
     @Override

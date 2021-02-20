@@ -83,7 +83,7 @@ public class Joshua implements Saveble {
 
             flow.getChildren().add(a);
         } else if (stage != 1) {
-            Button family = SceneBuilder.makeButton();
+            Button family = SceneBuilder.makeButton(erste);
             family.setText("Talk about Family");
             family.setOnMouseClicked(event -> Main.getStage().setScene(getScene(4)));
             erste.getChildren().add(family);
@@ -97,7 +97,7 @@ public class Joshua implements Saveble {
             flow.getChildren().add(a);
 
         } else if (stage != 1 && stage != 4) {
-            Button barracks = SceneBuilder.makeButton();
+            Button barracks = SceneBuilder.makeButton(erste);
             barracks.setText("Talk about barracks");
             barracks.setOnMouseClicked(event -> Main.getStage().setScene(getScene(5)));
             erste.getChildren().add(barracks);
@@ -109,14 +109,14 @@ public class Joshua implements Saveble {
 
         if (stage != 1) {
             if (favor == 0 && stage != 4) {
-                Button mission = SceneBuilder.makeButton();
+                Button mission = SceneBuilder.makeButton(erste);
                 mission.setText("Thoughts about mission");
                 mission.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
                 erste.getChildren().add(mission);
             }
 
 
-            Button zurueck = SceneBuilder.makeButton();
+            Button zurueck = SceneBuilder.makeButton(dritte);
             zurueck.setText("Back to barracks");
             zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene(0)));
 
@@ -146,7 +146,7 @@ public class Joshua implements Saveble {
         e.setText(". \nMaybe one day i can visit the east again. Even if only war brought me there, i want to go back.\n\nCan i ask you for a favor?\n" +
                 "In the east there is a river that formes out of 3 rivers. There is a special city, pls if you visit this place, tell me how it's going ? ");
 
-        Button yes = SceneBuilder.makeButton();
+        Button yes = SceneBuilder.makeButton(erste);
         yes.setText("Sure");
         yes.setOnMouseClicked(event -> {
             favor = 1;
@@ -154,7 +154,7 @@ public class Joshua implements Saveble {
 
         });
 
-        Button ne = SceneBuilder.makeButton();
+        Button ne = SceneBuilder.makeButton(erste);
         ne.setText("No, sorry");
         ne.setOnMouseClicked(event -> {
             favor = 2;
