@@ -18,13 +18,14 @@ import javafx.scene.text.Text;
 
 public class GameOptionen {
 
-    public static double width = 1280;
-    public static double height = 720;
+    public static boolean delete;
+    public static double width = 1500;
+    public static double height = 900;
     public static double buttonwidth = 160;
     public static double itembuttonwidth = 100;
-    public static double imagewidth = 170;
-    public static double imageheight = 170;
-    public static int textsize = 21;
+    public static double imagewidth = 220;
+    public static double imageheight = 220;
+    public static int textsize = 23;
     public static Insets padding = new Insets(5, 10, 5, 10);
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background testbackground = new Background(new BackgroundFill(Color.valueOf("23423c"), CornerRadii.EMPTY, Insets.EMPTY));
@@ -36,10 +37,16 @@ public class GameOptionen {
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint ortcolor = Paint.valueOf("409970");
     public static Paint goodPaint = Paint.valueOf("589214");
-    public static int inventarbuttonwidth = 450;
-
 
     private Scene scene;
+
+    public static void toggleDelete() {
+        if (delete){
+            delete=false;
+        }else{
+            delete=true;
+        }
+    }
 
 
     private void makePane(int stage) {

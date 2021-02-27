@@ -6,6 +6,7 @@ import javafx.scene.text.Text;
 
 public class Armor implements Item {
 
+    int delete = 0;
     private String beschreibung;
     private Slot slot;
 

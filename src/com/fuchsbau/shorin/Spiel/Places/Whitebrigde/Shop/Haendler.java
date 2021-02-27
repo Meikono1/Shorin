@@ -57,8 +57,6 @@ public class Haendler implements Saveble {
         zweite.getChildren().add(back);
 
         scene = new Scene(SceneBuilder.buildShop(erste, zweite, SceneBuilder.makeScrollpane(), liste));
-
-
     }
 
     @Override

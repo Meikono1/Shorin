@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
+import com.fuchsbau.shorin.Items.MaxHealth;
 import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
@@ -47,7 +48,7 @@ public class Inn implements Saveble {
         Button buy = SceneBuilder.makeButton(erste);
         buy.setText("Buy Beer");
         buy.setOnMouseClicked(mouseEvent -> {
-            Potion bear = new Potion("beer");
+            MaxHealth bear = new MaxHealth("Beer");
             Game.getInstance().inventory.addItem(bear);
 
         });

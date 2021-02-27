@@ -4,7 +4,6 @@ import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -12,9 +11,9 @@ import javafx.scene.text.TextFlow;
 
 public class Player extends Char {
 
-
     private Saveble aktuell;
     private int savedstage;
+    private int maxhealth = 100;
 
     public int kitsune = 0;
 
@@ -68,5 +67,13 @@ public class Player extends Char {
     public Scene getAktuell() {
 
         return aktuell.getScene(savedstage);
+    }
+
+    public int maxHealth() {
+        return maxhealth;
+    }
+
+    public void increasemaxHealth(int health) {
+        maxhealth += health;
     }
 }

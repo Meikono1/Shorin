@@ -8,6 +8,7 @@ import javafx.scene.text.Text;
 
 public class Waffe implements Item {
 
+    int delete=0;
     private String beschreibung;
     private Materialen material;
     private int qualitaet;
@@ -52,6 +53,7 @@ public class Waffe implements Item {
     public void dequip() {
         Game.getInstance().inventory.dequip(this);
     }
+
 
     @Override
     public String toString() {

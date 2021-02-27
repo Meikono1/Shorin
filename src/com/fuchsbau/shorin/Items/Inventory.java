@@ -8,6 +8,7 @@ import com.fuchsbau.shorin.Items.Gear.Boots.Clothboots;
 import com.fuchsbau.shorin.Items.Gear.LowerBody.Clothpants;
 import com.fuchsbau.shorin.Items.Waffen.Faust;
 import com.fuchsbau.shorin.Items.Waffen.Waffe;
+import com.fuchsbau.shorin.Optionen.GameOptionen;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
@@ -52,11 +53,21 @@ public class Inventory {
         HBox erste = SceneBuilder.makeButtonrow();
         Button back = SceneBuilder.makeButton(erste);
         back.setText("Back");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().spieler.getAktuell()));
+        back.setOnMouseClicked(event -> {
+            GameOptionen.delete = false;
+            Main.getStage().setScene(Game.getInstance().spieler.getAktuell());
+        });
+
+        Button delete = SceneBuilder.makeButton(erste);
+        delete.setText("Toggle delete");
+        delete.setOnMouseClicked(event -> {
+            GameOptionen.toggleDelete();
+            Main.getStage().setScene(getScene());
+        });
 
         //TODO Informationen button, Bücher, Rassen, etc
 
-        erste.getChildren().add(back);
+        erste.getChildren().addAll(back, delete);
 
         scene = new Scene(SceneBuilder.makePlayerInventory(erste, items, head, chest, arms, pants, boots, weapon));
     }

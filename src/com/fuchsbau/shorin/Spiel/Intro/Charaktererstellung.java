@@ -22,31 +22,55 @@ public class Charaktererstellung implements Saveble {
 
 
     public void makeScene(int stage) {
-
-
         VBox controls = new VBox();
         HBox erste = SceneBuilder.makeButtonrow();
-        HBox rowtwo = SceneBuilder.makeButtonrow();
-        HBox rowthree = SceneBuilder.makeButtonrow();
+        HBox zweite = SceneBuilder.makeButtonrow();
+        HBox dritte = SceneBuilder.makeButtonrow();
 
-        controls.getChildren().addAll(erste, rowtwo, rowthree);
-
+        controls.getChildren().addAll(erste, zweite, dritte);
         TextFlow spieltext = SceneBuilder.mainFlow();
 
-        if (stage == 1) {//intro
-            StringBuilder name;
-            name = new StringBuilder();
-            name.append("Welcome to the World of Shorin\n\n");
-            name.append("Please tell me your Name, for a 18 Years old Human Soldier. ");
-            //@TODO Check Text
-            Text a = SceneBuilder.makeText();
-            a.setText(name.toString());
 
-            spieltext.getChildren().addAll(a);
+
+        if (stage==1){
+            {
+                StringBuilder name;
+                name = new StringBuilder();
+                name.append("Welcome to the World of Shorin\n\n");
+                name.append("You are a male Human Soldier. ");
+
+                name.append("\nYour name is ... ");
+
+                //@TODO Check Text
+                Text a = SceneBuilder.makeText();
+                a.setText(name.toString());
+
+                spieltext.getChildren().addAll(a);
+            }
+
+            Label name = new Label();
+            name.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(), 7));
+            name.setTextFill(Paint.valueOf("ffffff"));
+            name.setText("Name :");
+
+            TextField eingabe = new TextField();
+            eingabe.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(), 7));
+
+            Button annahme = SceneBuilder.makeButton(erste);
+            annahme.setText("Accept");
+            annahme.setOnMouseClicked(event -> {
+                if (eingabe.getText().equals("")) {
+                    Game.getInstance().spieler.setName("Jan");
+                } else {
+                    Game.getInstance().spieler.setName(eingabe.getText());
+                }
+                Main.getStage().setScene(getScene(2));
+            });
+            erste.getChildren().addAll(name, eingabe, annahme);
         }
 
-        if (stage == 2) {//intro to you
 
+        if (stage == 2) {//intro to you
             Text a = SceneBuilder.makeText();
             a.setText("Welcome to the World of Shorin\n\nYou are a 18 year old freshly trained soldier, who was just assigned for his first official mission.\nYour name is ");
 
@@ -59,8 +83,7 @@ public class Charaktererstellung implements Saveble {
             Text e = SceneBuilder.makeText("At the Age of 12 you officially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humanoids.\nYou spent most of the Time clearing disputes and Helping the Locals. But finally you can leave this City and change your live.");
 
 
-            /*//@TODO aufräumen in book
-
+            /*TODO aufräumen in book
             c.setText(".\n" + "You live in a divided world with many races. Here are some informations about some of them, you might meet others along the way.\n\n" +
                     "Dryads: ~2.2 meters high, thin creatures living in the woods. The relationship between Humans and Dryads is complicated to say the least, but " +
                     "both races swore to never inflict damage on the other. " +
@@ -73,11 +96,14 @@ public class Charaktererstellung implements Saveble {
 
             Text e = SceneBuilder.makeText();
             e.setText(".\n\nThere are more Races but they are not important right now.");
-*/
-
+             */
             spieltext.getChildren().addAll(a, b, c, d, e);
 
+            Button cont = SceneBuilder.makeButton(erste);
+            cont.setText("Continue");
+            cont.setOnMouseClicked(event -> Main.getStage().setScene(getScene(3)));
 
+            erste.getChildren().addAll(cont);
         }
 
         if (stage == 3) {//home
@@ -138,54 +164,15 @@ public class Charaktererstellung implements Saveble {
             Text q = Game.getInstance().whitebridge.getOrtText();
 
             Text r = SceneBuilder.makeText(" .");
+            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, m, n, o, p, q, r);
 
-
-            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, m, n, o, p,q,r);
-        }
-
-
-        TextField eingabe = new TextField();
-        eingabe.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(), 7));
-
-        if (stage == 1) {
-            Label name = new Label();
-            name.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(),7));
-            name.setTextFill(Paint.valueOf("ffffff"));
-            name.setText("Name :");
-
-
-            Button annahme = SceneBuilder.makeButton(erste);
-            annahme.setText("Accept");
-            annahme.setOnMouseClicked(event -> {
-                if (eingabe.getText().equals("")) {
-                    Game.getInstance().spieler.setName("Jan");
-                } else {
-                    Game.getInstance().spieler.setName(eingabe.getText());
-                }
-                Main.getStage().setScene(getScene(2));
-            });
-
-            erste.getChildren().addAll(name, eingabe, annahme);
-        }
-
-        if (stage == 2) {
-            Button cont = SceneBuilder.makeButton(erste);
-            cont.setText("Continue");
-            cont.setOnMouseClicked(event -> Main.getStage().setScene(getScene(3)));
-
-            erste.getChildren().addAll(cont);
-        }
-        if (stage == 3) {
             Button cont = SceneBuilder.makeButton(erste);
             cont.setText("Start your story");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.yourroom().getScene(0)));
 
             erste.getChildren().addAll(cont);
         }
-
-
-        scene = new Scene(SceneBuilder.buildGameScene(erste, rowtwo, rowthree, spieltext));
-
+        scene = new Scene(SceneBuilder.buildGameScene(erste, zweite, dritte, spieltext));
     }
 
     @Override

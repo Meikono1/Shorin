@@ -5,6 +5,7 @@ import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class Potion implements Item {
+    int delete = 0;
     private String beschreibung;
 
     public Potion(String text) {
@@ -29,7 +30,11 @@ public class Potion implements Item {
 
     @Override
     public void itemUse() {
-        Game.getInstance().spieler.heal(50);
+        if (Game.getInstance().spieler.getHealth() > Game.getInstance().spieler.maxHealth() - 50) {
+            Game.getInstance().spieler.heal(Game.getInstance().spieler.maxHealth() - Game.getInstance().spieler.getHealth());
+        } else {
+            Game.getInstance().spieler.heal(50);
+        }
         Game.getInstance().inventory.remove(this);
     }
 
@@ -38,4 +43,6 @@ public class Potion implements Item {
         //cant be dequiped
         return;
     }
+
+
 }
