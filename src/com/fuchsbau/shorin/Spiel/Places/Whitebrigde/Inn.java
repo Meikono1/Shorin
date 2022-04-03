@@ -1,7 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
 import com.fuchsbau.shorin.Items.MaxHealth;
-import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
@@ -15,7 +14,7 @@ import javafx.scene.text.TextFlow;
 public class Inn implements Saveble {
 
     private Scene scene;
-    private Barkeeper barkeeper = new Barkeeper();
+    private final Barkeeper barkeeper = new Barkeeper();
 
     private void makeScene() {
 

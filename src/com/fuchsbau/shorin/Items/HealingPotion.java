@@ -4,11 +4,11 @@ import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
-public class Potion implements Item {
+public class HealingPotion implements Item {
     int delete = 0;
     private String beschreibung;
 
-    public Potion(String text) {
+    public HealingPotion(String text) {
         beschreibung = text;
     }
 
@@ -46,6 +46,14 @@ public class Potion implements Item {
 
     @Override
     public int compareTo(Item o) {
-        return 0;
+        if (!o.getClass().equals(this.getClass())) {
+            return -1;
+        }
+        HealingPotion item = (HealingPotion) o;
+
+        if (this.beschreibung.equals(item.beschreibung)) {
+            return 0;
+        }
+        return -1;
     }
 }

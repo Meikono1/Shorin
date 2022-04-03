@@ -19,7 +19,6 @@ public enum Slot {
     Slot(int i, String text) {
         int id = i;
         Text beschreibung = SceneBuilder.makeText(text);
-
-
     }
+
 }

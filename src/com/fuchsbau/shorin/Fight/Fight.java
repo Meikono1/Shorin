@@ -1,6 +1,5 @@
 package com.fuchsbau.shorin.Fight;
 
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 
 public class Fight {

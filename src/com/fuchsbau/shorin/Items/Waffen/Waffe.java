@@ -8,12 +8,11 @@ import javafx.scene.text.Text;
 
 public class Waffe implements Item {
 
-    int delete=0;
     private String beschreibung;
-    private Materialen material;
-    private int qualitaet;
-    private int schaden;
-    private int zustand;
+    private final Materialen material;
+    private final int qualitaet;
+    private final int schaden;
+    private final int zustand;
 
     public Waffe(int schaden, int zustand, int qualitaet, Materialen material, String text) {
 
@@ -23,8 +22,6 @@ public class Waffe implements Item {
         this.zustand = zustand;
 
         beschreibung = text;
-
-
     }
 
 
@@ -58,11 +55,28 @@ public class Waffe implements Item {
     @Override
     public String toString() {
         return "Waffe{" +
-                "beschreibung=" + beschreibung+
+                "beschreibung=" + beschreibung +
                 ", material=" + material +
                 ", qualitaet=" + qualitaet +
                 ", schaden=" + schaden +
                 ", zustand=" + zustand +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Item o) {
+        if (!o.getClass().equals(this.getClass())) {
+            return -1;
+        }
+        Waffe item = (Waffe) o;
+
+        if (this.beschreibung.equals(item.beschreibung)
+                && item.material == this.material
+                && item.schaden == this.schaden
+                && item.zustand == this.zustand
+                && this.qualitaet == item.qualitaet) {
+            return 0;
+        }
+        return -1;
     }
 }

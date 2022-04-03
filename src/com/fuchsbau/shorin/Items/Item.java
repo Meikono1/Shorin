@@ -2,11 +2,11 @@ package com.fuchsbau.shorin.Items;
 
 import javafx.scene.text.Text;
 
-public interface Item {
+public interface Item extends Comparable<Item> {
 
-    public Text getBeschreibung();
+    Text getBeschreibung();
 
-    public void setBeschreibung(String beschreibung);
+    void setBeschreibung(String beschreibung);
 
     String getuseText();
 

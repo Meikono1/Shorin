@@ -1,13 +1,12 @@
 package com.fuchsbau.shorin.Characters.Humans;
 
 import com.fuchsbau.shorin.Characters.Char;
+import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
-import com.fuchsbau.shorin.Spiel.Game;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;

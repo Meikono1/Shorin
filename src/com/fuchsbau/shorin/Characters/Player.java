@@ -69,11 +69,13 @@ public class Player extends Char {
         return aktuell.getScene(savedstage);
     }
 
+
     public int maxHealth() {
         return maxhealth;
     }
 
     public void increasemaxHealth(int health) {
         maxhealth += health;
+        heal(health);
     }
 }

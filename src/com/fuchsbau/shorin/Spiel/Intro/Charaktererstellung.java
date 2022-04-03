@@ -1,10 +1,10 @@
 package com.fuchsbau.shorin.Spiel.Intro;
 
-import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Spiel.Game;
+import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
-import com.fuchsbau.shorin.Spiel.Game;
 import javafx.beans.binding.Bindings;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

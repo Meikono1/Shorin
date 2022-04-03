@@ -4,16 +4,16 @@ import com.fuchsbau.shorin.Characters.Humans.Dave;
 import com.fuchsbau.shorin.Characters.Player;
 import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
-import com.fuchsbau.shorin.Spiel.Places.Platz;
-import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks.Joshua;
-import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Whitebridge;
 import com.fuchsbau.shorin.Spiel.Lore.Armies.Greysmanace;
 import com.fuchsbau.shorin.Spiel.Lore.Time.BirthofMagic;
 import com.fuchsbau.shorin.Spiel.Lore.Time.GreatWar;
+import com.fuchsbau.shorin.Spiel.Places.Platz;
 import com.fuchsbau.shorin.Spiel.Places.Sudbury.Sudbury;
+import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks.Joshua;
+import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Whitebridge;
 
 public class Game {
-    private static Game ourInstance = new Game();
+    private static final Game ourInstance = new Game();
     public GameOptionen optionen = new GameOptionen();
     public Inventory inventory = new Inventory();
     public Player spieler = new Player();
@@ -26,7 +26,7 @@ public class Game {
     public GreatWar greatWar = new GreatWar("Great War");
     public Greysmanace greysmanace = new Greysmanace("Grey's Manace");
     public Sudbury sudbury = new Sudbury("Sudbury", "The Human capital. The King Rogg and his Family lives here in his Castle. Laws are made in the Council by the king," +
-            " 5 Huamn agents and 2 representatives of each race. \n The main entrance leads to Whitebridge.");
+            " 5 Human agents and 2 representatives of each race. \n The main entrance leads to Whitebridge.");
 
 
     private Game() {

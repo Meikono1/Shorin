@@ -25,7 +25,7 @@ public class GameOptionen {
     public static double itembuttonwidth = 100;
     public static double imagewidth = 220;
     public static double imageheight = 220;
-    public static int textsize = 23;
+    public static int textsize = 25;
     public static Insets padding = new Insets(5, 10, 5, 10);
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background testbackground = new Background(new BackgroundFill(Color.valueOf("23423c"), CornerRadii.EMPTY, Insets.EMPTY));
@@ -41,11 +41,7 @@ public class GameOptionen {
     private Scene scene;
 
     public static void toggleDelete() {
-        if (delete){
-            delete=false;
-        }else{
-            delete=true;
-        }
+        delete = !delete;
     }
 
 

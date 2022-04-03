@@ -1,8 +1,8 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop;
 
+import com.fuchsbau.shorin.Items.HealingPotion;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Materialen;
-import com.fuchsbau.shorin.Items.Potion;
 import com.fuchsbau.shorin.Items.Waffen.Breitschwert;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Haendler implements Saveble {
     private Scene scene;
-    private List<Item> liste = new ArrayList<Item>();
+    private final List<Item> liste = new ArrayList<>();
 
 
     private void makeScene() {
@@ -34,11 +34,11 @@ public class Haendler implements Saveble {
         });
         liste.add(breitschwert);
 
-        Potion heal = new Potion("Heiltrank");
+        HealingPotion heal = new HealingPotion("Heiltrank");
         Button healbuy = SceneBuilder.makeButton(erste);
         healbuy.setText("Buy Healpotion");
         healbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(new Potion("Heiltrank"));
+            Game.getInstance().inventory.addItem(new HealingPotion("Heiltrank"));
         });
         liste.add(heal);
 

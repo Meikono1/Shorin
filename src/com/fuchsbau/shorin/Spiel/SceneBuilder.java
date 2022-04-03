@@ -2,28 +2,23 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Optionen.GameOptionen;
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.NumberBinding;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Box;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.List;
+import java.util.TreeMap;
 
 public class SceneBuilder {
 
@@ -74,10 +69,9 @@ public class SceneBuilder {
 
         HBox box = new HBox();
         VBox pane = new VBox();
-        Iterator<Item> iter = liste.iterator();
 
-        while (iter.hasNext()) {
-            pane.getChildren().add(createShopItem(iter.next()));
+        for (Item item : liste) {
+            pane.getChildren().add(createShopItem(item));
         }
 
         pane.getChildren().addAll(box);
@@ -255,7 +249,7 @@ public class SceneBuilder {
         return scrollPane;
     }
 
-    public static BorderPane makePlayerInventory(HBox erste, List<Item> liste, Item head, Item chest, Item arms, Item pants, Item boots, Item weapon) {
+    public static BorderPane makePlayerInventory(HBox erste, TreeMap<Item, Integer> itemMap, Item head, Item chest, Item arms, Item pants, Item boots, Item weapon) {
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOptionen.height);
         haupt.setPrefWidth(GameOptionen.width);
@@ -293,7 +287,6 @@ public class SceneBuilder {
             //@TODO Methode für Equipte Items einfügen
         }
 
-
         left.getChildren().addAll(stats, equipt);
 
         //Center Abschnitt
@@ -322,9 +315,8 @@ public class SceneBuilder {
         items.minWidthProperty().bind(Bindings.subtract(pane.widthProperty(), 50));
 
         {
-            Iterator<Item> iter = liste.iterator();
-            while (iter.hasNext()) {
-                HBox next = createInventarItem(iter.next());
+            for (Item item : itemMap.keySet()) {
+                HBox next = createInventarItem(item, itemMap.get(item));
                 items.getChildren().add(next);
             }
         }
@@ -407,7 +399,7 @@ public class SceneBuilder {
         return back;
     }
 
-    private static HBox createInventarItem(Item item) {
+    private static HBox createInventarItem(Item item, Integer anzahl) {
         HBox zurueck = new HBox();
         zurueck.setSpacing(10);
         Button use = SceneBuilder.makeItemButton();
@@ -442,10 +434,14 @@ public class SceneBuilder {
         HBox.setHgrow(filler, Priority.ALWAYS);
 
         HBox size = new HBox();
-
         size.getChildren().add(beschreibung);
 
-        zurueck.getChildren().addAll(size, filler, use, delete);
+        HBox anz = new HBox();
+        Text menge = makeText("   " + anzahl);
+
+        anz.getChildren().add(menge);
+
+        zurueck.getChildren().addAll(size, anz, filler, use, delete);
         zurueck.setPadding(GameOptionen.padding);
 
         return zurueck;

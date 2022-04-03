@@ -30,7 +30,6 @@ public class Char {
     }
 
     public TextFlow makeBeschreibung(TextFlow pane) {
-
         return pane;
     }
 

@@ -1,12 +1,12 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde;
 
+import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
+import com.fuchsbau.shorin.Spiel.Places.Platz;
+import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks.Barracks;
 import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop.Shop;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Places.Platz;
-import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks.Barracks;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -16,10 +16,10 @@ import javafx.scene.text.TextFlow;
 public class Whitebridge extends Platz implements Saveble {
 
     public Barracks barracks = new Barracks();
-    private Inn inn = new Inn();
-    private Library library = new Library();
-    private Shop shop = new Shop();
-    private Entrance entrance = new Entrance();
+    private final Inn inn = new Inn();
+    private final Library library = new Library();
+    private final Shop shop = new Shop();
+    private final Entrance entrance = new Entrance();
     private Scene scene;
     private int ort = 1;
     private int whitebridgestage = 0;
