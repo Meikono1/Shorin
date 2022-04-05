@@ -15,8 +15,8 @@ public class Barracks implements Saveble {
 
 
     private Scene scene;
-    private YourRoom yourRoom = new YourRoom();
-    private Training trainroom = new Training();
+    private final YourRoom yourRoom = new YourRoom();
+    private final Training trainroom = new Training();
 
     public Barracks() {
 

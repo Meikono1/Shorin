@@ -16,7 +16,6 @@ public class Character {
         beschreibung = "None";
     }
 
-
     public void setWeapon(Item weapon) {
         Weapon = weapon;
     }

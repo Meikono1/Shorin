@@ -52,10 +52,7 @@ public class Weapon implements Item {
 
     @Override
     public boolean isBase() {
-        if (this.getClass().equals(Unarmed.class)) {
-            return true;
-        }
-        return false;
+        return this.getClass().equals(Unarmed.class);
     }
 
     @Override

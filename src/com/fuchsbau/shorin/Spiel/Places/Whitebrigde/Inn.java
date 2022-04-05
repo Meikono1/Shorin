@@ -66,7 +66,7 @@ public class Inn implements Saveble {
     }
 
 
-    private class Barkeeper implements Saveble {
+    private static class Barkeeper implements Saveble {
         Scene scene;
 
         private void makeScene() {

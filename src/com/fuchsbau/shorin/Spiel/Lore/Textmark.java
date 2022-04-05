@@ -6,7 +6,7 @@ import javafx.scene.text.Text;
 
 public class Textmark {
 
-    private String name;
+    private final String name;
 
     public Textmark(String name) {
         this.name = name;

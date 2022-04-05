@@ -14,7 +14,7 @@ public class Player extends Character {
     private Saveble aktuell;
     private int savedstage;
     private int maxhealth = 100;
-    private int fuchs;
+    private final int fuchs;
 
     public int kitsune = 0;
 

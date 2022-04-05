@@ -88,8 +88,6 @@ public class GameOption {
         save.setText("Save game");
         save.setOnMouseClicked(event -> {
             File file = new File("save01.txt");
-            file.setWritable(true);
-
             try {
                 FileWriter fileWriter = new FileWriter(file);
                 fileWriter.write(Game.getInstance().saveEverything());
@@ -141,7 +139,6 @@ public class GameOption {
 
     public String save() {
         StringBuilder builder = new StringBuilder();
-        builder.append("");
 
         return builder.toString();
     }

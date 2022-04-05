@@ -21,8 +21,8 @@ public class Whitebridge extends Platz implements Saveble {
     private final Shop shop = new Shop();
     private final Entrance entrance = new Entrance();
     private Scene scene;
-    private int ort = 1;
-    private int whitebridgestage = 0;
+    private final int ort = 1;
+    private final int whitebridgestage = 0;
     /*    Stage 0 = Anfang. => geschichte wird gezeigt.
     /
      */

@@ -14,9 +14,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
 public class Mainscreen implements Saveble {
-    private Creation creation = new Creation();
+    private final Creation creation = new Creation();
     private Scene scene;
-    private String patchnotes = "Shorin Patch : 0.1";
+    private final String patchnotes = "Shorin Patch : 0.1";
     int i = 0;
     int j = 0;
 

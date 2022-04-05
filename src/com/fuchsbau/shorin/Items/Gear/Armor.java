@@ -15,8 +15,8 @@ import java.util.LinkedList;
 public class Armor implements Item {
 
     int delete = 0;
-    public int armor;
-    public int qualitaet;
+    public final int armor;
+    public final int qualitaet;
     private String beschreibung;
     private final Slot slot;
 

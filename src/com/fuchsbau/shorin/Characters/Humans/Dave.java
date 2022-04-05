@@ -19,7 +19,7 @@ public class Dave extends Character implements Saveble {
     /*ort
      1 = Whitebridge
      */
-    private int stage;
+    private final int stage;
     /*stage
       0 = erstes mal treffen
      */
