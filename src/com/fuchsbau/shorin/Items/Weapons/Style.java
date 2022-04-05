@@ -1,9 +1,9 @@
-package com.fuchsbau.shorin.Items.Waffen;
+package com.fuchsbau.shorin.Items.Weapons;
 
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
-enum Art {
+enum Style {
 
     einhand(1, "one handed") {
 
@@ -11,7 +11,7 @@ enum Art {
     zweihand(2, "two handed") {
     };
 
-    Art(int i, String text) {
+    Style(int i, String text) {
         int id = i;
         Text beschreibung = SceneBuilder.makeText(text);
 

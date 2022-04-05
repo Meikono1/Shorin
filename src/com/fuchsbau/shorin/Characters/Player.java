@@ -9,7 +9,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 
-public class Player extends Char {
+public class Player extends Character {
 
     private Saveble aktuell;
     private int savedstage;

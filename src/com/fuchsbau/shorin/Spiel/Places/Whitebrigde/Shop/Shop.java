@@ -20,7 +20,7 @@ public class Shop implements Saveble {
         Button shopping = SceneBuilder.makeButton(erste);
         shopping.setText("Buy Items");
         shopping.setOnMouseClicked(event -> {
-            Main.getStage().setScene(new Haendler().getScene(0));
+            Main.getStage().setScene(new Shopkeeper().getScene(0));
         });
 
         erste.getChildren().add(shopping);

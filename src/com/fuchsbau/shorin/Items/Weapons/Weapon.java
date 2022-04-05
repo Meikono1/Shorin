@@ -1,20 +1,20 @@
-package com.fuchsbau.shorin.Items.Waffen;
+package com.fuchsbau.shorin.Items.Weapons;
 
 import com.fuchsbau.shorin.Items.Item;
-import com.fuchsbau.shorin.Items.Materialen;
+import com.fuchsbau.shorin.Items.Material;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
-public class Waffe implements Item {
+public class Weapon implements Item {
 
     private String beschreibung;
-    private final Materialen material;
+    private final Material material;
     private final int qualitaet;
     private final int schaden;
     private final int zustand;
 
-    public Waffe(int schaden, int zustand, int qualitaet, Materialen material, String text) {
+    public Weapon(int schaden, int zustand, int qualitaet, Material material, String text) {
         this.material = material;
         this.qualitaet = qualitaet;
         this.schaden = schaden;
@@ -50,21 +50,9 @@ public class Waffe implements Item {
         Game.getInstance().inventory.dequipWeapon(this);
     }
 
-
-    @Override
-    public String toString() {
-        return "Waffe{" +
-                "beschreibung=" + beschreibung +
-                ", material=" + material +
-                ", qualitaet=" + qualitaet +
-                ", schaden=" + schaden +
-                ", zustand=" + zustand +
-                '}';
-    }
-
     @Override
     public boolean isBase() {
-        if (this.getClass().equals(Faust.class)) {
+        if (this.getClass().equals(Unarmed.class)) {
             return true;
         }
         return false;
@@ -75,7 +63,7 @@ public class Waffe implements Item {
         if (!o.getClass().equals(this.getClass())) {
             return -1;
         }
-        Waffe item = (Waffe) o;
+        Weapon item = (Weapon) o;
 
         if (this.beschreibung.equals(item.beschreibung)
                 && item.material == this.material

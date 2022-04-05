@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Optionen.GameOption;
-import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
+import com.fuchsbau.shorin.Spiel.Intro.Creation;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,8 +13,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
-public class Hauptbildschirm implements Saveble {
-    private Charaktererstellung charaktererstellung = new Charaktererstellung();
+public class Mainscreen implements Saveble {
+    private Creation creation = new Creation();
     private Scene scene;
     private String patchnotes = "Shorin Patch : 0.1";
     int i = 0;
@@ -36,7 +36,7 @@ public class Hauptbildschirm implements Saveble {
         Button start = new Button("Game Start");
         start.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Charaktererstellung");
-            Main.getStage().setScene(charaktererstellung.getScene(1));
+            Main.getStage().setScene(creation.getScene(1));
         });
         start.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
 

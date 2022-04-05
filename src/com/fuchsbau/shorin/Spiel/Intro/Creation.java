@@ -16,7 +16,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Charaktererstellung implements Saveble {
+public class Creation implements Saveble {
 
     private Scene scene;
 

@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Characters.Humans;
 
-import com.fuchsbau.shorin.Characters.Char;
+import com.fuchsbau.shorin.Characters.Character;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
@@ -11,7 +11,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Dave extends Char implements Saveble {
+public class Dave extends Character implements Saveble {
 
 
     private Scene scene;

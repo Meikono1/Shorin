@@ -2,8 +2,8 @@ package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Shop;
 
 import com.fuchsbau.shorin.Items.HealingPotion;
 import com.fuchsbau.shorin.Items.Item;
-import com.fuchsbau.shorin.Items.Materialen;
-import com.fuchsbau.shorin.Items.Waffen.Breitschwert;
+import com.fuchsbau.shorin.Items.Material;
+import com.fuchsbau.shorin.Items.Weapons.Broadsword;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
@@ -15,7 +15,7 @@ import javafx.scene.layout.HBox;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Haendler implements Saveble {
+public class Shopkeeper implements Saveble {
     private Scene scene;
     private final List<Item> liste = new ArrayList<>();
 
@@ -25,14 +25,14 @@ public class Haendler implements Saveble {
         HBox erste = SceneBuilder.makeButtonrow();
 
         //TODO Items hinzufügen
-        Breitschwert breitschwert = new Breitschwert(1, 1, 1, Materialen.eisen, "Iron Broadsword");
+        Broadsword broadsword = new Broadsword(1, 1, 1, Material.eisen, "Iron Broadsword");
         Button broadbuy = SceneBuilder.makeButton(erste);
 
         broadbuy.setText("Buy Broadsword");
         broadbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(new Breitschwert(1, 1, 1, Materialen.eisen, "Iron Broadsword"));
+            Game.getInstance().inventory.addItem(new Broadsword(1, 1, 1, Material.eisen, "Iron Broadsword"));
         });
-        liste.add(breitschwert);
+        liste.add(broadsword);
 
         HealingPotion heal = new HealingPotion("Heiltrank");
         Button healbuy = SceneBuilder.makeButton(erste);

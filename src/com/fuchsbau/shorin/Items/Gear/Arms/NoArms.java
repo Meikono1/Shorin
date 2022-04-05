@@ -7,4 +7,9 @@ public class NoArms extends Armor {
     public NoArms() {
         super(0, 1, "Bare Arms", Slot.arms);
     }
+
+    @Override
+    public String toString() {
+        return "NoArms";
+    }
 }

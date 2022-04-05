@@ -3,12 +3,13 @@ package com.fuchsbau.shorin.Items.Gear.Head;
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Gear.Slot;
 
-public class NoHat extends Armor {
-    public NoHat() {
-        super(0, 0, "No Head", Slot.head);
+public class ClothHelm extends Armor {
+    public ClothHelm() {
+        super(1,1, "Cloth hat", Slot.head);
     }
+
     @Override
     public String toString() {
-        return "NoHat";
+        return "Clothhelm";
     }
 }

@@ -40,12 +40,12 @@ public class Armor implements Item {
 
     @Override
     public String getuseText() {
-        return null;
+        return "Equip";
     }
 
     @Override
     public void itemUse() {
-
+        Game.getInstance().inventory.equip(this);
     }
 
     @Override
@@ -67,14 +67,14 @@ public class Armor implements Item {
     @Override
     public int compareTo(Item o) {
         if (!o.getClass().equals(this.getClass())) {
-            return -1;
+            return o.toString().compareTo(this.toString());
         }
         Armor item = (Armor) o;
 
         if (this.beschreibung.equals(item.beschreibung) && item.slot == this.slot && this.armor == item.armor) {
             return 0;
         }
-        return -1;
+        return o.toString().compareTo(this.toString());
     }
 
     public Slot getSlot() {

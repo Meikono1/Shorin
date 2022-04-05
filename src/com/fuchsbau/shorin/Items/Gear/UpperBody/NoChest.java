@@ -8,4 +8,8 @@ public class NoChest extends Armor {
         super(0, 0, "Naked Chest", Slot.chest);
     }
 
+    @Override
+    public String toString() {
+        return "NoChest";
+    }
 }

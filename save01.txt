@@ -1,0 +1,1 @@
+{Clothhelm,Clothchest,ClothBoots,NoArms,Clothpants,Waffe{beschreibung=Unarmed, material=stein, qualitaet=1, schaden=2, zustand=1}}

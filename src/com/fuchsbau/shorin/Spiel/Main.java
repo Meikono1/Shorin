@@ -28,7 +28,7 @@ public class Main extends Application {
         stage.setHeight(GameOption.height);
         stage.setWidth(GameOption.width);
         stage.setTitle("Shorin");
-        stage.setScene(new Hauptbildschirm().getScene(0));
+        stage.setScene(new Mainscreen().getScene(0));
         stage.show();
     }
 

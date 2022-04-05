@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Optionen;
 
 import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Hauptbildschirm;
+import com.fuchsbau.shorin.Spiel.Mainscreen;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.beans.binding.NumberBinding;
@@ -14,6 +14,10 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 public class GameOption {
@@ -74,13 +78,29 @@ public class GameOption {
         back.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin");
             if (stage == 0) {
-                Main.getStage().setScene(new Hauptbildschirm().getScene(0));
+                Main.getStage().setScene(new Mainscreen().getScene(0));
             } else {
                 Main.getStage().setScene(Game.getInstance().inventory.getScene());
             }
         });
 
-        buttongroup.getChildren().setAll(back);
+        Button save = SceneBuilder.makeButton(buttongroup);
+        save.setText("Save game");
+        save.setOnMouseClicked(event -> {
+            File file = new File("save01.txt");
+            file.setWritable(true);
+
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                fileWriter.write(Game.getInstance().saveEverything());
+                fileWriter.close();
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        buttongroup.getChildren().setAll(back, save);
 
         BorderPane pane = new BorderPane();
         pane.setBottom(buttongroup);
@@ -117,5 +137,12 @@ public class GameOption {
     public Scene getScene(int stage) {
         makePane(stage);
         return scene;
+    }
+
+    public String save() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("");
+
+        return builder.toString();
     }
 }

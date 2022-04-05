@@ -1,28 +1,28 @@
 package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Items.Item;
-import com.fuchsbau.shorin.Items.Waffen.Faust;
+import com.fuchsbau.shorin.Items.Weapons.Unarmed;
 import javafx.scene.text.TextFlow;
 
-public class Char {
+public class Character {
 
     private int health;
     private String beschreibung;
-    Item Waffe = new Faust();
+    Item Weapon = new Unarmed();
 
 
-    public Char(int health) {
+    public Character(int health) {
         this.health = health;
         beschreibung = "None";
     }
 
 
-    public void setWaffe(Item waffe) {
-        Waffe = waffe;
+    public void setWeapon(Item weapon) {
+        Weapon = weapon;
     }
 
-    public Item getWaffe() {
-        return Waffe;
+    public Item getWeapon() {
+        return Weapon;
     }
 
     public int getHealth() {

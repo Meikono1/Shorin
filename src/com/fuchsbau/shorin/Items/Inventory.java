@@ -2,16 +2,16 @@ package com.fuchsbau.shorin.Items;
 
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Gear.Arms.NoArms;
-import com.fuchsbau.shorin.Items.Gear.Boots.Clothboots;
+import com.fuchsbau.shorin.Items.Gear.Boots.ClothBoots;
 import com.fuchsbau.shorin.Items.Gear.Boots.NoShoos;
-import com.fuchsbau.shorin.Items.Gear.Head.Clothhelm;
+import com.fuchsbau.shorin.Items.Gear.Head.ClothHelm;
 import com.fuchsbau.shorin.Items.Gear.Head.NoHat;
-import com.fuchsbau.shorin.Items.Gear.LowerBody.Clothpants;
+import com.fuchsbau.shorin.Items.Gear.LowerBody.ClothPants;
 import com.fuchsbau.shorin.Items.Gear.LowerBody.NoPants;
-import com.fuchsbau.shorin.Items.Gear.UpperBody.Clothchest;
+import com.fuchsbau.shorin.Items.Gear.UpperBody.ClothChest;
 import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
-import com.fuchsbau.shorin.Items.Waffen.Faust;
-import com.fuchsbau.shorin.Items.Waffen.Waffe;
+import com.fuchsbau.shorin.Items.Weapons.Unarmed;
+import com.fuchsbau.shorin.Items.Weapons.Weapon;
 import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
@@ -25,29 +25,28 @@ import java.util.TreeMap;
 public class Inventory {
 
     private Scene scene;
-    private TreeMap<Item, Integer> items;
+    private final TreeMap<Item, Integer> items;
 
     private Armor head;
     private Armor chest;
-    private Waffe weapon;
     private Armor boots;
     private Armor arms;
     private Armor pants;
+    private Weapon weapon;
 
 
     public Inventory() {
         items = new TreeMap<>();
 
-        head = new Clothhelm();
-        chest = new Clothchest();
-        weapon = new Faust();
-        boots = new Clothboots();
+        head = new ClothHelm();
+        chest = new ClothChest();
+        weapon = new Unarmed();
+        boots = new ClothBoots();
         arms = new NoArms();
-        pants = new Clothpants();
+        pants = new ClothPants();
 
         //TODO Mehr Items hinzufügen.
         //TODO Standart Melee weapon hinzufügen.
-        //TODO ausziehen hinnzufügen
 
     }
 
@@ -88,24 +87,60 @@ public class Inventory {
         return scene;
     }
 
-    public void equip(Waffe waffe) {
-        if (!weapon.toString().equals(new Faust().toString())) {
-            addItem(weapon);
+    public void equip(Weapon weapon) {
+        if (!this.weapon.toString().equals(new Unarmed().toString())) {
+            addItem(this.weapon);
         }
 
-        if (items.get(waffe) > 1) {
-            items.replace(waffe, items.get(waffe) - 1);
+        if (items.get(weapon) > 1) {
+            items.replace(weapon, items.get(weapon) - 1);
         } else {
-            items.remove(waffe);
+            items.remove(weapon);
         }
 
-        weapon = waffe;
+        this.weapon = weapon;
     }
 
-    public void dequipWeapon(Waffe waffe) {
-        if (!waffe.toString().equals(new Faust().toString())) {
-            weapon = new Faust();
-            addItem(waffe);
+    public void equip(Armor armor) {
+        switch (armor.getSlot()) {
+            case head:
+                if (!(head instanceof NoHat)) {
+                    dequipArmor(armor);
+                }
+                head = armor;
+                break;
+            case boots:
+                if (!(boots instanceof NoShoos)) {
+                    dequipArmor(armor);
+                }
+                boots = armor;
+                break;
+            case chest:
+                if (!(chest instanceof NoChest)) {
+                    dequipArmor(armor);
+                }
+                chest = armor;
+                break;
+            case pants:
+                if (!(pants instanceof NoPants)) {
+                    dequipArmor(armor);
+                }
+                pants = armor;
+                break;
+            case arms:
+                if (!(arms instanceof NoArms)) {
+                    dequipArmor(armor);
+                }
+                arms = armor;
+                break;
+        }
+        remove(armor);
+    }
+
+    public void dequipWeapon(Weapon weapon) {
+        if (!weapon.toString().equals(new Unarmed().toString())) {
+            this.weapon = new Unarmed();
+            addItem(weapon);
         }
     }
 
@@ -164,5 +199,18 @@ public class Inventory {
                     head = new NoArms();
                 }
         }
+    }
+
+
+    public String save() {
+        String builder = "{" +
+                head.toString() + "," +
+                chest.toString() + "," +
+                boots.toString() + "," +
+                arms.toString() + "," +
+                pants.toString() + "," +
+                weapon.toString() +
+                "}\n";
+        return builder;
     }
 }

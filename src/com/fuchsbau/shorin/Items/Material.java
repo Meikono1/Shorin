@@ -1,11 +1,11 @@
 package com.fuchsbau.shorin.Items;
 
-public enum Materialen {
+public enum Material {
     stein("Stone"), holz("Wooden"), kupfer("Copper"), bronze("Bronze"), eisen("Iron");
 
-    private String beschreibung;
+    private final String beschreibung;
 
-    Materialen(String name) {
+    Material(String name) {
         beschreibung = name;
     }
 

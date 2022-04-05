@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.Spiel;
 
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Item;
-import com.fuchsbau.shorin.Items.Waffen.Waffe;
+import com.fuchsbau.shorin.Items.Weapons.Weapon;
 import com.fuchsbau.shorin.Optionen.GameOption;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -253,7 +253,7 @@ public class SceneBuilder {
         return scrollPane;
     }
 
-    public static BorderPane makePlayerInventory(HBox erste, TreeMap<Item, Integer> itemMap, Armor head, Armor chest, Armor arms, Armor pants, Armor boots, Waffe weapon) {
+    public static BorderPane makePlayerInventory(HBox erste, TreeMap<Item, Integer> itemMap, Armor head, Armor chest, Armor arms, Armor pants, Armor boots, Weapon weapon) {
         BorderPane haupt = new BorderPane();
         haupt.setPrefHeight(GameOption.height);
         haupt.setPrefWidth(GameOption.width);
@@ -413,7 +413,7 @@ public class SceneBuilder {
             Armor armor = (Armor) item;
             unten = makeText("  " + armor.armor + ",   " + armor.qualitaet + ",   0");
         } else {
-            Waffe waffe = (Waffe) item;
+            Weapon waffe = (Weapon) item;
             unten = makeText("  0,   0,   0");
         }
 

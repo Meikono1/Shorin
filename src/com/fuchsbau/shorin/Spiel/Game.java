@@ -42,4 +42,12 @@ public class Game {
     }
 
 
+    public String saveEverything() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(optionen.save());
+        builder.append(inventory.save());
+
+
+        return builder.toString();
+    }
 }
