@@ -43,6 +43,11 @@ public class Potion implements Item {
         //cant be dequiped
     }
 
+    @Override
+    public boolean isBase() {
+        return false;
+    }
+
 
     @Override
     public int compareTo(Item o) {

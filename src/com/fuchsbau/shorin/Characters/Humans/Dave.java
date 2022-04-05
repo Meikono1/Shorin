@@ -28,7 +28,6 @@ public class Dave extends Char implements Saveble {
     public Dave() {
         super(100);
         this.stage = 0;
-
     }
 
 

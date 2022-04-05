@@ -3,7 +3,7 @@ package com.fuchsbau.shorin.Spiel;
 import com.fuchsbau.shorin.Characters.Humans.Dave;
 import com.fuchsbau.shorin.Characters.Player;
 import com.fuchsbau.shorin.Items.Inventory;
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.Lore.Armies.Greysmanace;
 import com.fuchsbau.shorin.Spiel.Lore.Time.BirthofMagic;
 import com.fuchsbau.shorin.Spiel.Lore.Time.GreatWar;
@@ -14,7 +14,7 @@ import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Whitebridge;
 
 public class Game {
     private static final Game ourInstance = new Game();
-    public GameOptionen optionen = new GameOptionen();
+    public GameOption optionen = new GameOption();
     public Inventory inventory = new Inventory();
     public Player spieler = new Player();
     public Joshua joshua = new Joshua();

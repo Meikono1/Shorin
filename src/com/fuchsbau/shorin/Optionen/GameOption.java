@@ -16,7 +16,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 
 
-public class GameOptionen {
+public class GameOption {
 
     public static boolean delete;
     public static double width = 1500;
@@ -37,6 +37,7 @@ public class GameOptionen {
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint ortcolor = Paint.valueOf("409970");
     public static Paint goodPaint = Paint.valueOf("589214");
+    public static Paint goldPaint = Paint.valueOf("878707");
 
     private Scene scene;
 
@@ -65,7 +66,7 @@ public class GameOptionen {
 
 
         HBox buttongroup = SceneBuilder.makeButtonrow();
-        buttongroup.setBackground(GameOptionen.rowHintergrund);
+        buttongroup.setBackground(GameOption.rowHintergrund);
         buttongroup.setPrefHeight(100);
 
         Button back = SceneBuilder.makeButton(buttongroup);
@@ -95,7 +96,6 @@ public class GameOptionen {
 
 
         return back;
-
     }
 
     private HBox makeOption(String option, Button button) {

@@ -1,14 +1,18 @@
 package com.fuchsbau.shorin.Items;
 
 import com.fuchsbau.shorin.Items.Gear.Armor;
-import com.fuchsbau.shorin.Items.Gear.Arms.Freearms;
+import com.fuchsbau.shorin.Items.Gear.Arms.NoArms;
 import com.fuchsbau.shorin.Items.Gear.Boots.Clothboots;
+import com.fuchsbau.shorin.Items.Gear.Boots.NoShoos;
 import com.fuchsbau.shorin.Items.Gear.Head.Clothhelm;
+import com.fuchsbau.shorin.Items.Gear.Head.NoHat;
 import com.fuchsbau.shorin.Items.Gear.LowerBody.Clothpants;
+import com.fuchsbau.shorin.Items.Gear.LowerBody.NoPants;
 import com.fuchsbau.shorin.Items.Gear.UpperBody.Clothchest;
+import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
 import com.fuchsbau.shorin.Items.Waffen.Faust;
 import com.fuchsbau.shorin.Items.Waffen.Waffe;
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
@@ -38,7 +42,7 @@ public class Inventory {
         chest = new Clothchest();
         weapon = new Faust();
         boots = new Clothboots();
-        arms = new Freearms();
+        arms = new NoArms();
         pants = new Clothpants();
 
         //TODO Mehr Items hinzufügen.
@@ -53,14 +57,14 @@ public class Inventory {
         Button back = SceneBuilder.makeButton(erste);
         back.setText("Back");
         back.setOnMouseClicked(event -> {
-            GameOptionen.delete = false;
+            GameOption.delete = false;
             Main.getStage().setScene(Game.getInstance().spieler.getAktuell());
         });
 
         Button delete = SceneBuilder.makeButton(erste);
         delete.setText("Toggle delete");
         delete.setOnMouseClicked(event -> {
-            GameOptionen.toggleDelete();
+            GameOption.toggleDelete();
             Main.getStage().setScene(getScene());
         });
 
@@ -98,7 +102,7 @@ public class Inventory {
         weapon = waffe;
     }
 
-    public void dequip(Waffe waffe) {
+    public void dequipWeapon(Waffe waffe) {
         if (!waffe.toString().equals(new Faust().toString())) {
             weapon = new Faust();
             addItem(waffe);
@@ -116,5 +120,49 @@ public class Inventory {
 
     public TreeMap<Item, Integer> getItems() {
         return items;
+    }
+
+    public void dequipArmor(Armor armor) {
+        switch (armor.getSlot()) {
+            case head:
+                if (armor.getClass().isInstance(NoHat.class)) {
+                    return;
+                } else {
+                    addItem(armor);
+                    head = new NoHat();
+                }
+                return;
+            case boots:
+                if (armor.getClass().isInstance(NoShoos.class)) {
+                    return;
+                } else {
+                    addItem(armor);
+                    boots = new NoShoos();
+                }
+                return;
+            case chest:
+                if (armor.getClass().isInstance(NoChest.class)) {
+                    return;
+                } else {
+                    addItem(armor);
+                    chest = new NoChest();
+                }
+                return;
+            case pants:
+                if (armor.getClass().isInstance(NoPants.class)) {
+                    return;
+                } else {
+                    addItem(armor);
+                    pants = new NoPants();
+                }
+                return;
+            case arms:
+                if (armor.getClass().isInstance(NoArms.class)) {
+                    return;
+                } else {
+                    addItem(armor);
+                    head = new NoArms();
+                }
+        }
     }
 }

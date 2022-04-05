@@ -16,5 +16,7 @@ public interface Item extends Comparable<Item> {
 
     @Override
     String toString();
+
+    boolean isBase();
 }
 

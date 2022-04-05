@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Intro;
 
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
@@ -132,34 +132,34 @@ public class Charaktererstellung implements Saveble {
 
             Text i = SceneBuilder.makeText();
             i.setText("Your mission:\n");
-            i.setFill(GameOptionen.highlightBlue);
+            i.setFill(GameOption.highlightBlue);
 
             Text j = SceneBuilder.makeText();
             j.setText("In 2 days a convoy is heading towards ");
-            j.setFill(GameOptionen.missionDescription);
+            j.setFill(GameOption.missionDescription);
 
             Text k = Game.getInstance().shallowmill.getOrtText();
 
             Text l = SceneBuilder.makeText();
             l.setText(".\n");
-            l.setFill(GameOptionen.missionDescription);
+            l.setFill(GameOption.missionDescription);
 
             Text la = Game.getInstance().spieler.getName();
 
             //TODO make Dave NPC color
             Text lb = SceneBuilder.makeText(" and Dave will guard them on the journey and protect them against Human/Orc Thieves.\nThere are no dangers expected, but the party will come close to the ");
-            lb.setFill(GameOptionen.missionDescription);
+            lb.setFill(GameOption.missionDescription);
 
             Text m = Game.getInstance().unbridledland.getOrtText();
 
             Text n = SceneBuilder.makeText();//TODO check text
             n.setText(".\nIf there are Kitsune spottet, avoid the Fight. They will not attack and are no Threat to the group.\nWe expect to reach ");
-            n.setFill(GameOptionen.missionDescription);
+            n.setFill(GameOption.missionDescription);
 
             Text o = Game.getInstance().shallowmill.getOrtText();
 
             Text p = SceneBuilder.makeText(" in 3 Days. After Arrival The Caravan will depart again 2 Days later, returning to ");
-            p.setFill(GameOptionen.missionDescription);
+            p.setFill(GameOption.missionDescription);
 
             Text q = Game.getInstance().whitebridge.getOrtText();
 

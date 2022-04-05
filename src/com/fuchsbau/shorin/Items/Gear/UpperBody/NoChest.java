@@ -1,0 +1,11 @@
+package com.fuchsbau.shorin.Items.Gear.UpperBody;
+
+import com.fuchsbau.shorin.Items.Gear.Armor;
+import com.fuchsbau.shorin.Items.Gear.Slot;
+
+public class NoChest extends Armor {
+    public NoChest() {
+        super(0, 0, "Naked Chest", Slot.chest);
+    }
+
+}

@@ -1,18 +1,28 @@
 package com.fuchsbau.shorin.Items.Gear;
 
+import com.fuchsbau.shorin.Items.Gear.Arms.NoArms;
+import com.fuchsbau.shorin.Items.Gear.Boots.NoShoos;
+import com.fuchsbau.shorin.Items.Gear.Head.NoHat;
+import com.fuchsbau.shorin.Items.Gear.LowerBody.NoPants;
+import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
 import com.fuchsbau.shorin.Items.Item;
+import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
+
+import java.util.LinkedList;
 
 public class Armor implements Item {
 
     int delete = 0;
-    int armor;
+    public int armor;
+    public int qualitaet;
     private String beschreibung;
-    private Slot slot;
+    private final Slot slot;
 
     public Armor(int armor, int qualitaet, String text, Slot slot) {
         this.armor = armor;
+        this.qualitaet = qualitaet;
         this.slot = slot;
         beschreibung = text;
     }
@@ -40,7 +50,18 @@ public class Armor implements Item {
 
     @Override
     public void dequip() {
+        Game.getInstance().inventory.dequipArmor(this);
+    }
 
+    @Override
+    public boolean isBase() {
+        LinkedList<Class> classes = new LinkedList<>();
+        classes.add(NoPants.class);
+        classes.add(NoArms.class);
+        classes.add(NoShoos.class);
+        classes.add(NoHat.class);
+        classes.add(NoChest.class);
+        return classes.contains(this.getClass());
     }
 
     @Override
@@ -54,5 +75,9 @@ public class Armor implements Item {
             return 0;
         }
         return -1;
+    }
+
+    public Slot getSlot() {
+        return this.slot;
     }
 }

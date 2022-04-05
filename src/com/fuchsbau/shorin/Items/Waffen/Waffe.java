@@ -15,7 +15,6 @@ public class Waffe implements Item {
     private final int zustand;
 
     public Waffe(int schaden, int zustand, int qualitaet, Materialen material, String text) {
-
         this.material = material;
         this.qualitaet = qualitaet;
         this.schaden = schaden;
@@ -48,7 +47,7 @@ public class Waffe implements Item {
 
     @Override
     public void dequip() {
-        Game.getInstance().inventory.dequip(this);
+        Game.getInstance().inventory.dequipWeapon(this);
     }
 
 
@@ -61,6 +60,14 @@ public class Waffe implements Item {
                 ", schaden=" + schaden +
                 ", zustand=" + zustand +
                 '}';
+    }
+
+    @Override
+    public boolean isBase() {
+        if (this.getClass().equals(Faust.class)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

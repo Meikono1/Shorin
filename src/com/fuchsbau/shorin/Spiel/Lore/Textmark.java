@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Lore;
 
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
@@ -15,7 +15,7 @@ public class Textmark {
 
     public Text getName() {
         Text back = SceneBuilder.makeText(name);
-        back.setFill(GameOptionen.timestamp);
+        back.setFill(GameOption.timestamp);
         return back;
     }
 }

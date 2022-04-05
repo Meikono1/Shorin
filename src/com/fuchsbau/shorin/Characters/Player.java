@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Characters;
 
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
@@ -14,6 +14,7 @@ public class Player extends Char {
     private Saveble aktuell;
     private int savedstage;
     private int maxhealth = 100;
+    private int fuchs;
 
     public int kitsune = 0;
 
@@ -27,6 +28,7 @@ public class Player extends Char {
 
     public Player() {
         super(100);
+        fuchs = 100;
     }
 
     public Text getName() {
@@ -50,7 +52,7 @@ public class Player extends Char {
         pane.getChildren().add(SceneBuilder.makeText("Your name is: "));
 
         Text text = SceneBuilder.makeText(name);
-        text.setFill(GameOptionen.player);
+        text.setFill(GameOption.player);
         pane.getChildren().add(text);
 
         pane.getChildren().add(SceneBuilder.makeText(".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n"));
@@ -77,5 +79,9 @@ public class Player extends Char {
     public void increasemaxHealth(int health) {
         maxhealth += health;
         heal(health);
+    }
+
+    public String getFuchs() {
+        return String.valueOf(fuchs);
     }
 }

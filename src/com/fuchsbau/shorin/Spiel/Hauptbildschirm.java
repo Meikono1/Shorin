@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Spiel;
 
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.Intro.Charaktererstellung;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -28,7 +28,7 @@ public class Hauptbildschirm implements Saveble {
         top.getChildren().add(patch);
 
         HBox boxone = new HBox();
-        boxone.setBackground(GameOptionen.rowHintergrund);
+        boxone.setBackground(GameOption.rowHintergrund);
         boxone.setSpacing(10);
         boxone.setPrefHeight(100);
         boxone.setAlignment(Pos.CENTER);
@@ -58,7 +58,7 @@ public class Hauptbildschirm implements Saveble {
 
 
         BorderPane pane = SceneBuilder.buildBorderPane(top, null, null, boxone);
-        pane.setBackground(GameOptionen.hintergrund);
+        pane.setBackground(GameOption.hintergrund);
         scene = new Scene(pane);
     }
 

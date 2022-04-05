@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Places;
 
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.text.Text;
 
@@ -15,7 +15,7 @@ public class Platz {
         this.name = name;
         this.beschreibung = beschreibung;
         ingamebeschreibung.setText(name);
-        ingamebeschreibung.setFill(GameOptionen.ortcolor);
+        ingamebeschreibung.setFill(GameOption.ortcolor);
 
     }
 
@@ -24,7 +24,7 @@ public class Platz {
 
         Text ret = SceneBuilder.makeText();
         ret.setText(name);
-        ret.setFill(GameOptionen.ortcolor);
+        ret.setFill(GameOption.ortcolor);
 
         return ret;
     }

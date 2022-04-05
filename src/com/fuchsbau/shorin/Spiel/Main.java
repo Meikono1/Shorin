@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Spiel;
 
-import com.fuchsbau.shorin.Optionen.GameOptionen;
+import com.fuchsbau.shorin.Optionen.GameOption;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -25,8 +25,8 @@ public class Main extends Application {
     public void start(Stage stage) {
         Main.stage = stage;
         Main.stage.setResizable(true);
-        stage.setHeight(GameOptionen.height);
-        stage.setWidth(GameOptionen.width);
+        stage.setHeight(GameOption.height);
+        stage.setWidth(GameOption.width);
         stage.setTitle("Shorin");
         stage.setScene(new Hauptbildschirm().getScene(0));
         stage.show();
