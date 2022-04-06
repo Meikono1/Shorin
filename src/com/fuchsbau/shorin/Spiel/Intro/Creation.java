@@ -31,8 +31,7 @@ public class Creation implements Saveble {
         TextFlow spieltext = SceneBuilder.mainFlow();
 
 
-
-        if (stage==1){
+        if (stage == 1) {
             {
                 StringBuilder name;
                 name = new StringBuilder();
@@ -71,16 +70,21 @@ public class Creation implements Saveble {
 
 
         if (stage == 2) {//intro to you
-            Text a = SceneBuilder.makeText();
-            a.setText("Welcome to the World of Shorin\n\nYou are a 18 year old freshly trained soldier, who was just assigned for his first official mission.\nYour name is ");
+            Text a = SceneBuilder.makeText("Welcome to the World of Shorin\n\nYou're a ");
+            Text aa = SceneBuilder.makeText(String.valueOf(Game.getInstance().spieler.getAge()));
+            Text ab = SceneBuilder.makeText(" years old freshly trained soldier, who was just assigned for his first official mission.\nYour name is ");
 
-            Text b = Game.getInstance().spieler.getName();
+            Text b = Game.getInstance().spieler.getText();
 
-            Text c = SceneBuilder.makeText();
+            Text c = SceneBuilder.makeText(".");
             //@TODO check Text
-            Text d = SceneBuilder.makeText("\n\n14 Years ago your Parents died in the Great war when you were only 4 Years old. You didn't knew them well, but people say, they were brave Soldiers fighting for Humanity.\nYoshua ,a Familyfriend, took you in and treated you like his own Son.\nHe Loved to tell stories about your Parents and the war, but since a few Month he grew Tired and wants Peace in his Life. \n\nThe Story about the death of your Parents, marked you the most.\nYour wish is to take revange and defend Humanity against the Evil forces across the Rivers: Fen and Hedge.\n\n");
+            Text d = SceneBuilder.makeText("\n\n10 Years ago your parents died in the Great war when you were only 4 Years old. You didn't knew them well but people say they were brave soldiers fighting for humanity.\n");
+            Text da = Game.getInstance().joshua.getText();
+            Text db = SceneBuilder.makeText(", a family friend, took you in and treated you like his own son.\nHe loved to tell stories about your Parents and the war, but a few months, after he adopted you, he grew tired and seeks peace in his life. \n\nThe story about the death of your parents, still haunts you and you aim to seek revenge and defend humanity against the evil forces across the rivers: Fen and Hedge.\n\n");
 
-            Text e = SceneBuilder.makeText("At the Age of 12 you officially joined the army under the Command of Yoshua. Since then you learned the local courtesy, how to Survive in the wild, make a Fire and to fight against Humanoids.\nYou spent most of the Time clearing disputes and Helping the Locals. But finally you can leave this City and change your live.");
+            Text e = SceneBuilder.makeText("Then, at the age of 12, you officially joined the army under the Command of ");
+            Text ea = Game.getInstance().joshua.getText();
+            Text eb = SceneBuilder.makeText(". He thought you the local courtesy, how to survive in the wild, make a fire and to fight against humanoids. You then spent most of the time clearing disputes and helping the locals. It was hard at first, but with time the local population accepted you as a peacekeeper. \nNow, with your first mission, you can finally leave this city and change your live.");
 
 
             /*TODO aufräumen in book
@@ -97,7 +101,7 @@ public class Creation implements Saveble {
             Text e = SceneBuilder.makeText();
             e.setText(".\n\nThere are more Races but they are not important right now.");
              */
-            spieltext.getChildren().addAll(a, b, c, d, e);
+            spieltext.getChildren().addAll(a, aa, ab, b, c, d, da, db, e, ea, eb);
 
             Button cont = SceneBuilder.makeButton(erste);
             cont.setText("Continue");
@@ -114,15 +118,15 @@ public class Creation implements Saveble {
             Text b = Game.getInstance().whitebridge.getOrtText();
 
             Text c = SceneBuilder.makeText();//TODO check text
-            c.setText(", the first city outside the walls from ");
+            c.setText(", the first city outside the walls of ");
 
             Text d = Game.getInstance().sudbury.getOrtText();
 
             Text e = SceneBuilder.makeText();
-            e.setText(", the main capital. ");
+            e.setText(", the main capital.");
 
             Text f = SceneBuilder.makeText();
-            f.setText("Here you live in a house near the barracks, where you voluntarily joined ");
+            f.setText("Here you live in a room inside the barracks, where you voluntarily joined ");
 
             Text g = Game.getInstance().greysmanace.getName();
 
@@ -144,16 +148,20 @@ public class Creation implements Saveble {
             l.setText(".\n");
             l.setFill(GameOption.missionDescription);
 
-            Text la = Game.getInstance().spieler.getName();
+            Text la = Game.getInstance().spieler.getText();
 
             //TODO make Dave NPC color
-            Text lb = SceneBuilder.makeText(" and Dave will guard them on the journey and protect them against Human/Orc Thieves.\nThere are no dangers expected, but the party will come close to the ");
+            Text lb = SceneBuilder.makeText(" and ");
             lb.setFill(GameOption.missionDescription);
+            Text lc = Game.getInstance().dave.getText();
+            Text ld = SceneBuilder.makeText(" will guard them on the journey and protect them against Human/Orc Thieves.\nThere are no dangers expected, but the party will come close to the ");
+            ld.setFill(GameOption.missionDescription);
+
 
             Text m = Game.getInstance().unbridledland.getOrtText();
 
             Text n = SceneBuilder.makeText();//TODO check text
-            n.setText(".\nIf there are Kitsune spottet, avoid the Fight. They will not attack and are no Threat to the group.\nWe expect to reach ");
+            n.setText(".\nIf there are kitsune spotted, avoid the fight. They will likely not attack and are no threat to the group.\nWe expect to reach ");
             n.setFill(GameOption.missionDescription);
 
             Text o = Game.getInstance().shallowmill.getOrtText();
@@ -163,8 +171,8 @@ public class Creation implements Saveble {
 
             Text q = Game.getInstance().whitebridge.getOrtText();
 
-            Text r = SceneBuilder.makeText(" .");
-            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, m, n, o, p, q, r);
+            Text r = SceneBuilder.makeText(".");
+            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, lc, ld, m, n, o, p, q, r);
 
             Button cont = SceneBuilder.makeButton(erste);
             cont.setText("Start your story");

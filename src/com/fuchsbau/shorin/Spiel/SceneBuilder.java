@@ -154,8 +154,8 @@ public class SceneBuilder {
 
         Label name = new Label();
         name.setFont(Font.font("Cambria", 22));
-        name.setTextFill(Paint.valueOf("868686"));
-        name.setText(Game.getInstance().spieler.getName().getText());
+        name.setTextFill(Game.getInstance().spieler.getText().getFill());
+        name.setText(Game.getInstance().spieler.getText().getText());
         name.setAlignment(Pos.CENTER);
         name.setPrefWidth(GameOption.imagewidth);
         name.prefHeight(GameOption.imageheight);
@@ -208,7 +208,7 @@ public class SceneBuilder {
     public static Text makeText() {
         Text text = new Text();
         text.setFont(Font.font("Cambria", GameOption.textsize));
-        text.setFill(Paint.valueOf("868686"));
+        text.setFill(Paint.valueOf("989898"));
         return text;
     }
 
@@ -390,7 +390,7 @@ public class SceneBuilder {
             Main.getStage().setScene(Game.getInstance().inventory.getScene());
         });
 
-        Text beschreibung = item.getBeschreibung();
+        Text beschreibung = item.getText();
         beschreibung.prefWidth(150);
         beschreibung.minWidth(150);
         beschreibung.maxWidth(150);
@@ -452,7 +452,7 @@ public class SceneBuilder {
         });
 
 
-        Text beschreibung = item.getBeschreibung();
+        Text beschreibung = item.getText();
 
         Region filler = new Region();
         HBox.setHgrow(filler, Priority.ALWAYS);
@@ -483,7 +483,7 @@ public class SceneBuilder {
         // use.setText("Buy");
         // TODO Button aussehen bearbeiten.
         // TODO Use button funktion geben, kaufen.
-        zurueck.getChildren().addAll(item.getBeschreibung()/*,use*/);
+        zurueck.getChildren().addAll(item.getText()/*,use*/);
 
         return zurueck;
     }

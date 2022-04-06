@@ -8,6 +8,8 @@ import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -26,7 +28,7 @@ public class Dave extends Character implements Saveble {
 
 
     public Dave() {
-        super(100);
+        super(100,18, "Dave", Color.valueOf("7516ff"));
         this.stage = 0;
     }
 
@@ -74,7 +76,7 @@ public class Dave extends Character implements Saveble {
             Text a = SceneBuilder.makeText();
             a.setText("Hi, ");
 
-            Text b = Game.getInstance().spieler.getName();
+            Text b = Game.getInstance().spieler.getText();
 
             Text c = SceneBuilder.makeText();
             c.setText("\"Seems we are both on the same mission, to escort some traders.\n" +

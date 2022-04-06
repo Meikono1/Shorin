@@ -4,9 +4,9 @@ import javafx.scene.text.Text;
 
 public interface Item extends Comparable<Item> {
 
-    Text getBeschreibung();
+    Text getText();
 
-    void setBeschreibung(String beschreibung);
+    void setText(String text);
 
     String getuseText();
 

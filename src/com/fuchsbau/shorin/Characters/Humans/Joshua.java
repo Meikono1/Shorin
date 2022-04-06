@@ -1,5 +1,6 @@
-package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks;
+package com.fuchsbau.shorin.Characters.Humans;
 
+import com.fuchsbau.shorin.Characters.Character;
 import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Main;
 import com.fuchsbau.shorin.Spiel.Saveble;
@@ -7,10 +8,11 @@ import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Joshua implements Saveble {
+public class Joshua extends Character implements Saveble {
     public int gone = 0;
     private Scene scene;
     private int favor = 0;
@@ -22,6 +24,10 @@ public class Joshua implements Saveble {
      */
 
     private int stage;
+
+    public Joshua() {
+        super(100, 46, "Josha", Color.valueOf("068927"));
+    }
     /*
     case Stage
     0 = erster talk
@@ -41,7 +47,7 @@ public class Joshua implements Saveble {
             Text a = SceneBuilder.makeText();
             if (favor == 2) {
                 a.setText("\"Hey, ");
-                Text b = Game.getInstance().spieler.getName();
+                Text b = Game.getInstance().spieler.getText();
                 Text c = SceneBuilder.makeText();
                 c.setText(" what's up?\"");
                 flow.getChildren().addAll(a, b, c);
@@ -55,7 +61,7 @@ public class Joshua implements Saveble {
         HBox erste = SceneBuilder.makeButtonrow();
 
         if (stage == 1) {
-            missionTalk(erste, flow);
+            missionTalkBarracks(erste, flow);
         }
 
         if (stage == 2) {
@@ -74,7 +80,7 @@ public class Joshua implements Saveble {
         if (stage == 4) {
 
             //TODO Text neu schreiben
-             Text a = SceneBuilder.makeText();
+            Text a = SceneBuilder.makeText();
             a.setText("\"Yes, they died when you were a small kid.\"\n\nYou see that sadness overcomes him\n\"They were good people. I meet them, when your mother was heavyly pragnent. " +
                     "They lived in the East, your father was always training the sword, preparing for the next Attack. It was a scary time\"\n\n He sights \n\"The Weres... rebelled and a bloody war raged right besides us in the woods." +
                     " I mean, thanks to the rebellion, the Orcs stayed away. But....\n\n\"Let's talk again some other time. I need some rest\"");
@@ -101,7 +107,6 @@ public class Joshua implements Saveble {
             barracks.setText("Talk about barracks");
             barracks.setOnMouseClicked(event -> Main.getStage().setScene(getScene(5)));
             erste.getChildren().add(barracks);
-
         }
 
 
@@ -126,11 +131,9 @@ public class Joshua implements Saveble {
         }
 
         scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
-
-
     }
 
-    private void missionTalk(HBox erste, TextFlow flow) {
+    private void missionTalkBarracks(HBox erste, TextFlow flow) {
 
         Text a = SceneBuilder.makeText();
         a.setText("Yes~~, i though this would be a good mission for you.\nGetting out of this missery we call ");
@@ -151,19 +154,17 @@ public class Joshua implements Saveble {
         yes.setOnMouseClicked(event -> {
             favor = 1;
             Main.getStage().setScene(getScene(2));
-
         });
 
-        Button ne = SceneBuilder.makeButton(erste);
-        ne.setText("No, sorry");
-        ne.setOnMouseClicked(event -> {
+        Button no = SceneBuilder.makeButton(erste);
+        no.setText("No, sorry");
+        no.setOnMouseClicked(event -> {
             favor = 2;
             Main.getStage().setScene(getScene(3));
         });
 
         flow.getChildren().addAll(a, b, c, d, e);
-        erste.getChildren().addAll(yes, ne);
-
+        erste.getChildren().addAll(yes, no);
     }
 
     public Scene getScene(int stage) {
@@ -178,6 +179,4 @@ public class Joshua implements Saveble {
             gone--;
         }
     }
-
-
 }

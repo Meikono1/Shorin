@@ -25,14 +25,14 @@ public class Weapon implements Item {
 
 
     @Override
-    public Text getBeschreibung() {
+    public Text getText() {
         return SceneBuilder.makeText(beschreibung);
 
     }
 
     @Override
-    public void setBeschreibung(String beschreibung) {
-        this.beschreibung = beschreibung;
+    public void setText(String text) {
+        this.beschreibung = text;
     }
 
     @Override

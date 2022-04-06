@@ -9,7 +9,7 @@ import com.fuchsbau.shorin.Spiel.Lore.Time.BirthofMagic;
 import com.fuchsbau.shorin.Spiel.Lore.Time.GreatWar;
 import com.fuchsbau.shorin.Spiel.Places.Platz;
 import com.fuchsbau.shorin.Spiel.Places.Sudbury.Sudbury;
-import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks.Joshua;
+import com.fuchsbau.shorin.Characters.Humans.Joshua;
 import com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Whitebridge;
 
 public class Game {
@@ -19,7 +19,7 @@ public class Game {
     public Player spieler = new Player();
     public Joshua joshua = new Joshua();
     public Dave dave = new Dave();
-    public Whitebridge whitebridge = new Whitebridge("Whitebridge", "The City of Whitebridge is located near the Capital Sudbury and the Coty where you are born. This City contains a Library, Barracks and an Inn.");
+    public Whitebridge whitebridge = new Whitebridge("Whitebridge", "The City of Whitebridge is located near the Capital Sudbury and the city where you are born. This City contains a Library, Barracks and an Inn.");
     public Platz unbridledland = new Platz("Unbridled Land", "Land of the kitsune");
     public Platz shallowmill = new Platz("Shallow-Mill", "A Village in the north, located in a small deepening");
     public BirthofMagic birthofMagic = new BirthofMagic("Birth of Magic");

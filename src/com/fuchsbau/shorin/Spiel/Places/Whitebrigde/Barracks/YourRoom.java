@@ -19,7 +19,7 @@ public class YourRoom implements Saveble {
     /***
      *
      * @param stage
-     * 0 = Vom Startbildschirm
+     * 0 = Startscreen
      * 1 = Sit on Bed
      */
     private void makeScene(int stage) {
@@ -28,31 +28,31 @@ public class YourRoom implements Saveble {
         TextFlow flow = SceneBuilder.mainFlow();
 
         if (stage == 0) {
-            Text a = SceneBuilder.makeText();
-            a.setText("You're in one of Many Sleeping Quarters of the Barracks.\n\nIt´s a four bed room with a stone table for every person, it's a very heavy table and you can only put a Bread or Yufka on it. \nThe bed in the left corner is yours. 6 Years you lived on this bed.");
+            Text a = SceneBuilder.makeText("You're in one of many sleeping quarters inside the Barracks of ");
+            Text b = Game.getInstance().whitebridge.getOrtText();
+            Text c = SceneBuilder.makeText(".\n\nThere are four bunk beds in this room with a stone table in front of every bed. They a very heavy tables and you can only put a bread or yufka on it. \nThere are also some racks for clothes,armor and weapons right at the entrance and a tried rag just before the entrance. \nThe upper bunk bed in the left corner is yours.");
 
-            flow.getChildren().addAll(a);
+            flow.getChildren().addAll(a, b, c);
         } else if (stage == 1) {
 
             Text a = SceneBuilder.makeText();//@Todo check text
-            a.setText("In this room you lived since your familys death. \n\nWhen you joined the grey manace, you were assigned to this bed. Your commander is Joshua, your stepfather.\n" +
-                    "You dont know what happened to your old home but its probably in possession of another family working and destroying memories.\nMaybe you should just forget everything about your past, right now you have a mission to fulfill.");
+            a.setText("You lived in this room since you joined the army.\n\nWhen you joined the ");
+            Text b = Game.getInstance().greysmanace.getName();
+            Text c = SceneBuilder.makeText(", you were assigned to this bed. Your commander is ");
+            Text ca = Game.getInstance().joshua.getText();
+            Text d = SceneBuilder.makeText(", your stepfather.\nYou dont know what happened to your old home but its probably in possession of another family working and destroying memories.\nMaybe you should just forget everything about your past, right now you have a mission to fulfill.");
 
-
-            flow.getChildren().addAll(a);
+            flow.getChildren().addAll(a, b, c, ca, d);
         }
-
 
         HBox erste = SceneBuilder.makeButtonrow();
         if (stage == 0) {
             Button bed = SceneBuilder.makeButton(erste);
             bed.setText("Sit on your old bed");
-            //@TODO Tagebuch einführen mit geschichte
             bed.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
 
             erste.getChildren().addAll(bed);
         }
-
 
         HBox dritte = SceneBuilder.makeButtonrow();
 

@@ -14,28 +14,26 @@ import java.util.LinkedList;
 
 public class Armor implements Item {
 
-    int delete = 0;
     public final int armor;
     public final int qualitaet;
-    private String beschreibung;
+    private String text;
     private final Slot slot;
 
     public Armor(int armor, int qualitaet, String text, Slot slot) {
         this.armor = armor;
         this.qualitaet = qualitaet;
         this.slot = slot;
-        beschreibung = text;
+        this.text = text;
     }
 
     @Override
-    public Text getBeschreibung() {
-        return SceneBuilder.makeText(beschreibung);
+    public Text getText() {
+        return SceneBuilder.makeText(text);
     }
 
     @Override
-    public void setBeschreibung(String beschreibung) {
-        this.beschreibung = beschreibung;
-
+    public void setText(String text) {
+        this.text = text;
     }
 
     @Override
@@ -71,7 +69,7 @@ public class Armor implements Item {
         }
         Armor item = (Armor) o;
 
-        if (this.beschreibung.equals(item.beschreibung) && item.slot == this.slot && this.armor == item.armor) {
+        if (this.text.equals(item.text) && item.slot == this.slot && this.armor == item.armor) {
             return 0;
         }
         return o.toString().compareTo(this.toString());

@@ -44,9 +44,9 @@ public class Mainscreen implements Saveble {
         laden.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
 
 
-        Button optionen = new Button("Optionen");
+        Button optionen = new Button("Options");
         optionen.setOnMouseClicked(event -> {
-            Main.getStage().setTitle("Shorin - Optionen");
+            Main.getStage().setTitle("Shorin - Options");
             Main.getStage().setScene(Game.getInstance().optionen.getScene(0));
         });
         optionen.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));

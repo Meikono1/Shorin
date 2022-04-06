@@ -34,7 +34,7 @@ public class GameOption {
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background testbackground = new Background(new BackgroundFill(Color.valueOf("23423c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background rowHintergrund = new Background(new BackgroundFill(Color.valueOf("0c0c12"), CornerRadii.EMPTY, Insets.EMPTY));
-    public static Paint player = Paint.valueOf("2c5f78");
+    public static Paint player = Paint.valueOf("3094ff");
     public static Paint timestamp = Paint.valueOf("734b4b");
     public static Paint highlightBlue = Paint.valueOf("4b6673");
     public static Paint missionDescription = Paint.valueOf("638387");
@@ -85,18 +85,20 @@ public class GameOption {
         });
 
         Button save = SceneBuilder.makeButton(buttongroup);
-        save.setText("Save game");
-        save.setOnMouseClicked(event -> {
-            File file = new File("save01.txt");
-            try {
-                FileWriter fileWriter = new FileWriter(file);
-                fileWriter.write(Game.getInstance().saveEverything());
-                fileWriter.close();
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        if (stage != 0) {
+            save.setText("Save game");
+            save.setOnMouseClicked(event -> {
+                File file = new File("save01.txt");
+                try {
+                    FileWriter fileWriter = new FileWriter(file);
+                    fileWriter.write(Game.getInstance().saveEverything());
+                    fileWriter.close();
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
 
         buttongroup.getChildren().setAll(back, save);
 
