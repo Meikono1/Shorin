@@ -14,7 +14,6 @@ public class Training implements Saveble {
 
     private Scene scene;
 
-
     private void makeScene() {
 
         TextFlow flow = SceneBuilder.mainFlow();
@@ -43,5 +42,10 @@ public class Training implements Saveble {
         makeScene();
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 }

@@ -1,9 +1,6 @@
 package com.fuchsbau.shorin.Spiel.Places.Whitebrigde.Barracks;
 
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Main;
-import com.fuchsbau.shorin.Spiel.Saveble;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.Spiel.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -29,11 +26,14 @@ public class Barracks implements Saveble {
         TextFlow text = SceneBuilder.mainFlow();
 
 
-        Text intro = SceneBuilder.makeText();
-        intro.setText("In this barracks you spend most of your live. Joshua is propably somewhere around. \nThere is also your old room you can visit or go to the trainingsroom in the back. ");
+        Text a = SceneBuilder.makeText("These are the barracks of ");
+        Text b = Game.getInstance().whitebridge.getOrtText();
+        Text c = SceneBuilder.makeText(". ");
+        Text d = Game.getInstance().joshua.getText();
+        Text e = SceneBuilder.makeText(" is propably somewhere around. \nThere is also your old room you can visit or go to the trainingsroom in the back. ");
 
 
-        text.getChildren().addAll(intro);
+        text.getChildren().addAll(a);
 
         HBox erste = SceneBuilder.makeButtonrow();
 
@@ -80,5 +80,10 @@ public class Barracks implements Saveble {
         makeScene();
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 }

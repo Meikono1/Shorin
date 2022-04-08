@@ -9,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -21,14 +20,14 @@ public class Dave extends Character implements Saveble {
     /*ort
      1 = Whitebridge
      */
-    private final int stage;
+    private int stage;
     /*stage
       0 = erstes mal treffen
      */
 
 
     public Dave() {
-        super(100,18, "Dave", Color.valueOf("7516ff"));
+        super(100, 18, "Dave", Color.valueOf("7516ff"));
         this.stage = 0;
     }
 
@@ -115,6 +114,11 @@ public class Dave extends Character implements Saveble {
         buildScene(ort);
         Game.getInstance().spieler.setAktuell(this, ort);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 
 }

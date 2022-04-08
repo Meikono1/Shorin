@@ -38,10 +38,10 @@ public class Mainscreen implements Saveble {
             Main.getStage().setTitle("Charaktererstellung");
             Main.getStage().setScene(creation.getScene(1));
         });
-        start.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
+        start.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(), 5));
 
         Button laden = new Button("Load Game");
-        laden.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
+        laden.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(), 5));
 
 
         Button optionen = new Button("Options");
@@ -49,7 +49,7 @@ public class Mainscreen implements Saveble {
             Main.getStage().setTitle("Shorin - Options");
             Main.getStage().setScene(Game.getInstance().optionen.getScene(0));
         });
-        optionen.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(),5));
+        optionen.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(), 5));
 
         boxone.getChildren().addAll(start, laden, optionen);
 
@@ -67,6 +67,11 @@ public class Mainscreen implements Saveble {
         makeScene();
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 
 }

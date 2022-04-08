@@ -45,4 +45,9 @@ public class Library implements Saveble {
         return scene;
     }
 
+    @Override
+    public void reset() {
+        this.scene = null;
+    }
+
 }

@@ -23,12 +23,12 @@ public class Creation implements Saveble {
 
     public void makeScene(int stage) {
         VBox controls = new VBox();
-        HBox erste = SceneBuilder.makeButtonrow();
-        HBox zweite = SceneBuilder.makeButtonrow();
-        HBox dritte = SceneBuilder.makeButtonrow();
+        HBox first = SceneBuilder.makeButtonrow();
+        HBox second = SceneBuilder.makeButtonrow();
+        HBox third = SceneBuilder.makeButtonrow();
 
-        controls.getChildren().addAll(erste, zweite, dritte);
-        TextFlow spieltext = SceneBuilder.mainFlow();
+        controls.getChildren().addAll(first, second, third);
+        TextFlow gametext = SceneBuilder.mainFlow();
 
 
         if (stage == 1) {
@@ -44,20 +44,20 @@ public class Creation implements Saveble {
                 Text a = SceneBuilder.makeText();
                 a.setText(name.toString());
 
-                spieltext.getChildren().addAll(a);
+                gametext.getChildren().addAll(a);
             }
 
             Label name = new Label();
-            name.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(), 7));
+            name.prefWidthProperty().bind(Bindings.divide(first.widthProperty(), 7));
             name.setTextFill(Paint.valueOf("ffffff"));
             name.setText("Name :");
 
             TextField eingabe = new TextField();
-            eingabe.prefWidthProperty().bind(Bindings.divide(erste.widthProperty(), 7));
+            eingabe.prefWidthProperty().bind(Bindings.divide(first.widthProperty(), 7));
 
-            Button annahme = SceneBuilder.makeButton(erste);
-            annahme.setText("Accept");
-            annahme.setOnMouseClicked(event -> {
+            Button accept = SceneBuilder.makeButton(first);
+            accept.setText("Accept");
+            accept.setOnMouseClicked(event -> {
                 if (eingabe.getText().equals("")) {
                     Game.getInstance().spieler.setName("Jan");
                 } else {
@@ -65,7 +65,7 @@ public class Creation implements Saveble {
                 }
                 Main.getStage().setScene(getScene(2));
             });
-            erste.getChildren().addAll(name, eingabe, annahme);
+            first.getChildren().addAll(name, eingabe, accept);
         }
 
 
@@ -78,7 +78,9 @@ public class Creation implements Saveble {
 
             Text c = SceneBuilder.makeText(".");
             //@TODO check Text
-            Text d = SceneBuilder.makeText("\n\n10 Years ago your parents died in the Great war when you were only 4 Years old. You didn't knew them well but people say they were brave soldiers fighting for humanity.\n");
+            Text d = SceneBuilder.makeText("\n\n10 Years ago your parents died in the Great war when you were only ");
+            Text daa = SceneBuilder.makeText(String.valueOf(Game.getInstance().spieler.getAge() - 10));
+            Text dab = SceneBuilder.makeText(" Years old. You didn't knew them well but people say they were brave soldiers fighting for humanity.\n");
             Text da = Game.getInstance().joshua.getText();
             Text db = SceneBuilder.makeText(", a family friend, took you in and treated you like his own son.\nHe loved to tell stories about your Parents and the war, but a few months, after he adopted you, he grew tired and seeks peace in his life. \n\nThe story about the death of your parents, still haunts you and you aim to seek revenge and defend humanity against the evil forces across the rivers: Fen and Hedge.\n\n");
 
@@ -101,13 +103,13 @@ public class Creation implements Saveble {
             Text e = SceneBuilder.makeText();
             e.setText(".\n\nThere are more Races but they are not important right now.");
              */
-            spieltext.getChildren().addAll(a, aa, ab, b, c, d, da, db, e, ea, eb);
+            gametext.getChildren().addAll(a, aa, ab, b, c, d, daa, dab,da, db, e, ea, eb);
 
-            Button cont = SceneBuilder.makeButton(erste);
+            Button cont = SceneBuilder.makeButton(first);
             cont.setText("Continue");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(getScene(3)));
 
-            erste.getChildren().addAll(cont);
+            first.getChildren().addAll(cont);
         }
 
         if (stage == 3) {//home
@@ -172,15 +174,15 @@ public class Creation implements Saveble {
             Text q = Game.getInstance().whitebridge.getOrtText();
 
             Text r = SceneBuilder.makeText(".");
-            spieltext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, lc, ld, m, n, o, p, q, r);
+            gametext.getChildren().addAll(a, b, c, d, e, f, g, h, i, j, k, l, la, lb, lc, ld, m, n, o, p, q, r);
 
-            Button cont = SceneBuilder.makeButton(erste);
+            Button cont = SceneBuilder.makeButton(first);
             cont.setText("Start your story");
             cont.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.yourroom().getScene(0)));
 
-            erste.getChildren().addAll(cont);
+            first.getChildren().addAll(cont);
         }
-        scene = new Scene(SceneBuilder.buildGameScene(erste, zweite, dritte, spieltext));
+        scene = new Scene(SceneBuilder.buildGameScene(first, second, third, gametext));
     }
 
     @Override
@@ -188,5 +190,10 @@ public class Creation implements Saveble {
         makeScene(stage);
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 }

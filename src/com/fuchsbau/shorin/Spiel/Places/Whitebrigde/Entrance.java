@@ -32,4 +32,9 @@ public class Entrance implements Saveble {
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
     }
+
+    @Override
+    public void reset() {
+        this.scene = null;
+    }
 }

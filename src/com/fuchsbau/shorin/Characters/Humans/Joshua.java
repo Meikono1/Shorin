@@ -174,6 +174,11 @@ public class Joshua extends Character implements Saveble {
         return scene;
     }
 
+    @Override
+    public void reset() {
+        this.scene = null;
+    }
+
     public void update() {
         if (gone > 0) {
             gone--;

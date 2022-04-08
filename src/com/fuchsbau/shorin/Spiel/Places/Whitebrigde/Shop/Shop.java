@@ -39,9 +39,13 @@ public class Shop implements Saveble {
 
     @Override
     public Scene getScene(int stage) {
-
         makeScene();
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 }

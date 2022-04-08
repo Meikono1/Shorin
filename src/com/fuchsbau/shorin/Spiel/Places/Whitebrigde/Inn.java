@@ -58,11 +58,16 @@ public class Inn implements Saveble {
 
     }
 
-@Override
+    @Override
     public Scene getScene(int stage) {
         makeScene();
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
+    }
+
+    @Override
+    public void reset() {
+        this.scene = null;
     }
 
 
@@ -78,6 +83,11 @@ public class Inn implements Saveble {
             makeScene();
             Game.getInstance().spieler.setAktuell(this, stage);
             return scene;
+        }
+
+        @Override
+        public void reset() {
+            this.scene = null;
         }
 
     }

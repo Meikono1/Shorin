@@ -1,12 +1,9 @@
 package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Optionen.GameOption;
-import com.fuchsbau.shorin.Spiel.Game;
 import com.fuchsbau.shorin.Spiel.Saveble;
 import com.fuchsbau.shorin.Spiel.SceneBuilder;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -58,12 +55,14 @@ public class Player extends Character {
     }
 
     public void setAktuell(Saveble aktuell, int stage) {
+        if (this.aktuell != null && aktuell != this.aktuell) {
+            this.aktuell.reset();
+        }
         savedstage = stage;
         this.aktuell = aktuell;
     }
 
     public Scene getAktuell() {
-
         return aktuell.getScene(savedstage);
     }
 
