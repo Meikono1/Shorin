@@ -273,15 +273,14 @@ public class SceneBuilder {
         Text health = makeText();
         health.setText("Health: " + Game.getInstance().spieler.getHealth());
         health.setFill(GameOption.goodPaint);
-        Text gold = makeText("Currency: " + Game.getInstance().spieler.getFuchs()+" Fuchs");
+        Text gold = makeText("Currency: " + Game.getInstance().spieler.getFuchs() + " Fuchs");
         gold.setFill(GameOption.goldPaint);
 
         stats.getChildren().addAll(stat, health, gold);
 
         //Equipment
         VBox equipt = new VBox();
-        Text equ = makeText();
-        equ.setText("Equipped: ");
+        Text equ = makeText("Equipped: " + Game.getInstance().inventory.getStats());
         equipt.getChildren().addAll(equ);
         {
             equipt.getChildren().add(createEquipItem(head));
@@ -400,18 +399,17 @@ public class SceneBuilder {
         size.getChildren().add(beschreibung);
         size.setMinWidth(220);
         if (item.isBase()) {
-
             oben.getChildren().addAll(size);
         } else {
-
             oben.getChildren().addAll(size, use);
         }
         oben.setBackground(GameOption.hintergrund);
         oben.setPadding(GameOption.padding);
+
         Text unten;
         if (item instanceof Armor) {
             Armor armor = (Armor) item;
-            unten = makeText("  " + armor.armor + ",   " + armor.qualitaet + ",   0");
+            unten = makeText("  " + armor.armor + ",   " + armor.qualitaet + ",   " + armor.zustand);
         } else {
             Weapon waffe = (Weapon) item;
             unten = makeText("  0,   0,   0");

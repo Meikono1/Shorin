@@ -30,7 +30,7 @@ public class YourRoom implements Saveble {
         if (stage == 0) {
             Text a = SceneBuilder.makeText("You're in one of the many sleeping quarters inside the Barracks of ");
             Text b = Game.getInstance().whitebridge.getOrtText();
-            Text c = SceneBuilder.makeText(".\n\nThere are four bunk beds in this room with a stone table in front of every bed. They a very heavy tables and you can only put a bread or yufka on it. \nThere are also some racks for clothes,armor and weapons right at the entrance and a tried rag just before the entrance. \nThe upper bunk bed in the left corner is yours.");
+            Text c = SceneBuilder.makeText(".\n\nIn this room are four bunk beds with a stone table in front of every bed. They are very heavy tables and you can only put a bread or yufka on it. \nThere are also some racks for clothes, armor and weapons right at the entrance and a tried rag just before the entrance. \nThe upper bunk bed in the left corner is yours.");
 
             flow.getChildren().addAll(a, b, c);
         } else if (stage == 1) {

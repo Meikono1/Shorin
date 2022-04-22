@@ -33,7 +33,7 @@ public class Barracks implements Saveble {
         Text e = SceneBuilder.makeText(" is propably somewhere around. \nThere is also your old room you can visit or go to the trainingsroom in the back. ");
 
 
-        text.getChildren().addAll(a);
+        text.getChildren().addAll(a,b,c,d,e);
 
         HBox erste = SceneBuilder.makeButtonrow();
 

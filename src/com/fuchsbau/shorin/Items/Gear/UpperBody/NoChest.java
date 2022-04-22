@@ -5,7 +5,7 @@ import com.fuchsbau.shorin.Items.Gear.Slot;
 
 public class NoChest extends Armor {
     public NoChest() {
-        super(0, 0, "Naked Chest", Slot.chest);
+        super(0, 0, 100, "Bare Chest", Slot.chest);
     }
 
     @Override

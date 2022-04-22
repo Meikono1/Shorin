@@ -25,12 +25,12 @@ public class Shopkeeper implements Saveble {
         HBox erste = SceneBuilder.makeButtonrow();
 
         //TODO Items hinzufügen
-        Broadsword broadsword = new Broadsword(1, 1, 1, Material.eisen, "Iron Broadsword");
+        Broadsword broadsword = new Broadsword(1, 100, 1, Material.eisen, "Iron Broadsword");
         Button broadbuy = SceneBuilder.makeButton(erste);
 
         broadbuy.setText("Buy Broadsword");
         broadbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(new Broadsword(1, 1, 1, Material.eisen, "Iron Broadsword"));
+            Game.getInstance().inventory.addItem(new Broadsword(1, 100, 1, Material.eisen, "Iron Broadsword"));
         });
         liste.add(broadsword);
 

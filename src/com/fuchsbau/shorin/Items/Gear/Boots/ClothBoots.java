@@ -5,7 +5,7 @@ import com.fuchsbau.shorin.Items.Gear.Slot;
 
 public class ClothBoots extends Armor {
     public ClothBoots() {
-        super(1, 1, "Cloth Boots", Slot.boots);
+        super(1, 1, 100, "Cloth Boots", Slot.boots);
     }
 
     @Override

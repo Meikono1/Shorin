@@ -213,4 +213,12 @@ public class Inventory {
                 "}\n";
         return builder;
     }
+
+    public String getStats() {
+        int armor = head.armor + chest.armor + boots.armor + arms.armor + pants.armor;
+        int qualitaet = head.qualitaet + chest.qualitaet + boots.qualitaet + arms.qualitaet + pants.qualitaet;
+        double zustand = head.zustand + chest.zustand + boots.zustand + arms.zustand + pants.zustand;
+
+        return armor + ", " + qualitaet + ",  " + zustand / 5 + "%";
+    }
 }

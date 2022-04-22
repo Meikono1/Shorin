@@ -5,8 +5,9 @@ import com.fuchsbau.shorin.Items.Gear.Slot;
 
 public class NoHat extends Armor {
     public NoHat() {
-        super(0, 0, "No Head", Slot.head);
+        super(0, 0, 100, "No Head", Slot.head);
     }
+
     @Override
     public String toString() {
         return "NoHat";

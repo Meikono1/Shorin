@@ -18,10 +18,12 @@ public class Armor implements Item {
     public final int qualitaet;
     private String text;
     private final Slot slot;
+    public int zustand;
 
-    public Armor(int armor, int qualitaet, String text, Slot slot) {
+    public Armor(int armor, int qualitaet, int zustand, String text, Slot slot) {
         this.armor = armor;
         this.qualitaet = qualitaet;
+        this.zustand = zustand;
         this.slot = slot;
         this.text = text;
     }

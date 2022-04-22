@@ -159,7 +159,6 @@ public class Creation implements Saveble {
             Text ld = SceneBuilder.makeText(" will guard them on the journey and protect them against Human/Orc Thieves.\nThere are no dangers expected, but the party will come close to the ");
             ld.setFill(GameOption.missionDescription);
 
-
             Text m = Game.getInstance().unbridledland.getOrtText();
 
             Text n = SceneBuilder.makeText();//TODO check text

@@ -6,11 +6,11 @@ import com.fuchsbau.shorin.Items.Gear.Slot;
 public class ClothChest extends Armor {
 
     public ClothChest() {
-        super(1, 1, "Clotharmor", Slot.chest);
+        super(1, 1, 100, "Cloth Chest", Slot.chest);
     }
 
     @Override
     public String toString() {
-        return "Clothchest";
+        return "Cloth Chest";
     }
 }

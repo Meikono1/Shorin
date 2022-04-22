@@ -5,7 +5,7 @@ import com.fuchsbau.shorin.Items.Gear.Slot;
 
 public class NoArms extends Armor {
     public NoArms() {
-        super(0, 1, "Bare Arms", Slot.arms);
+        super(0, 1, 100, "Bare Arms", Slot.arms);
     }
 
     @Override
