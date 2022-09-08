@@ -1,1 +1,1 @@
-{Clothhelm,Clothchest,ClothBoots,NoArms,Clothpants,Unarmed}
+{Cloth Helm,Cloth Chest,ClothBoots,NoArms,Clothpants,Unarmed}
