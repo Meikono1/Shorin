@@ -30,8 +30,6 @@ public class Whitebridge extends Platz implements Saveble {
 
     public Whitebridge(String name, String beschreibung) {
         super(name, beschreibung);
-
-
     }
 
     private void makeScene() {

@@ -42,6 +42,7 @@ public class GameOption {
     public static Paint ortcolor = Paint.valueOf("409970");
     public static Paint goodPaint = Paint.valueOf("589214");
     public static Paint goldPaint = Paint.valueOf("878707");
+    public static String currencyname = "Gold";
 
     private Scene scene;
 
@@ -140,8 +141,6 @@ public class GameOption {
     }
 
     public String save() {
-        StringBuilder builder = new StringBuilder();
-
-        return builder.toString();
+        return new StringBuilder().toString();
     }
 }

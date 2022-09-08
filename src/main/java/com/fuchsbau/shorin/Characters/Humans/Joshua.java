@@ -26,7 +26,7 @@ public class Joshua extends Character implements Saveble {
     private int stage;
 
     public Joshua() {
-        super(100, 46, "Josha", Color.valueOf("068927"));
+        super(100, 46, "Josha",178,85,65,77, Color.valueOf("068927"));
     }
     /*
     case Stage

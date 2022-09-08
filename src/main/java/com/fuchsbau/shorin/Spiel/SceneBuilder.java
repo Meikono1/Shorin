@@ -273,10 +273,10 @@ public class SceneBuilder {
         Text health = makeText();
         health.setText("Health: " + Game.getInstance().spieler.getHealth());
         health.setFill(GameOption.goodPaint);
-        Text gold = makeText("Currency: " + Game.getInstance().spieler.getFuchs() + " Fuchs");
-        gold.setFill(GameOption.goldPaint);
+        Text money = makeText("Currency: " + Game.getInstance().spieler.getMoney() + " " + GameOption.currencyname);
+        money.setFill(GameOption.goldPaint);
 
-        stats.getChildren().addAll(stat, health, gold);
+        stats.getChildren().addAll(stat, health, money);
 
         //Equipment
         VBox equipt = new VBox();

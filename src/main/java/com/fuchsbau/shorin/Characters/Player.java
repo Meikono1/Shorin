@@ -13,7 +13,7 @@ public class Player extends Character {
     private Saveble aktuell;
     private int savedstage;
     private int maxhealth = 100;
-    private final int fuchs;
+    private final int money;
 
     public int kitsune = 0;
 
@@ -26,8 +26,8 @@ public class Player extends Character {
 
 
     public Player() {
-        super(100, 18, "Noname", GameOption.player);
-        fuchs = 100;
+        super(100, 18, "Noname", 175,80,75,50, GameOption.player);
+        money = 100;
     }
 
 
@@ -35,22 +35,23 @@ public class Player extends Character {
         this.name = name;
         super.setText(name);
 
-        setBeschreibung("Your name is: " + name + ".\nYou are an average human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
+        setBeschreibung(getplayerinfo());
+    }
+
+    private String getplayerinfo() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Your name is: " + name + "\n");
+
+        builder.append(getBody());
+
+
+        return builder.toString();
     }
 
     @Override
     public TextFlow makeBeschreibung(TextFlow pane) {
-        setBeschreibung("Your name is: " + name + ".\nYou are an average human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n");
-
-        //@TODO neue Beschreibung
-        pane.getChildren().add(SceneBuilder.makeText("Your name is: "));
-
-        Text text = getText();
-        pane.getChildren().add(text);
-
-        pane.getChildren().add(SceneBuilder.makeText(".\nYou are an average Human with a height of 1.8 Meters. Due to your training you have a masculine Body.\n"));
-
-
+        setBeschreibung(getplayerinfo());
+        pane.getChildren().add(SceneBuilder.makeText(getplayerinfo()));
         return pane;
     }
 
@@ -76,7 +77,7 @@ public class Player extends Character {
         heal(health);
     }
 
-    public String getFuchs() {
-        return String.valueOf(fuchs);
+    public String getMoney() {
+        return String.valueOf(money);
     }
 }

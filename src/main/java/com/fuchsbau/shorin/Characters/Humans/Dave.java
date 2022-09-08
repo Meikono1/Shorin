@@ -27,7 +27,7 @@ public class Dave extends Character implements Saveble {
 
 
     public Dave() {
-        super(100, 18, "Dave", Color.valueOf("7516ff"));
+        super(100, 18, "Dave",183,95,95,68, Color.valueOf("7516ff"));
         this.stage = 0;
     }
 
