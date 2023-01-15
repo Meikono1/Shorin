@@ -14,11 +14,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
 public class Mainscreen implements Saveble {
-    private final Creation creation = new Creation();
+    private final Creation creation = new Creation(true);
     private Scene scene;
     private final String patchnotes = "Shorin Patch : 0.1";
-    int i = 0;
-    int j = 0;
 
     private void makeScene() {
         VBox top = new VBox();
@@ -33,9 +31,9 @@ public class Mainscreen implements Saveble {
         boxone.setPrefHeight(100);
         boxone.setAlignment(Pos.CENTER);
 
-        Button start = new Button("Game Start");
+        Button start = new Button("New Game");
         start.setOnMouseClicked(event -> {
-            Main.getStage().setTitle("Charaktererstellung");
+            Main.getStage().setTitle("Charakter creation");
             Main.getStage().setScene(creation.getScene(1));
         });
         start.prefWidthProperty().bind(Bindings.divide(boxone.widthProperty(), 5));

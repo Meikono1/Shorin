@@ -8,9 +8,11 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
@@ -229,9 +231,10 @@ public class SceneBuilder {
         return flow;
     }
 
-    public static Button makeButton(Pane pane, int buttons) {
+    public static Button makeButton(Pane pane, String text) {
         Button button = new Button();
-        button.prefWidthProperty().bind(Bindings.divide(pane.widthProperty(), buttons));
+        button.prefWidthProperty().bind(Bindings.divide(pane.widthProperty(), 7));
+        button.setText(text);
         return button;
     }
 
@@ -484,5 +487,121 @@ public class SceneBuilder {
         zurueck.getChildren().addAll(item.getText()/*,use*/);
 
         return zurueck;
+    }
+
+    public static Parent buildBuilderScene(HBox first, HBox second, HBox third, TextFlow gametext) {
+        BorderPane haupt = new BorderPane();
+
+        haupt.setPrefHeight(GameOption.height);
+        haupt.setPrefWidth(GameOption.width);
+        haupt.setMaxHeight(GameOption.height);
+        haupt.setMaxWidth(GameOption.width);
+
+        if (first == null) {
+            first = makeButtonrow();
+        }
+        int lauf = first.getChildren().size();
+        for (int i = 0; i < (7 - lauf); i++) {
+            Button a = makeButton(first);
+            first.getChildren().add(a);
+        }
+
+        if (second == null) {
+            second = makeButtonrow();
+        }
+
+        lauf = second.getChildren().size();
+        for (int i = 0; i < (7 - lauf); i++) {
+
+            Button a = makeButton(second);
+            second.getChildren().add(a);
+        }
+
+        if (third == null) {
+            third = makeButtonrow();
+        }
+        lauf = third.getChildren().size();
+        for (int i = 0; i < (7 - lauf); i++) {
+
+            Button a = makeButton(third);
+            third.getChildren().add(a);
+        }
+
+        if (gametext == null) {
+            gametext = mainFlow();
+        }
+
+        VBox bottom = new VBox();
+        bottom.setBackground(GameOption.rowHintergrund);
+
+        bottom.getChildren().addAll(first, second, third);
+
+        VBox charakter = new VBox();
+        charakter.setPrefWidth(GameOption.imagewidth + 15);
+        charakter.setMaxWidth(GameOption.imagewidth + 40);
+
+        Label name = new Label();
+        name.setFont(Font.font("Cambria", 22));
+        name.setTextFill(Game.getInstance().spieler.getText().getFill());
+        name.setText(Game.getInstance().spieler.getText().getText());
+        name.setAlignment(Pos.CENTER);
+        name.setPrefWidth(GameOption.imagewidth);
+        name.prefHeight(GameOption.imageheight);
+
+
+        ImageView ich = new ImageView("/images/char.png");
+
+        ich.setFitHeight(GameOption.imageheight);
+        ich.setFitWidth(GameOption.imagewidth);
+
+        ImageView inventory = new ImageView("/images/inv.png");
+        inventory.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().inventory.getScene()));
+        inventory.setFitHeight(GameOption.imageheight);
+        inventory.setFitWidth(GameOption.imagewidth);
+
+        ImageView map = new ImageView("/images/ShorinMap3.png");
+        map.setFitHeight(GameOption.imageheight);
+        map.setFitWidth(GameOption.imagewidth);
+
+        charakter.getChildren().addAll(name, ich, inventory, map);
+        charakter.setSpacing(10);
+
+        VBox pane = new VBox();
+        ScrollPane scrollPane = makeScrollpane();
+        pane.getChildren().addAll(gametext);
+        pane.setBackground(GameOption.hintergrund);
+
+        pane.prefWidthProperty().bind(Bindings.subtract(haupt.widthProperty(), 235));
+        pane.prefHeightProperty().bind(haupt.heightProperty());
+        pane.setPadding(new Insets(30));
+
+        scrollPane.setContent(pane);
+
+        haupt.setLeft(charakter);
+        haupt.setBottom(bottom);
+        haupt.setCenter(scrollPane);
+
+        haupt.setBackground(GameOption.hintergrund);
+        return haupt;
+    }
+
+    /***
+     * Creating a Label dependent on the Widthpropertie
+     * @param buttonrow Buttonrow for Width
+     * @param s String to insert
+     * @return Label for Buttonrow
+     */
+    public static Label makeLabel(Pane buttonrow, String s) {
+        Label label = new Label();
+        label.prefWidthProperty().bind(Bindings.divide(buttonrow.widthProperty(), 7));
+        label.setTextFill(Paint.valueOf("ffffff"));
+        label.setText(s);
+        return label;
+    }
+
+    public static TextField createTextfield(Pane buttonrow) {
+        TextField textField = new TextField();
+        textField.prefWidthProperty().bind(Bindings.divide(buttonrow.widthProperty(), 7));
+        return textField;
     }
 }
