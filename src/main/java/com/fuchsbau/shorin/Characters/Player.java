@@ -1,10 +1,9 @@
 package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Optionen.GameOption;
-import com.fuchsbau.shorin.Spiel.Saveble;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.Scene;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 
@@ -51,7 +50,7 @@ public class Player extends Character {
     @Override
     public TextFlow makeBeschreibung(TextFlow pane) {
         setBeschreibung(getplayerinfo());
-        pane.getChildren().add(SceneBuilder.makeText(getplayerinfo()));
+        pane.getChildren().add(SceneBuilder.getSceneBuilder().makeText(getplayerinfo()));
         return pane;
     }
 

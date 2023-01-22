@@ -13,9 +13,9 @@ import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
 import com.fuchsbau.shorin.Items.Weapons.Unarmed;
 import com.fuchsbau.shorin.Items.Weapons.Weapon;
 import com.fuchsbau.shorin.Optionen.GameOption;
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Main;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Game;
+import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -51,27 +51,25 @@ public class Inventory {
     }
 
     private void makeScene() {
-
-        HBox erste = SceneBuilder.makeButtonrow();
-        Button back = SceneBuilder.makeButton(erste);
-        back.setText("Back");
+        SceneBuilder.getSceneBuilder().resetButtonrows();
+        Button back = SceneBuilder.getSceneBuilder().makeButton(1, "Back");
         back.setOnMouseClicked(event -> {
             GameOption.delete = false;
             Main.getStage().setScene(Game.getInstance().spieler.getAktuell());
         });
+        SceneBuilder.getSceneBuilder().addButton(back, 1);
 
-        Button delete = SceneBuilder.makeButton(erste);
-        delete.setText("Toggle delete");
+        Button delete = SceneBuilder.getSceneBuilder().makeButton(1, "Toggle delete");
         delete.setOnMouseClicked(event -> {
             GameOption.toggleDelete();
             Main.getStage().setScene(getScene());
         });
+        SceneBuilder.getSceneBuilder().addButton(delete, 1);
 
         //TODO Informationen button, Bücher, Rassen, etc
 
-        erste.getChildren().addAll(back, delete);
 
-        scene = new Scene(SceneBuilder.makePlayerInventory(erste, items, head, chest, arms, pants, boots, weapon));
+        scene = new Scene(SceneBuilder.getSceneBuilder().makePlayerInventory(items, head, chest, arms, pants, boots, weapon));
     }
 
     public void addItem(Item item) {

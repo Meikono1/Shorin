@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Weapons.Unarmed;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -16,10 +16,10 @@ public class Character {
     private int muscles;
     private int weight;
     private boolean penis;
-    private boolean vagina;
+    private boolean clit;
     private String beschreibung;
     Item Weapon = new Unarmed();
-    private Text text = SceneBuilder.makeText();
+    private Text text;
 
 
     public Character(int health, int age, String name, int size, int masculinity, int muscles, int weight, Paint paint) {
@@ -29,6 +29,7 @@ public class Character {
         this.masculinity = masculinity;
         this.muscles = muscles;
         this.weight = weight;
+        this.text = SceneBuilder.getSceneBuilder().makeText();
         this.text.setText(name);
         this.text.setFill(paint);
         beschreibung = "None";
@@ -112,13 +113,13 @@ public class Character {
         } else if (masculinity < 45) {
             if (penis) {
                 back = "Tomboy";
-            } else if (vagina) {
+            } else if (clit) {
                 back = "Femboy";
             } else {
                 back = "Undefined";
             }
         } else if (masculinity < 70) {
-            if (vagina) {
+            if (clit) {
                 back = "Reverse Tomboy";
             } else {
                 back = "Boy";
@@ -139,7 +140,7 @@ public class Character {
     }
 
     public Text getText() {
-        Text back = SceneBuilder.makeText(this.text.getText());
+        Text back = SceneBuilder.getSceneBuilder().makeText(this.text.getText());
         back.setFill(text.getFill());
         return back;
     }

@@ -2,37 +2,36 @@ package com.fuchsbau.shorin.Items.Weapons;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Material;
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Game;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class Weapon implements Item {
 
-    private String beschreibung;
+    private String descrition;
     private final Material material;
-    private final int qualitaet;
-    private final int schaden;
-    private final int zustand;
+    private final int quality;
+    private final int demage;
+    private final int condition;
 
-    public Weapon(int schaden, int zustand, int qualitaet, Material material, String text) {
+    public Weapon(int demage, int condition, int quality, Material material, String descrition) {
         this.material = material;
-        this.qualitaet = qualitaet;
-        this.schaden = schaden;
-        this.zustand = zustand;
-
-        beschreibung = text;
+        this.quality = quality;
+        this.demage = demage;
+        this.condition = condition;
+        this.descrition = descrition;
     }
 
 
     @Override
     public Text getText() {
-        return SceneBuilder.makeText(beschreibung);
+        return SceneBuilder.getSceneBuilder().makeText(descrition);
 
     }
 
     @Override
     public void setText(String text) {
-        this.beschreibung = text;
+        this.descrition = text;
     }
 
     @Override
@@ -62,11 +61,11 @@ public class Weapon implements Item {
         }
         Weapon item = (Weapon) o;
 
-        if (this.beschreibung.equals(item.beschreibung)
+        if (this.descrition.equals(item.descrition)
                 && item.material == this.material
-                && item.schaden == this.schaden
-                && item.zustand == this.zustand
-                && this.qualitaet == item.qualitaet) {
+                && item.demage == this.demage
+                && item.condition == this.condition
+                && this.quality == item.quality) {
             return 0;
         }
         return -1;

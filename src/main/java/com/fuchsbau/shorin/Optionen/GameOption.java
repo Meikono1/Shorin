@@ -1,9 +1,9 @@
 package com.fuchsbau.shorin.Optionen;
 
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Mainscreen;
-import com.fuchsbau.shorin.Spiel.Main;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Game;
+import com.fuchsbau.shorin.RPG.Mainscreen;
+import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.beans.binding.NumberBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -39,7 +39,7 @@ public class GameOption {
     public static Paint highlightBlue = Paint.valueOf("4b6673");
     public static Paint missionDescription = Paint.valueOf("638387");
     public static Paint armies = Paint.valueOf("6b6f48");
-    public static Paint ortcolor = Paint.valueOf("409970");
+    public static Paint cityColor = Paint.valueOf("409970");
     public static Paint goodPaint = Paint.valueOf("589214");
     public static Paint goldPaint = Paint.valueOf("878707");
     public static String currencyname = "Gold";
@@ -52,30 +52,21 @@ public class GameOption {
 
 
     private void makePane(int stage) {
-        NumberBinding binding;
-
-        ScrollPane optionsfenster = new ScrollPane();
-        optionsfenster.setBackground(hintergrund);
-        optionsfenster.setFitToWidth(true);
-        optionsfenster.setFitToHeight(true);
-        optionsfenster.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        optionsfenster.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-
+        ScrollPane optionWindow = new ScrollPane();
+        optionWindow.setBackground(hintergrund);
+        optionWindow.setFitToWidth(true);
+        optionWindow.setFitToHeight(true);
+        optionWindow.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        optionWindow.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         //VBox inside Scrollpane
         VBox center = new VBox();
         center.setBackground(hintergrund);
         center.setAlignment(Pos.CENTER);
         center.setPadding(padding);
-        optionsfenster.setContent(center);
+        optionWindow.setContent(center);
 
-
-        HBox buttongroup = SceneBuilder.makeButtonrow();
-        buttongroup.setBackground(GameOption.rowHintergrund);
-        buttongroup.setPrefHeight(100);
-
-        Button back = SceneBuilder.makeButton(buttongroup);
-        back.setText("Back");
+        Button back = SceneBuilder.getSceneBuilder().makeButton(1, "Back");
         back.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin");
             if (stage == 0) {
@@ -84,10 +75,10 @@ public class GameOption {
                 Main.getStage().setScene(Game.getInstance().inventory.getScene());
             }
         });
+        SceneBuilder.getSceneBuilder().addButton(back, 1);
 
-        Button save = SceneBuilder.makeButton(buttongroup);
+        Button save = SceneBuilder.getSceneBuilder().makeButton(1, "Save game");
         if (stage != 0) {
-            save.setText("Save game");
             save.setOnMouseClicked(event -> {
                 File file = new File("save01.txt");
                 try {
@@ -100,25 +91,11 @@ public class GameOption {
                 }
             });
         }
+        SceneBuilder.getSceneBuilder().addButton(save, 1);
 
-        buttongroup.getChildren().setAll(back, save);
-
-        BorderPane pane = new BorderPane();
-        pane.setBottom(buttongroup);
-        pane.setCenter(optionsfenster);
-
-        scene = new Scene(pane);
+        scene = SceneBuilder.getSceneBuilder().makeGameOption(optionWindow);
     }
-
-    private Button makeButton(String text) {
-        Button back = new Button(text);
-        back.setMinWidth(buttonwidth);
-        back.setPadding(padding);
-
-
-        return back;
-    }
-
+    // TODO: 22.01.2023 Ausbauen ?, erweitern ?, umbauen ?
     private HBox makeOption(String option, Button button) {
         HBox back = new HBox();
         Text text = new Text(option);
@@ -136,6 +113,7 @@ public class GameOption {
 
 
     public Scene getScene(int stage) {
+        SceneBuilder.getSceneBuilder().resetButtonrows();
         makePane(stage);
         return scene;
     }

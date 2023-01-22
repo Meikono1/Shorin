@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Items;
 
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Game;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class HealingPotion implements Item {
@@ -15,7 +15,7 @@ public class HealingPotion implements Item {
 
     @Override
     public Text getText() {
-        return SceneBuilder.makeText(beschreibung);
+        return SceneBuilder.getSceneBuilder().makeText(beschreibung);
     }
 
     @Override

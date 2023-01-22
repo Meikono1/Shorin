@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.fuchsbau.shorin.Spiel.Main</mainClass>
+                            <mainClass>com.fuchsbau.shorin.RPG.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

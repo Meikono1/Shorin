@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Items.Gear;
 
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.text.Text;
 
 public enum Slot {
@@ -18,7 +18,7 @@ public enum Slot {
 
     Slot(int i, String text) {
         int id = i;
-        Text beschreibung = SceneBuilder.makeText(text);
+        Text beschreibung = SceneBuilder.getSceneBuilder().makeText(text);
     }
 
 }

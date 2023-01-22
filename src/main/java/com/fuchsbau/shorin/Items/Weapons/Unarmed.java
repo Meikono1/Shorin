@@ -4,7 +4,7 @@ import com.fuchsbau.shorin.Items.Material;
 
 public class Unarmed extends Weapon {
     public Unarmed() {
-        super(2, 100, 1, Material.stein, "Unarmed");
+        super(2, 100, 1, Material.stone, "Unarmed");
 
     }
 

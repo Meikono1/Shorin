@@ -6,8 +6,8 @@ import com.fuchsbau.shorin.Items.Gear.Head.NoHat;
 import com.fuchsbau.shorin.Items.Gear.LowerBody.NoPants;
 import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
 import com.fuchsbau.shorin.Items.Item;
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Game;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.text.Text;
 
 import java.util.LinkedList;
@@ -30,7 +30,7 @@ public class Armor implements Item {
 
     @Override
     public Text getText() {
-        return SceneBuilder.makeText(text);
+        return SceneBuilder.getSceneBuilder().makeText(text);
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.fuchsbau.shorin.Characters.Humans;
 
 import com.fuchsbau.shorin.Characters.Character;
-import com.fuchsbau.shorin.Spiel.Game;
-import com.fuchsbau.shorin.Spiel.Main;
-import com.fuchsbau.shorin.Spiel.Saveble;
-import com.fuchsbau.shorin.Spiel.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Game;
+import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -26,7 +26,7 @@ public class Joshua extends Character implements Saveble {
     private int stage;
 
     public Joshua() {
-        super(100, 46, "Josha",178,85,65,77, Color.valueOf("068927"));
+        super(100, 46, "Josha", 178, 85, 65, 77, Color.valueOf("068927"));
     }
     /*
     case Stage
@@ -41,134 +41,116 @@ public class Joshua extends Character implements Saveble {
 
     private void makeScene() {
 
-        TextFlow flow = SceneBuilder.mainFlow();
+        TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();
 
         if (stage == 0) {
-            Text a = SceneBuilder.makeText();
+            Text a = SceneBuilder.getSceneBuilder().makeText();
             if (favor == 2) {
                 a.setText("\"Hey, ");
                 Text b = Game.getInstance().spieler.getText();
-                Text c = SceneBuilder.makeText();
+                Text c = SceneBuilder.getSceneBuilder().makeText();
                 c.setText(" what's up?\"");
                 flow.getChildren().addAll(a, b, c);
             } else {
                 a.setText("\"Hey, my Boy. How you doing ? \nI hope this mission is not to hard for you. I mean its the first time that you make such a long journey.\"");
                 flow.getChildren().addAll(a);
             }
-
         }
 
-        HBox erste = SceneBuilder.makeButtonrow();
-
         if (stage == 1) {
-            missionTalkBarracks(erste, flow);
+            missionTalkBarracks(flow);
         }
 
         if (stage == 2) {
-            Text a = SceneBuilder.makeText();
+            Text a = SceneBuilder.getSceneBuilder().makeText();
             a.setText("He gives you a Hug\n\n");
             a.setText("\"Thank you. I knew i can rely on you, if you find something there, you know where to find me. I would really appriciate a gift\"");
             flow.getChildren().addAll(a);
         }
 
         if (stage == 3) {
-            Text a = SceneBuilder.makeText();
+            Text a = SceneBuilder.getSceneBuilder().makeText();
             a.setText("\"Ok, i understand that you have no time. Maybe i find someone else.\"");
             flow.getChildren().addAll(a);
         }
 
         if (stage == 4) {
-
             //TODO Text neu schreiben
-            Text a = SceneBuilder.makeText();
+            Text a = SceneBuilder.getSceneBuilder().makeText();
             a.setText("\"Yes, they died when you were a small kid.\"\n\nYou see that sadness overcomes him\n\"They were good people. I meet them, when your mother was heavyly pragnent. " +
                     "They lived in the East, your father was always training the sword, preparing for the next Attack. It was a scary time\"\n\n He sights \n\"The Weres... rebelled and a bloody war raged right besides us in the woods." +
                     " I mean, thanks to the rebellion, the Orcs stayed away. But....\n\n\"Let's talk again some other time. I need some rest\"");
-
             gone = 10;
-
             flow.getChildren().add(a);
+
         } else if (stage != 1) {
-            Button family = SceneBuilder.makeButton(erste);
-            family.setText("Talk about Family");
+            Button family = SceneBuilder.getSceneBuilder().makeButton(1, "Talk about Family");
             family.setOnMouseClicked(event -> Main.getStage().setScene(getScene(4)));
-            erste.getChildren().add(family);
+            SceneBuilder.getSceneBuilder().addButton(family, 1);
         }
 
         if (stage == 5) {
-
-            Text a = SceneBuilder.makeText();
+            Text a = SceneBuilder.getSceneBuilder().makeText();
             a.setText("These old Barrack? \n there is nothing special about them");
-
             flow.getChildren().add(a);
 
         } else if (stage != 1 && stage != 4) {
-            Button barracks = SceneBuilder.makeButton(erste);
-            barracks.setText("Talk about barracks");
+            Button barracks = SceneBuilder.getSceneBuilder().makeButton(1, "Talk about barracks");
             barracks.setOnMouseClicked(event -> Main.getStage().setScene(getScene(5)));
-            erste.getChildren().add(barracks);
+            SceneBuilder.getSceneBuilder().addButton(barracks, 1);
         }
-
-
-        HBox dritte = SceneBuilder.makeButtonrow();
 
         if (stage != 1) {
             if (favor == 0 && stage != 4) {
-                Button mission = SceneBuilder.makeButton(erste);
-                mission.setText("Thoughts about mission");
+                Button mission = SceneBuilder.getSceneBuilder().makeButton(1, "Thoughts about mission");
                 mission.setOnMouseClicked(event -> Main.getStage().setScene(getScene(1)));
-                erste.getChildren().add(mission);
+                SceneBuilder.getSceneBuilder().addButton(mission, 1);
             }
 
-
-            Button zurueck = SceneBuilder.makeButton(dritte);
-            zurueck.setText("Back to barracks");
+            Button zurueck = SceneBuilder.getSceneBuilder().makeButton(3, "Back to barracks");
             zurueck.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.barracks.getScene(0)));
-
-
-            dritte.getChildren().addAll(zurueck);
-
+            SceneBuilder.getSceneBuilder().addButton(zurueck, 3);
         }
 
-        scene = new Scene(SceneBuilder.buildGameScene(erste, null, dritte, flow));
+        scene = new Scene(SceneBuilder.getSceneBuilder().buildGameScene(flow));
     }
 
-    private void missionTalkBarracks(HBox erste, TextFlow flow) {
+    private void missionTalkBarracks(TextFlow flow) {
 
-        Text a = SceneBuilder.makeText();
+        Text a = SceneBuilder.getSceneBuilder().makeText();
         a.setText("Yes~~, i though this would be a good mission for you.\nGetting out of this missery we call ");
 
         Text b = Game.getInstance().whitebridge.getOrtText();
 
-        Text c = SceneBuilder.makeText();
+        Text c = SceneBuilder.getSceneBuilder().makeText();
         c.setText(".The 'white' city, so clean and cultivated you might get sick by looking at it. And the 'bridge' to our greates city and Capital ");
 
         Text d = Game.getInstance().sudbury.getOrtText();
 
-        Text e = SceneBuilder.makeText();
+        Text e = SceneBuilder.getSceneBuilder().makeText();
         e.setText(". \nMaybe one day i can visit the east again. Even if only war brought me there, i want to go back.\n\nCan i ask you for a favor?\n" +
                 "In the east there is a river that formes out of 3 rivers. There is a special city, pls if you visit this place, tell me how it's going ? ");
 
-        Button yes = SceneBuilder.makeButton(erste);
-        yes.setText("Sure");
+        Button yes = SceneBuilder.getSceneBuilder().makeButton(1, "Sure");
         yes.setOnMouseClicked(event -> {
             favor = 1;
             Main.getStage().setScene(getScene(2));
         });
+        SceneBuilder.getSceneBuilder().addButton(yes, 1);
 
-        Button no = SceneBuilder.makeButton(erste);
-        no.setText("No, sorry");
+        Button no = SceneBuilder.getSceneBuilder().makeButton(1,"No, sorry");
         no.setOnMouseClicked(event -> {
             favor = 2;
             Main.getStage().setScene(getScene(3));
         });
+        SceneBuilder.getSceneBuilder().addButton(no, 1);
 
         flow.getChildren().addAll(a, b, c, d, e);
-        erste.getChildren().addAll(yes, no);
     }
 
     public Scene getScene(int stage) {
         this.stage = stage;
+        SceneBuilder.getSceneBuilder().resetButtonrows();
         makeScene();
         Game.getInstance().spieler.setAktuell(this, stage);
         return scene;
