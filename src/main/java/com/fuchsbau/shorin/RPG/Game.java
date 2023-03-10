@@ -7,6 +7,9 @@ import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.RPG.Lore.Armies.Greysmanace;
 import com.fuchsbau.shorin.RPG.Lore.Time.BirthofMagic;
 import com.fuchsbau.shorin.RPG.Lore.Time.GreatWar;
+import com.fuchsbau.shorin.RPG.Places.GreenValley.GreenValley;
+import com.fuchsbau.shorin.RPG.Places.KaguyaForest.KaguyaForest;
+import com.fuchsbau.shorin.RPG.Places.MountainGong.MountainGong;
 import com.fuchsbau.shorin.RPG.Places.Place;
 import com.fuchsbau.shorin.RPG.Places.Sudbury.Sudbury;
 import com.fuchsbau.shorin.Characters.Humans.Joshua;
@@ -27,6 +30,9 @@ public class Game {
     public Greysmanace greysmanace = new Greysmanace("Grey's Manace");
     public Sudbury sudbury = new Sudbury("Sudbury", "The Human capital. The King Rogg and his Family lives here in his Castle. Laws are made in the Council by the king," +
             " 5 Human agents and 2 representatives of each race. \n The main entrance leads to Whitebridge.");
+    public MountainGong mountainGong = new MountainGong("Mountain Gong", "The Home of the Dwarfes in the west side of Shorin");
+    public KaguyaForest kaguyaForest = new KaguyaForest("Kaguya Forest", "The Forest around Mountain Gong");
+    public GreenValley greenValley = new GreenValley("Green Valley", "Home of mostly Humans, Peasent Livestyle");
 
 
     private Game() {
@@ -41,7 +47,7 @@ public class Game {
         joshua.update();
     }
 
-// TODO: 22.01.2023  Redo Save into JSON
+    // TODO: 22.01.2023  Redo Save into JSON
     public String saveEverything() {
         StringBuilder builder = new StringBuilder();
         builder.append(optionen.save());

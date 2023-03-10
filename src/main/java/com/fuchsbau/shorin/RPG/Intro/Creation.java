@@ -5,12 +5,12 @@ import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.RPG.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
-import javafx.beans.binding.Bindings;
+import com.fuchsbau.shorin.Strategy.Home.Outside;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -69,29 +69,18 @@ public class Creation implements Saveble {
 
             if (stage == 2) {//intro to you
                 Text a = SceneBuilder.getSceneBuilder().makeText("Welcome to the World of Shorin\n\nYou're a ");
-
                 Text aa = SceneBuilder.getSceneBuilder().makeText(String.valueOf(Game.getInstance().spieler.getAge()));
-
                 Text ab = SceneBuilder.getSceneBuilder().makeText(" years old freshly trained soldier, who was just assigned for his first official mission.\nYour name is ");
-
                 Text b = Game.getInstance().spieler.getText();
-
                 Text c = SceneBuilder.getSceneBuilder().makeText(".");
                 //@TODO check Text
                 Text d = SceneBuilder.getSceneBuilder().makeText("\n\n10 Years ago your parents died in the Great war when you were only ");
-
                 Text daa = SceneBuilder.getSceneBuilder().makeText(String.valueOf(Game.getInstance().spieler.getAge() - 10));
-
                 Text dab = SceneBuilder.getSceneBuilder().makeText(" Years old. You didn't knew them well but people say they were brave soldiers fighting for humanity.\n");
-
                 Text da = Game.getInstance().joshua.getText();
-
                 Text db = SceneBuilder.getSceneBuilder().makeText(", a family friend, took you in and treated you like his own son.\nHe loved to tell stories about your Parents and the war, but a few months, after he adopted you, he grew tired and seeks peace in his life. \n\nThe story about the death of your parents, still haunts you and you aim to seek revenge and defend humanity against the evil forces across the rivers: Fen and Hedge.\n\n");
-
                 Text e = SceneBuilder.getSceneBuilder().makeText("Then, at the age of 12, you officially joined the army under the Command of ");
-
                 Text ea = Game.getInstance().joshua.getText();
-
                 Text eb = SceneBuilder.getSceneBuilder().makeText(". He thought you the local courtesy, how to survive in the wild, make a fire and to fight against humanoids. You then spent most of the time clearing disputes and helping the locals. It was hard at first, but with time the local population accepted you as a peacekeeper. \nNow, with your first mission, you can finally leave this city and change your live.");
 
 
@@ -198,7 +187,6 @@ public class Creation implements Saveble {
                 createBuilderStagetwobuttons();
                 flow = createBuilderStagetwoflow();
                 break;
-
             }
             default:
                 flow = errormessage(stage);
@@ -208,11 +196,28 @@ public class Creation implements Saveble {
     }
 
     private TextFlow createBuilderStagetwoflow() {
-        return new TextFlow();
+        TextFlow textflow = new TextFlow();
+
+        //Todo Check text
+        Text a = SceneBuilder.getSceneBuilder().makeText("Welcome: ");
+        Text b = Game.getInstance().spieler.getText();
+        Text c = SceneBuilder.getSceneBuilder().makeText("\n\nAfter a long march you arrived at the place of your new home.\nIn the Far distance, above the treeline, you see the ");
+        Text d = Game.getInstance().mountainGong.getOrtText();
+        Text e = SceneBuilder.getSceneBuilder().makeText(" where the Dwarves live. Infront of you is a more or less clear area, surrounded by forest. \n\nNow is the Time, to begin your adventure");
+        Text f = SceneBuilder.getSceneBuilder().makeText();
+
+        textflow.getChildren().addAll(a, b, c, d, e);
+        return textflow;
     }
 
     private void createBuilderStagetwobuttons() {
+        Button next = SceneBuilder.getSceneBuilder().makeButton(1, "Continue");
+        next.setOnMouseClicked(event -> {
+            Main.getStage().setScene(new Outside().getScene(1));
+            this.reset();
+        });
 
+        SceneBuilder.getSceneBuilder().addElement(next, 1);
     }
 
     private TextFlow errormessage(int stage) {
@@ -224,10 +229,13 @@ public class Creation implements Saveble {
 
     private TextFlow createBuilderStageoneflow() {
         TextFlow flow = new TextFlow();
-        Text a = SceneBuilder.getSceneBuilder().makeText("You arrived on Shorin with the goal of creating your own home. You travel to the edge of the Kaguya Forest," +
-                " West of Green Valley. What is the name of this male Human ?");
+        Text a = SceneBuilder.getSceneBuilder().makeText("You're a male Human who just arrived on Shorin with the goal of creating your own destiny. You traveled along the edge of the ");
+        Text b = Game.getInstance().kaguyaForest.getOrtText();
+        Text c = SceneBuilder.getSceneBuilder().makeText(", west of ");
+        Text d = Game.getInstance().greenValley.getOrtText();
+        Text e = SceneBuilder.getSceneBuilder().makeText(", and finally reached a secluded place to start your own home. What is the name of this male Human ?");
 
-        flow.getChildren().add(a);
+        flow.getChildren().addAll(a, b, c, d, e);
         return flow;
     }
 

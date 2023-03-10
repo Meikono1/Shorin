@@ -40,6 +40,7 @@ public class GameOption {
     public static Paint missionDescription = Paint.valueOf("638387");
     public static Paint armies = Paint.valueOf("6b6f48");
     public static Paint cityColor = Paint.valueOf("409970");
+    public static Paint raceColor = Paint.valueOf("472db2");
     public static Paint goodPaint = Paint.valueOf("589214");
     public static Paint goldPaint = Paint.valueOf("878707");
     public static String currencyname = "Gold";
