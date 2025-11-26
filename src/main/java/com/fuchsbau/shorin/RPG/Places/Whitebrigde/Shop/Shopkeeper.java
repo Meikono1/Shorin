@@ -5,12 +5,11 @@ import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Material;
 import com.fuchsbau.shorin.Items.Weapons.Broadsword;
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
 import java.util.List;

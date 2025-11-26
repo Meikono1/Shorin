@@ -1,9 +1,9 @@
 package com.fuchsbau.shorin.RPG.Places.Whitebrigde.Barracks;
 
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 

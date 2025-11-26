@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.RPG;
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Weapons.Weapon;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Optionen.GameOption;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -14,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
@@ -21,8 +23,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-import javax.xml.bind.Element;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public class SceneBuilder {
@@ -573,18 +575,29 @@ public class SceneBuilder {
         name.setPrefWidth(GameOption.imagewidth);
         name.prefHeight(GameOption.imageheight);
 
+        Image image = new Image(
+                Objects.requireNonNull(Main.class.getResourceAsStream("/images/char.png"))
+        );
 
-        ImageView ich = new ImageView("/images/char.png");
+        ImageView ich = new ImageView(image);
 
         ich.setFitHeight(GameOption.imageheight);
         ich.setFitWidth(GameOption.imagewidth);
 
-        ImageView inventory = new ImageView("/images/inv.png");
+        image = new Image(
+                Objects.requireNonNull(Main.class.getResourceAsStream("/images/inv.png"))
+        );
+
+        ImageView inventory = new ImageView(image);
         inventory.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().inventory.getScene()));
         inventory.setFitHeight(GameOption.imageheight);
         inventory.setFitWidth(GameOption.imagewidth);
 
-        ImageView map = new ImageView("/images/ShorinMap3.png");
+        image = new Image(
+                Objects.requireNonNull(Main.class.getResourceAsStream("/images/ShorinMap3.png"))
+        );
+
+        ImageView map = new ImageView(image);
         map.setFitHeight(GameOption.imageheight);
         map.setFitWidth(GameOption.imagewidth);
 

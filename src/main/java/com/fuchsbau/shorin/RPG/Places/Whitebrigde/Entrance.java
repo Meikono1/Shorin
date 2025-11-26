@@ -1,12 +1,11 @@
 package com.fuchsbau.shorin.RPG.Places.Whitebrigde;
 
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 
 public class Entrance implements Saveble {
     // TODO: 23.09.2019  make entrance

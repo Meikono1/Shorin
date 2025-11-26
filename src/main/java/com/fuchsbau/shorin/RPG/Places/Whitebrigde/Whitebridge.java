@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.RPG.Places.Whitebrigde;
 
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Places.Place;
 import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Barracks.Barracks;
 import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Shop.Shop;
@@ -9,7 +9,6 @@ import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 

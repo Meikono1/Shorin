@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.RPG.Intro;
 
 import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
 import com.fuchsbau.shorin.Strategy.Home.Outside;
@@ -10,7 +10,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -196,7 +195,7 @@ public class Creation implements Saveble {
     }
 
     private TextFlow createBuilderStagetwoflow() {
-        TextFlow textflow = new TextFlow();
+        TextFlow textflow = SceneBuilder.getSceneBuilder().mainFlow();
 
         //Todo Check text
         Text a = SceneBuilder.getSceneBuilder().makeText("Welcome: ");
@@ -221,14 +220,14 @@ public class Creation implements Saveble {
     }
 
     private TextFlow errormessage(int stage) {
-        TextFlow flow = new TextFlow();
+        TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();
         Text a = SceneBuilder.getSceneBuilder().makeText("Error in Creation; Stage: " + stage);
         flow.getChildren().add(a);
         return flow;
     }
 
     private TextFlow createBuilderStageoneflow() {
-        TextFlow flow = new TextFlow();
+        TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();
         Text a = SceneBuilder.getSceneBuilder().makeText("You're a male Human who just arrived on Shorin with the goal of creating your own destiny. You traveled along the edge of the ");
         Text b = Game.getInstance().kaguyaForest.getOrtText();
         Text c = SceneBuilder.getSceneBuilder().makeText(", west of ");

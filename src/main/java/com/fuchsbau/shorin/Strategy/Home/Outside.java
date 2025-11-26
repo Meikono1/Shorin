@@ -1,13 +1,12 @@
 package com.fuchsbau.shorin.Strategy.Home;
 
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Strategy.Variables.StrategyInstance;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -38,8 +37,8 @@ public class Outside implements Saveble {
 
 
     private TextFlow stageoneflow() {
-        TextFlow flow = new TextFlow();
-        Text a = SceneBuilder.getSceneBuilder().makeText("You're a male Human who just arrived on Shorin with the goal of creating your own destiny. You traveled along the edge of the ");
+        TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();
+        Text a = StrategyInstance.getInstance().getForestText();
         Text b = Game.getInstance().kaguyaForest.getOrtText();
         Text c = SceneBuilder.getSceneBuilder().makeText(", west of ");
         Text d = Game.getInstance().greenValley.getOrtText();
@@ -50,27 +49,17 @@ public class Outside implements Saveble {
     }
 
     private void stageoneButtons() {
-        Label name = SceneBuilder.getSceneBuilder().makeLabel("Name :");
+        Button name = SceneBuilder.getSceneBuilder().makeButton(1,"Wooding");
         SceneBuilder.getSceneBuilder().addElement(name, 1);
 
-        TextField eingabe = SceneBuilder.getSceneBuilder().createTextfield();
-        SceneBuilder.getSceneBuilder().addElement(eingabe, 1);
-
-        Button accept = SceneBuilder.getSceneBuilder().makeButton(1, "Accept");
-        SceneBuilder.getSceneBuilder().addElement(accept, 1);
-
-        accept.setOnMouseClicked(event -> {
-            if (eingabe.getText().equals("")) {
-                Game.getInstance().spieler.setName("Jan");
-            } else {
-                Game.getInstance().spieler.setName(eingabe.getText());
-            }
-            Main.getStage().setScene(getScene(2));
+        name.setOnMouseClicked(event -> {
+            StrategyInstance.getInstance().logging(2);
+            Main.getStage().setScene(getScene(1));
         });
     }
 
     private TextFlow errormessage(int stage) {
-        TextFlow flow = new TextFlow();
+        TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();
         Text a = SceneBuilder.getSceneBuilder().makeText("Error in Outside; Stage: " + stage);
         flow.getChildren().add(a);
         return flow;

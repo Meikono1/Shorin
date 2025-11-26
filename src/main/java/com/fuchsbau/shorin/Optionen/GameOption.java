@@ -1,10 +1,9 @@
 package com.fuchsbau.shorin.Optionen;
 
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Mainscreen;
-import com.fuchsbau.shorin.RPG.Main;
+import com.fuchsbau.shorin.RPG.MainScreen;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.SceneBuilder;
-import javafx.beans.binding.NumberBinding;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -71,7 +70,7 @@ public class GameOption {
         back.setOnMouseClicked(event -> {
             Main.getStage().setTitle("Shorin");
             if (stage == 0) {
-                Main.getStage().setScene(new Mainscreen().getScene(0));
+                Main.getStage().setScene(new MainScreen().getScene(0));
             } else {
                 Main.getStage().setScene(Game.getInstance().inventory.getScene());
             }

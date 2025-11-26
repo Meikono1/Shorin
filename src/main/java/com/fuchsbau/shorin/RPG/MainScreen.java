@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.RPG;
 
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Optionen.GameOption;
 import com.fuchsbau.shorin.RPG.Intro.Creation;
 import javafx.beans.binding.Bindings;
@@ -13,7 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 
-public class Mainscreen implements Saveble {
+public class MainScreen implements Saveble {
     private final Creation creation = new Creation(true);
     private Scene scene;
     private final String patchnotes = "Shorin Patch : 0.1";
