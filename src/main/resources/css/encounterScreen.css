@@ -1,0 +1,51 @@
+.encounter-tabs > .tab-header-area {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-padding: 10 10 0 10;
+    -fx-background-color: transparent;
+}
+.encounter-tabs > .tab-header-area > .tab-header-background {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+.encounter-tabs .tab {
+    -fx-background-color: rgba(12, 12, 18, 0.6);
+    -fx-padding: 10 18 10 18;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #505060;
+    -fx-border-width: 1;
+}
+
+.encounter-tabs .tab .tab-label {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.encounter-tabs .tab:hover {
+    -fx-background-color: rgba(40, 40, 60, 0.9);
+    -fx-border-color: #a0a0ff;
+}
+
+.encounter-tabs .tab:selected {
+    -fx-background-color: rgba(20, 20, 35, 0.95);
+}
+
+.encounter-tabs .tab:selected .tab-label {
+    -fx-text-fill: #ffffff;
+}
+
+.encounter-tabs > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+}
+
+.tab-down-button {
+-fx-padding: 0;
+}
+
+.tab-down-button .arrow {
+-fx-padding: 0;
+}

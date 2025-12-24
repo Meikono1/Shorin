@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.RPG.Places;
 
-import com.fuchsbau.shorin.Optionen.GameOption;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class Place {

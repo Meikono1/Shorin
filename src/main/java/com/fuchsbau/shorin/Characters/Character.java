@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Weapons.Unarmed;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;

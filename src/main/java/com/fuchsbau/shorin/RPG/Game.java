@@ -3,7 +3,7 @@ package com.fuchsbau.shorin.RPG;
 import com.fuchsbau.shorin.Characters.Humans.Dave;
 import com.fuchsbau.shorin.Characters.Player;
 import com.fuchsbau.shorin.Items.Inventory;
-import com.fuchsbau.shorin.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Optionen.GameOption;
 import com.fuchsbau.shorin.RPG.Lore.Armies.Greysmanace;
 import com.fuchsbau.shorin.RPG.Lore.Time.BirthofMagic;
 import com.fuchsbau.shorin.RPG.Lore.Time.GreatWar;

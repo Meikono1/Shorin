@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Items.Gear;
 
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
 public enum Slot {

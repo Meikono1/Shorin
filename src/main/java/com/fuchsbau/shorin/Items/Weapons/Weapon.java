@@ -3,7 +3,7 @@ package com.fuchsbau.shorin.Items.Weapons;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Material;
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class Weapon implements Item {

@@ -7,7 +7,7 @@ import com.fuchsbau.shorin.Items.Weapons.Broadsword;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 
@@ -49,7 +49,7 @@ public class Shopkeeper implements Saveble {
     public Scene getScene(int stage) {
         SceneBuilder.getSceneBuilder().resetButtonrows();
         makeScene();
-        Game.getInstance().spieler.setAktuell(this, stage);
+        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

@@ -6,7 +6,7 @@ import com.fuchsbau.shorin.RPG.Places.Place;
 import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Barracks.Barracks;
 import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Shop.Shop;
 import com.fuchsbau.shorin.RPG.Saveble;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
@@ -103,7 +103,7 @@ public class Whitebridge extends Place implements Saveble {
     @Override
     public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setAktuell(this, stage);
+        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

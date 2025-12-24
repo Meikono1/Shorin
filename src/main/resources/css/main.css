@@ -1,0 +1,84 @@
+.menu-button {
+    -fx-background-color: rgba(12, 12, 18, 0.6);
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 18 10 18;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #505060;
+    -fx-border-width: 1;
+}
+
+.menu-button:hover {
+    -fx-background-color: rgba(40, 40, 60, 0.9);
+    -fx-border-color: #a0a0ff;
+}
+
+.menu-button:pressed {
+    -fx-background-color: rgba(8, 8, 12, 0.9);
+    -fx-translate-y: 1;
+}
+
+.menu-button:focused {
+    -fx-effect: dropshadow(gaussian, rgba(160,160,255,0.6), 10, 0.2, 0, 0);
+}
+
+.scrollPane {
+    -fx-background-color: transparent;
+}
+
+.scrollPane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scrollPane .scroll-bar:vertical {
+    -fx-pref-width: 6px;
+    -fx-background-color: transparent;
+}
+
+.scrollPane .scroll-bar:vertical .track {
+    -fx-background-color: rgba(0,0,0,0.25);
+    -fx-background-radius: 4;
+}
+
+.scrollPane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(160,160,255,0.6);
+    -fx-background-radius: 4;
+}
+
+.scrollPane .scrollPane:vertical .increment-button,
+.scrollPane .scrollPane:vertical .decrement-button {
+    -fx-padding: 0;
+    -fx-opacity: 0;
+}
+
+.KEYWORD-base {
+    -fx-font-size: 21px;
+    -fx-fill: #e0e0e0;
+}
+
+.KEYWORD-game {
+    -fx-font-size: 21px;
+    -fx-fill: #a0a0ff;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(160,160,255,0.55), 10, 0.2, 0, 0);
+}
+
+.KEYWORD-keyword {
+    -fx-font-size: 21px;
+    -fx-fill: #d8d8ff;
+    -fx-font-weight: 600;
+}
+
+.KEYWORD-scary {
+    -fx-font-size: 21px;
+    -fx-fill: #ffb0b0;
+    -fx-effect: dropshadow(gaussian, rgba(255,120,120,0.35), 8, 0.2, 0, 0);
+}
+
+.KEYWORD-fluffy {
+    -fx-font-size: 21px;
+    -fx-fill: #bfffd7;
+    -fx-effect: dropshadow(gaussian, rgba(120,255,180,0.25), 8, 0.2, 0, 0);
+}

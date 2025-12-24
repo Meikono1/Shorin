@@ -1,17 +1,17 @@
 package com.fuchsbau.shorin.Characters;
 
-import com.fuchsbau.shorin.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Optionen.GameOption;
 import com.fuchsbau.shorin.RPG.Saveble;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.text.TextFlow;
 
 
 public class Player extends Character {
 
-    private Saveble aktuell;
-    private int savedstage;
-    private int maxhealth = 100;
+    private Saveble currentScene;
+    private int savedStage;
+    private int maxHealth = 100;
     private final int money;
 
     public int kitsune = 0;
@@ -25,7 +25,7 @@ public class Player extends Character {
 
 
     public Player() {
-        super(100, 18, "Noname", 175,80,75,50, GameOption.player);
+        super(100, 18, "Noname", 175, 80, 75, 50, GameOption.player);
         money = 100;
     }
 
@@ -38,13 +38,7 @@ public class Player extends Character {
     }
 
     private String getplayerinfo() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Your name is: " + name + "\n");
-
-        builder.append(getBody());
-
-
-        return builder.toString();
+        return "Your name is: " + name + "\n" + getBody();
     }
 
     @Override
@@ -54,25 +48,25 @@ public class Player extends Character {
         return pane;
     }
 
-    public void setAktuell(Saveble aktuell, int stage) {
-        if (this.aktuell != null && aktuell != this.aktuell) {
-            this.aktuell.reset();
+    public void setCurrentScene(Saveble CurrentScene, int stage) {
+        if (this.currentScene != null && CurrentScene != this.currentScene) {
+            this.currentScene.reset();
         }
-        savedstage = stage;
-        this.aktuell = aktuell;
+        savedStage = stage;
+        this.currentScene = CurrentScene;
     }
 
-    public Scene getAktuell() {
-        return aktuell.getScene(savedstage);
+    public Scene getCurrentScene() {
+        return currentScene.getScene(savedStage);
     }
 
 
     public int maxHealth() {
-        return maxhealth;
+        return maxHealth;
     }
 
     public void increasemaxHealth(int health) {
-        maxhealth += health;
+        maxHealth += health;
         heal(health);
     }
 

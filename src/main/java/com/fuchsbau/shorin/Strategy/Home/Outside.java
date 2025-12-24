@@ -3,7 +3,7 @@ package com.fuchsbau.shorin.Strategy.Home;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Strategy.Variables.StrategyInstance;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -69,7 +69,7 @@ public class Outside implements Saveble {
     public Scene getScene(int stage) {
         SceneBuilder.getSceneBuilder().resetButtonrows();
         makeScene(stage);
-        Game.getInstance().spieler.setAktuell(this, stage);
+        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

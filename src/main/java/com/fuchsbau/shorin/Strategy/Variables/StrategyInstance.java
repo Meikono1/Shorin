@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Strategy.Variables;
 
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Strategy.Home.Storage;
 import javafx.scene.text.Text;
 

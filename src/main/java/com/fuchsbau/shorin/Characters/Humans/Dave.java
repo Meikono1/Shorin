@@ -4,7 +4,7 @@ import com.fuchsbau.shorin.Characters.Character;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
@@ -86,7 +86,7 @@ public class Dave extends Character implements Saveble {
     public Scene getScene(int ort) {
         SceneBuilder.getSceneBuilder().resetButtonrows();
         buildScene(ort);
-        Game.getInstance().spieler.setAktuell(this, ort);
+        Game.getInstance().spieler.setCurrentScene(this, ort);
         return scene;
     }
 

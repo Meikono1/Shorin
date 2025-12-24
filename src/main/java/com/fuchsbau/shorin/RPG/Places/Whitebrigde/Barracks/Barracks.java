@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.RPG.Places.Whitebrigde.Barracks;
 
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.*;
 import javafx.scene.Scene;
@@ -60,7 +61,7 @@ public class Barracks implements Saveble {
     public Scene getScene(int stage) {
         SceneBuilder.getSceneBuilder().resetButtonrows();
         makeScene();
-        Game.getInstance().spieler.setAktuell(this, stage);
+        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

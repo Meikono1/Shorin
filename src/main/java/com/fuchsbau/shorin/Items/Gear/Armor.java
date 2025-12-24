@@ -7,7 +7,7 @@ import com.fuchsbau.shorin.Items.Gear.LowerBody.NoPants;
 import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
 import java.util.LinkedList;

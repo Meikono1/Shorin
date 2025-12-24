@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Items.Weapons;
 
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
 enum Style {

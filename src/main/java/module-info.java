@@ -5,6 +5,7 @@ module com.fuchsbau.shorin {
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires com.almasb.fxgl.all;
+    requires java.logging;
 
     opens com.fuchsbau.shorin to javafx.fxml;
     exports com.fuchsbau.shorin;

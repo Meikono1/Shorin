@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin;
 
-import com.fuchsbau.shorin.Optionen.GameOption;
+import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Optionen.GameOption;
 import com.fuchsbau.shorin.RPG.Game;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -10,9 +11,10 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class Main extends Application {
-
+    private final Logger logger = FileLogger.getLogger();
 
     private static Stage stage;
 
@@ -27,7 +29,8 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("hello-view.fxml"));
+        logger.info("Guten Morgen!");
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("Intro.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
         stage.setHeight(GameOption.height);
         stage.setWidth(GameOption.width);

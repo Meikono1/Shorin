@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Items;
 
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.SceneBuilder;
+import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
 public class HealingPotion implements Item {
