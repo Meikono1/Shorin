@@ -10,26 +10,8 @@ public class ImagePreLoader {
     private static final Deque<ImagePaths> QUEUE = new ArrayDeque<>();
     private static boolean running;
 
-    public static Image getOrRequest(ImagePaths type, String url, Runnable onLoaded) {
-        Image img = CACHE.computeIfAbsent(type, t -> new Image(url, true));
-
-        if (onLoaded != null && (img.getProgress() < 1.0 || img.isError())) {
-            attachLoadListener(img, onLoaded);
-        }
-
-        return img;
-    }
-
-    private static void attachLoadListener(Image img, Runnable onLoaded) {
-        if (onLoaded == null) return;
-
-        img.progressProperty().addListener((obs, o, n) -> {
-            if (n.doubleValue() >= 1.0 && !img.isError()) onLoaded.run();
-        });
-    }
-
-    public static Image getOrRequest(ImagePaths type, String url) {
-        return getOrRequest(type, url, null);
+    private static void getOrRequest(ImagePaths type, String url) {
+        CACHE.computeIfAbsent(type, t -> new Image(url, true));
     }
 
     public static void warmUpAll() {
@@ -39,7 +21,7 @@ public class ImagePreLoader {
         QUEUE.addAll(Arrays.asList(ImagePaths.values()));
         running = true;
 
-        // startet pro Frame maximal 1 neues Image, nur wenn FPS ok ist
+        // startet pro Frame maximal 1 neues Image, wenn FPS ok sind
         new AnimationTimer() {
             long last = 0;
 

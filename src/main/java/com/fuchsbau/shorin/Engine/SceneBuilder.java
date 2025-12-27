@@ -1,10 +1,11 @@
 package com.fuchsbau.shorin.Engine;
 
+import com.fuchsbau.shorin.Engine.Options.StyleOptions;
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Weapons.Weapon;
 import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
@@ -15,7 +16,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -50,13 +50,28 @@ public class SceneBuilder {
         return sceneBuilder;
     }
 
+    public static Label createHeaderLabel(String intro) {
+        Label label = new Label(intro);
+        label.setStyle("""
+                -fx-font-size: %spx;
+                -fx-font-weight: %s;
+                """.formatted(
+                        StyleOptions.largeFontSize,
+                        StyleOptions.largeFontWeight
+        ));
+        //label.setStyle("-fx-font-size: 26px; -fx-font-weight: bold;");
+        label.setTextFill(Paint.valueOf("#ffffff"));
+
+        return label;
+    }
+
     public BorderPane buildShop(ScrollPane scrole, List<Item> liste) {
         BorderPane haupt = new BorderPane();
-        haupt.setPrefHeight(GameOption.height);
-        haupt.setPrefWidth(GameOption.width);
-        haupt.setMaxHeight(GameOption.height);
-        haupt.setMaxWidth(GameOption.width);
-        haupt.setBackground(GameOption.hintergrund);
+        haupt.setPrefHeight(GameOptions.height);
+        haupt.setPrefWidth(GameOptions.width);
+        haupt.setMaxHeight(GameOptions.height);
+        haupt.setMaxWidth(GameOptions.width);
+        haupt.setBackground(GameOptions.hintergrund);
 
         int lauf = firstButtonrow.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
@@ -78,9 +93,9 @@ public class SceneBuilder {
         }
 
         pane.getChildren().addAll(box);
-        pane.setBackground(GameOption.hintergrund);
+        pane.setBackground(GameOptions.hintergrund);
         pane.setPrefHeight(800);
-        pane.setPrefWidth(GameOption.width);
+        pane.setPrefWidth(GameOptions.width);
 
         scrole.setContent(pane);
 
@@ -101,10 +116,10 @@ public class SceneBuilder {
     public BorderPane buildGameScene(TextFlow text) {
         BorderPane haupt = new BorderPane();
 
-        haupt.setPrefHeight(GameOption.height);
-        haupt.setPrefWidth(GameOption.width);
-        haupt.setMaxHeight(GameOption.height);
-        haupt.setMaxWidth(GameOption.width);
+        haupt.setPrefHeight(GameOptions.height);
+        haupt.setPrefWidth(GameOptions.width);
+        haupt.setMaxHeight(GameOptions.height);
+        haupt.setMaxWidth(GameOptions.width);
 
         int lauf = firstButtonrow.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
@@ -131,36 +146,36 @@ public class SceneBuilder {
         }
 
         VBox unten = new VBox();
-        unten.setBackground(GameOption.rowHintergrund);
+        unten.setBackground(GameOptions.rowHintergrund);
 
         unten.getChildren().addAll(firstButtonrow, secondButtonrow, thirdButtonrow);
 
         VBox charakter = new VBox();
-        charakter.setPrefWidth(GameOption.imagewidth + 15);
-        charakter.setMaxWidth(GameOption.imagewidth + 40);
+        charakter.setPrefWidth(GameOptions.imagewidth + 15);
+        charakter.setMaxWidth(GameOptions.imagewidth + 40);
 
         Label name = new Label();
         name.setFont(Font.font("Cambria", 22));
         name.setTextFill(Game.getInstance().spieler.getText().getFill());
         name.setText(Game.getInstance().spieler.getText().getText());
         name.setAlignment(Pos.CENTER);
-        name.setPrefWidth(GameOption.imagewidth);
-        name.prefHeight(GameOption.imageheight);
+        name.setPrefWidth(GameOptions.imagewidth);
+        name.prefHeight(GameOptions.imageheight);
 
 
         ImageView ich = new ImageView("/images/char.png");
 
-        ich.setFitHeight(GameOption.imageheight);
-        ich.setFitWidth(GameOption.imagewidth);
+        ich.setFitHeight(GameOptions.imageheight);
+        ich.setFitWidth(GameOptions.imagewidth);
 
         ImageView inventory = new ImageView("/images/inv.png");
         inventory.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().inventory.getScene()));
-        inventory.setFitHeight(GameOption.imageheight);
-        inventory.setFitWidth(GameOption.imagewidth);
+        inventory.setFitHeight(GameOptions.imageheight);
+        inventory.setFitWidth(GameOptions.imagewidth);
 
         ImageView map = new ImageView("/images/ShorinMap3.png");
-        map.setFitHeight(GameOption.imageheight);
-        map.setFitWidth(GameOption.imagewidth);
+        map.setFitHeight(GameOptions.imageheight);
+        map.setFitWidth(GameOptions.imagewidth);
 
         charakter.getChildren().addAll(name, ich, inventory, map);
         charakter.setSpacing(10);
@@ -168,7 +183,7 @@ public class SceneBuilder {
         VBox pane = new VBox();
         ScrollPane scrollPane = makeScrollpane();
         pane.getChildren().addAll(text);
-        pane.setBackground(GameOption.hintergrund);
+        pane.setBackground(GameOptions.hintergrund);
 
         pane.prefWidthProperty().bind(Bindings.subtract(haupt.widthProperty(), 150));
         pane.prefHeightProperty().bind(haupt.heightProperty());
@@ -179,7 +194,7 @@ public class SceneBuilder {
         haupt.setBottom(unten);
         haupt.setCenter(scrollPane);
 
-        haupt.setBackground(GameOption.hintergrund);
+        haupt.setBackground(GameOptions.hintergrund);
         return haupt;
     }
 
@@ -192,13 +207,13 @@ public class SceneBuilder {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setPannable(true);
-        scrollPane.getStyleClass().add("scrollPane");
+        scrollPane.getStyleClass().add(StyleOptions.ScrollPaneStyle.CLASS);
         return scrollPane;
     }
 
     private HBox makeButtonrow() {
         HBox box = new HBox();
-        box.setPadding(GameOption.padding);
+        box.setPadding(GameOptions.padding);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER);
 
@@ -207,7 +222,7 @@ public class SceneBuilder {
 
     public Text makeText() {
         Text text = new Text();
-        text.setFont(Font.font("Cambria", GameOption.textsize));
+        text.setFont(Font.font("Cambria", GameOptions.textsize));
         text.setFill(Paint.valueOf("989898"));
         return text;
     }
@@ -221,10 +236,11 @@ public class SceneBuilder {
 
     public TextFlow mainFlow() {
         TextFlow flow = new TextFlow();
-
-        flow.setPadding(new Insets(100, 100, 0, 100));
-        flow.setMaxHeight(100);
-        flow.setMaxWidth(GameOption.width);
+        flow.setStyle("""
+                -fx-font-size: %spx;
+                """.formatted(
+                StyleOptions.baseFontSize
+        ));
 
         return flow;
     }
@@ -281,18 +297,18 @@ public class SceneBuilder {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setBackground(GameOption.hintergrund);
+        scrollPane.setBackground(GameOptions.hintergrund);
 
         return scrollPane;
     }
 
     public BorderPane makePlayerInventory(TreeMap<Item, Integer> itemMap, Armor head, Armor chest, Armor arms, Armor pants, Armor boots, Weapon weapon) {
         BorderPane haupt = new BorderPane();
-        haupt.setPrefHeight(GameOption.height);
-        haupt.setPrefWidth(GameOption.width);
-        haupt.setMaxHeight(GameOption.height);
-        haupt.setMaxWidth(GameOption.width);
-        haupt.setBackground(GameOption.hintergrund);
+        haupt.setPrefHeight(GameOptions.height);
+        haupt.setPrefWidth(GameOptions.width);
+        haupt.setMaxHeight(GameOptions.height);
+        haupt.setMaxWidth(GameOptions.width);
+        haupt.setBackground(GameOptions.hintergrund);
 
         //Linken Abschnitt, Stats und Equipment
         VBox left = new VBox();
@@ -305,9 +321,9 @@ public class SceneBuilder {
         stat.setText("Stats: ");
         Text health = makeText();
         health.setText("Health: " + Game.getInstance().spieler.getHealth());
-        health.setFill(GameOption.goodPaint);
-        Text money = makeText("Currency: " + Game.getInstance().spieler.getMoney() + " " + GameOption.currency);
-        money.setFill(GameOption.goldPaint);
+        health.setFill(GameOptions.goodPaint);
+        Text money = makeText("Currency: " + Game.getInstance().spieler.getMoney() + " " + GameOptions.currency);
+        money.setFill(GameOptions.goldPaint);
 
         stats.getChildren().addAll(stat, health, money);
 
@@ -329,8 +345,8 @@ public class SceneBuilder {
 
         //Center Abschnitt
         VBox center = new VBox();
-        center.setPadding(GameOption.padding);
-        center.setBackground(GameOption.hintergrund);
+        center.setPadding(GameOptions.padding);
+        center.setBackground(GameOptions.hintergrund);
 
         //Beschreibung
         TextFlow flow = new TextFlow();
@@ -435,8 +451,8 @@ public class SceneBuilder {
         } else {
             oben.getChildren().addAll(size, use);
         }
-        oben.setBackground(GameOption.hintergrund);
-        oben.setPadding(GameOption.padding);
+        oben.setBackground(GameOptions.hintergrund);
+        oben.setPadding(GameOptions.padding);
 
         Text unten;
         if (item instanceof Armor) {
@@ -467,7 +483,7 @@ public class SceneBuilder {
         Button delete = makeItemButton();
         delete.setText("Delete");
 
-        if (GameOption.delete) {
+        if (GameOptions.delete) {
             delete.setStyle("-fx-padding: 3;" +
                     "-fx-border-style: solid inside;" +
                     "-fx-border-width: 2;" +
@@ -475,7 +491,7 @@ public class SceneBuilder {
         }
 
         delete.setOnMouseClicked(event -> {
-            if (GameOption.delete) {
+            if (GameOptions.delete) {
                 Game.getInstance().inventory.remove(item);
                 Main.getStage().setScene(Game.getInstance().inventory.getScene());
             }
@@ -496,14 +512,14 @@ public class SceneBuilder {
         anz.getChildren().add(menge);
 
         zurueck.getChildren().addAll(size, anz, filler, use, delete);
-        zurueck.setPadding(GameOption.padding);
+        zurueck.setPadding(GameOptions.padding);
 
         return zurueck;
     }
 
     private Button makeItemButton() {
         Button button = new Button();
-        button.setMinWidth(GameOption.itembuttonwidth);
+        button.setMinWidth(GameOptions.itembuttonwidth);
         return button;
     }
 
@@ -521,10 +537,10 @@ public class SceneBuilder {
     public Parent buildBuilderScene(TextFlow gametext) {
         BorderPane haupt = new BorderPane();
 
-        haupt.setPrefHeight(GameOption.height);
-        haupt.setPrefWidth(GameOption.width);
-        haupt.setMaxHeight(GameOption.height);
-        haupt.setMaxWidth(GameOption.width);
+        haupt.setPrefHeight(GameOptions.height);
+        haupt.setPrefWidth(GameOptions.width);
+        haupt.setMaxHeight(GameOptions.height);
+        haupt.setMaxWidth(GameOptions.width);
 
         int lauf = firstButtonrow.getChildren().size();
         for (int i = 0; i < (7 - lauf); i++) {
@@ -551,21 +567,21 @@ public class SceneBuilder {
         }
 
         VBox bottom = new VBox();
-        bottom.setBackground(GameOption.rowHintergrund);
+        bottom.setBackground(GameOptions.rowHintergrund);
 
         bottom.getChildren().addAll(firstButtonrow, secondButtonrow, thirdButtonrow);
 
         VBox charakter = new VBox();
-        charakter.setPrefWidth(GameOption.imagewidth + 15);
-        charakter.setMaxWidth(GameOption.imagewidth + 40);
+        charakter.setPrefWidth(GameOptions.imagewidth + 15);
+        charakter.setMaxWidth(GameOptions.imagewidth + 40);
 
         Label name = new Label();
         name.setFont(Font.font("Cambria", 22));
         name.setTextFill(Game.getInstance().spieler.getText().getFill());
         name.setText(Game.getInstance().spieler.getText().getText());
         name.setAlignment(Pos.CENTER);
-        name.setPrefWidth(GameOption.imagewidth);
-        name.prefHeight(GameOption.imageheight);
+        name.setPrefWidth(GameOptions.imagewidth);
+        name.prefHeight(GameOptions.imageheight);
 
         Image image = new Image(
                 Objects.requireNonNull(Main.class.getResourceAsStream("/images/char.png"))
@@ -573,8 +589,8 @@ public class SceneBuilder {
 
         ImageView ich = new ImageView(image);
 
-        ich.setFitHeight(GameOption.imageheight);
-        ich.setFitWidth(GameOption.imagewidth);
+        ich.setFitHeight(GameOptions.imageheight);
+        ich.setFitWidth(GameOptions.imagewidth);
 
         image = new Image(
                 Objects.requireNonNull(Main.class.getResourceAsStream("/images/inv.png"))
@@ -582,16 +598,16 @@ public class SceneBuilder {
 
         ImageView inventory = new ImageView(image);
         inventory.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().inventory.getScene()));
-        inventory.setFitHeight(GameOption.imageheight);
-        inventory.setFitWidth(GameOption.imagewidth);
+        inventory.setFitHeight(GameOptions.imageheight);
+        inventory.setFitWidth(GameOptions.imagewidth);
 
         image = new Image(
                 Objects.requireNonNull(Main.class.getResourceAsStream("/images/ShorinMap3.png"))
         );
 
         ImageView map = new ImageView(image);
-        map.setFitHeight(GameOption.imageheight);
-        map.setFitWidth(GameOption.imagewidth);
+        map.setFitHeight(GameOptions.imageheight);
+        map.setFitWidth(GameOptions.imagewidth);
 
         charakter.getChildren().addAll(name, ich, inventory, map);
         charakter.setSpacing(10);
@@ -599,7 +615,7 @@ public class SceneBuilder {
         VBox pane = new VBox();
         ScrollPane scrollPane = makeScrollpane();
         pane.getChildren().addAll(gametext);
-        pane.setBackground(GameOption.hintergrund);
+        pane.setBackground(GameOptions.hintergrund);
 
         pane.prefWidthProperty().bind(Bindings.subtract(haupt.widthProperty(), 235));
         pane.prefHeightProperty().bind(haupt.heightProperty());
@@ -611,7 +627,7 @@ public class SceneBuilder {
         haupt.setBottom(bottom);
         haupt.setCenter(scrollPane);
 
-        haupt.setBackground(GameOption.hintergrund);
+        haupt.setBackground(GameOptions.hintergrund);
         return haupt;
     }
 

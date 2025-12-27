@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Characters;
 
-import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
@@ -25,7 +25,7 @@ public class Player extends Character {
 
 
     public Player() {
-        super(100, 18, "Noname", 175, 80, 75, 50, GameOption.player);
+        super(100, 18, "Noname", 175, 80, 75, 50, GameOptions.player);
         money = 100;
     }
 

@@ -4,14 +4,16 @@ import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Intro.Intro;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,9 +29,17 @@ public class MainScreen implements Saveble {
     private Scene scene;
 
     private void makeScene() {
-        ImageView logo = new ImageView(new Image(Objects.requireNonNull(Main.class.getResourceAsStream("/images/logo.png"))));
-        logo.setFitWidth(96);
-        logo.setPreserveRatio(true);
+
+        Image logoImg = new Image(
+                Objects.requireNonNull(Main.class.getResource("/images/logo2.png")).toExternalForm(),
+                120,
+                0,
+                true,
+                false,
+                true
+        );
+
+        ImageView logo = new ImageView(logoImg);
 
         Label versionLabel = new Label("v0.1.0");
         versionLabel.setTextFill(Paint.valueOf("#868686"));
@@ -84,7 +94,7 @@ public class MainScreen implements Saveble {
         leftMenu.setPadding(new Insets(20));
         leftMenu.setAlignment(Pos.TOP_LEFT);
         leftMenu.setPrefWidth(280);
-        leftMenu.setBackground(GameOption.rowHintergrundTrans40);
+        leftMenu.setBackground(GameOptions.rowHintergrundTrans40);
 
         // Haupt-Layout
         BorderPane pane = new BorderPane();

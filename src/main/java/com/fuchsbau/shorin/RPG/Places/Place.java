@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.RPG.Places;
 
-import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
@@ -14,14 +14,14 @@ public class Place {
         this.name = name;
         this.description = description;
         ingamedescription.setText(name);
-        ingamedescription.setFill(GameOption.cityColor);
+        ingamedescription.setFill(GameOptions.cityColor);
     }
 
 
     public Text getOrtText() {
         Text ret = SceneBuilder.getSceneBuilder().makeText();
         ret.setText(name);
-        ret.setFill(GameOption.cityColor);
+        ret.setFill(GameOptions.cityColor);
         return ret;
     }
 }

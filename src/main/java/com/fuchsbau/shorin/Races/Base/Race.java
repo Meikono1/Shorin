@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Races.Base;
 
-import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.text.Text;
 
@@ -25,7 +25,7 @@ public class Race implements RaceInterface {
         this.reproduction = reproduction;
         this.appearance = appearance;
         inGameDescription.setText(name);
-        inGameDescription.setFill(GameOption.cityColor);
+        inGameDescription.setFill(GameOptions.cityColor);
     }
 
     @Override

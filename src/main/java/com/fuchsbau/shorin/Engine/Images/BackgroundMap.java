@@ -22,7 +22,7 @@ public class BackgroundMap {
         bg.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 ChangeListener<Number> resizeListener =
-                        (o, oldVal, newVal) -> resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), 1.2);
+                        (o, oldVal, newVal) -> resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), factor);
                 newScene.widthProperty().addListener(resizeListener);
                 newScene.heightProperty().addListener(resizeListener);
                 resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), factor);
@@ -42,7 +42,8 @@ public class BackgroundMap {
         bg.setSmooth(true);
         bg.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                ChangeListener<Number> resizeListener = (o, oldVal, newVal) -> resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), 1.2);
+                ChangeListener<Number> resizeListener =
+                        (o, oldVal, newVal) -> resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), factor);
                 newScene.widthProperty().addListener(resizeListener);
                 newScene.heightProperty().addListener(resizeListener);
                 resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), factor);

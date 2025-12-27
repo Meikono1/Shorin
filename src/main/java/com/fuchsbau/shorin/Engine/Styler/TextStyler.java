@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine;
+package com.fuchsbau.shorin.Engine.Styler;
 
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -37,28 +37,27 @@ public class TextStyler {
                 .collect(Collectors.joining("|"));
     }
 
-    public static TextFlow buildFast(String text) {
-        TextFlow flow = new TextFlow();
+    public static TextFlow addRestyledText(TextFlow textFlow, String text) {
 
         int last = 0;
         Matcher m = HIGHLIGHT.matcher(text);
 
         while (m.find()) {
             if (m.start() > last) {
-                flow.getChildren().add(base(text.substring(last, m.start())));
+                textFlow.getChildren().add(base(text.substring(last, m.start())));
             }
 
             String hit = m.group(1);
-            flow.getChildren().add(styled(hit));
+            textFlow.getChildren().add(styled(hit));
 
             last = m.end();
         }
 
         if (last < text.length()) {
-            flow.getChildren().add(base(text.substring(last)));
+            textFlow.getChildren().add(base(text.substring(last)));
         }
 
-        return flow;
+        return textFlow;
     }
 
     private static Text base(String s) {

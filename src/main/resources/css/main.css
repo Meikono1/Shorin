@@ -1,3 +1,8 @@
+.root {
+    -fx-font-family: 'Eczar';
+    -fx-font-size: 16px;
+}
+
 .menu-button {
     -fx-background-color: rgba(12, 12, 18, 0.6);
     -fx-text-fill: #e0e0e0;

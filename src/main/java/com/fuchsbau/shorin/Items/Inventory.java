@@ -12,7 +12,7 @@ import com.fuchsbau.shorin.Items.Gear.UpperBody.ClothChest;
 import com.fuchsbau.shorin.Items.Gear.UpperBody.NoChest;
 import com.fuchsbau.shorin.Items.Weapons.Unarmed;
 import com.fuchsbau.shorin.Items.Weapons.Weapon;
-import com.fuchsbau.shorin.Engine.Optionen.GameOption;
+import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
@@ -53,14 +53,14 @@ public class Inventory {
         SceneBuilder.getSceneBuilder().resetButtonrows();
         Button back = SceneBuilder.getSceneBuilder().makeButton(1, "Back");
         back.setOnMouseClicked(event -> {
-            GameOption.delete = false;
+            GameOptions.delete = false;
             Main.getStage().setScene(Game.getInstance().spieler.getCurrentScene());
         });
         SceneBuilder.getSceneBuilder().addButton(back, 1);
 
         Button delete = SceneBuilder.getSceneBuilder().makeButton(1, "Toggle delete");
         delete.setOnMouseClicked(event -> {
-            GameOption.toggleDelete();
+            GameOptions.toggleDelete();
             Main.getStage().setScene(getScene());
         });
         SceneBuilder.getSceneBuilder().addButton(delete, 1);

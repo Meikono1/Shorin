@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Optionen;
+package com.fuchsbau.shorin.Engine.Options;
 
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.RPG.MainScreen;
@@ -17,9 +17,10 @@ import javafx.scene.text.Text;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 
-public class GameOption {
+public class GameOptions {
 
     public static boolean delete;
     public static double width = 1500;
@@ -46,6 +47,7 @@ public class GameOption {
     public static String currency = "Gold";
     public static String currentLanguage = "EN";
     public static Paint textColour = Paint.valueOf("#e8e8e8");
+    public static String UserCssFilename = "user-style.css";
 
     private Scene scene;
 
