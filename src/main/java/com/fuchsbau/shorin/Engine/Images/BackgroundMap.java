@@ -1,13 +1,13 @@
 package com.fuchsbau.shorin.Engine.Images;
 
-
-import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import java.util.Objects;
+import static com.fuchsbau.shorin.Engine.Images.ImagePreLoader.BASE64_PNG;
+
 
 public class BackgroundMap {
     public ImageView getBackgroundImage(ImagePaths path, double factor, double darkness) {
@@ -37,9 +37,16 @@ public class BackgroundMap {
     }
 
     public ImageView getDirectImage(ImagePaths path, double factor, double darkness) {
-        ImageView bg = new ImageView(new Image(Objects.requireNonNull(Main.class.getResourceAsStream(path.getImagePath()))));
+        FileLogger.getLogger().info("Direct Image ?");
+        String urlOrNull = path.resolveUrlOrNull();
+        if (urlOrNull==null){
+            return new ImageView(new Image(BASE64_PNG));
+        }
+
+        ImageView bg = new ImageView(new Image(urlOrNull));
         bg.setPreserveRatio(true);
         bg.setSmooth(true);
+
         bg.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 ChangeListener<Number> resizeListener =
@@ -49,6 +56,7 @@ public class BackgroundMap {
                 resizeBackground(bg, newScene.getWidth(), newScene.getHeight(), factor);
             }
         });
+
         ColorAdjust adjust = new ColorAdjust();
         adjust.setBrightness(-darkness);
         bg.setEffect(adjust);

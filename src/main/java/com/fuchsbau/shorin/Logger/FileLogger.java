@@ -25,8 +25,8 @@ public class FileLogger {
         }
     }
 
-    Logger logger;
-    FileHandler handler;
+    static Logger logger;
+    static FileHandler handler;
 
     private FileLogger() throws IOException {
         logger = Logger.getLogger((Logger.GLOBAL_LOGGER_NAME));
@@ -121,8 +121,17 @@ public class FileLogger {
         }
     }
 
+    public static void logCauses(Throwable e) {
+        int i = 0;
+        while (e != null && i < 10) {
+            logger.severe("[CAUSE " + i + "] " + e.getClass().getName() + ": " + e.getMessage());
+            e = e.getCause();
+            i++;
+        }
+    }
 
-    private void closeLogger() {
+
+    public static void closeLogger() {
         handler.close();
     }
 
@@ -131,6 +140,6 @@ public class FileLogger {
     }
 
     public static Logger getLogger() {
-        return getInstance().logger;
+        return logger;
     }
 }

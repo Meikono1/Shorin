@@ -4,6 +4,7 @@ import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.PerformanceTimer;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Engine.Styler.TextStyler;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
@@ -58,6 +59,7 @@ public class Intro {
         adjust.setBrightness(-0.55);
         bg.setEffect(adjust);
 
+        logger.info("Generiere Textpanel");
         // Textpanel
         Label title = SceneBuilder.createHeaderLabel("Intro");
 
@@ -79,6 +81,8 @@ public class Intro {
         );
         textBox.setBackground(new Background(fill));
 
+
+        logger.info("Generiere Buttons");
         // Buttons
         Button startClassic = sceneBuilder.createMenuButton("Start: Free Character");
         startClassic.setOnAction(e -> {
@@ -116,9 +120,12 @@ public class Intro {
         StackPane root = new StackPane(bg, overlay);
 
         Scene s = new Scene(root, GameOptions.width, GameOptions.height);
-        s.getStylesheets().add(
-                Objects.requireNonNull(Main.class.getResource("/css/main.css")).toExternalForm()
-        );
+        String cssUrl = CSSLoader.resolve("css/main.css");
+        if (cssUrl != null) {
+            s.getStylesheets().add(cssUrl);
+        } else {
+            logger.warning("CSS not found: css/main.css");
+        }
 
         timer.mark("Ende Intro");
         logger.info(timer.report());

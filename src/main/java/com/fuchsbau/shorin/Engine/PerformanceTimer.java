@@ -44,6 +44,6 @@ public class PerformanceTimer {
     }
 
     public String report() {
-        return String.join("\n", lines);
+        return "\n" + String.join("\n", lines);
     }
 }

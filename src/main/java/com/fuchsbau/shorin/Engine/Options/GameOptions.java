@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Engine.Options;
 
+import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.RPG.MainScreen;
 import com.fuchsbau.shorin.Main;
@@ -17,7 +18,6 @@ import javafx.scene.text.Text;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 
 
 public class GameOptions {
@@ -92,7 +92,7 @@ public class GameOptions {
                     fileWriter.close();
                     file.createNewFile();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    FileLogger.getLogger().severe(e.toString());
                 }
             });
         }

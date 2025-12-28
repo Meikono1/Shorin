@@ -3,41 +3,45 @@ package com.fuchsbau.shorin.RPG;
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
+import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Intro.Intro;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.CacheHint;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 
-import java.util.Objects;
+import java.util.logging.Logger;
 
-import static com.fuchsbau.shorin.Engine.Images.ImagePaths.SHORIN_PAPER_MAP;
+import static com.fuchsbau.shorin.Engine.Images.ImagePaths.*;
 
 public class MainScreen implements Saveble {
     private final SceneBuilder sceneBuilder = SceneBuilder.getSceneBuilder();
+    private final Logger logger= FileLogger.getLogger();
     private Scene scene;
 
     private void makeScene() {
+        logger.info("Starte Mainscreen");
 
-        Image logoImg = new Image(
+        Image logoImg = ImagePreLoader.getCached(SHORIN_LOGO_128);
+
+        /*Image logoImg = new Image(
                 Objects.requireNonNull(Main.class.getResource("/images/logo2.png")).toExternalForm(),
                 120,
                 0,
                 true,
                 false,
                 true
-        );
+        );*/
 
         ImageView logo = new ImageView(logoImg);
 
@@ -55,6 +59,7 @@ public class MainScreen implements Saveble {
         bottomBar.setRight(versionLabel);
         bottomBar.setMouseTransparent(true);
 
+        logger.info("Erstelle buttons");
         // Buttons
         Button start = sceneBuilder.createMenuButton("Start Game");
         start.setOnAction(event -> {
@@ -82,6 +87,7 @@ public class MainScreen implements Saveble {
         Button quit = sceneBuilder.createMenuButton("Quit Game");
         quit.setOnAction(event -> Platform.exit());
 
+        logger.info("Erstelle Links");
         // Sektionen links
         VBox gameSection = new VBox(5, sceneBuilder.makeWhiteLabel("Game"), start, load, encounter);
         gameSection.setFillWidth(true);
@@ -102,6 +108,7 @@ public class MainScreen implements Saveble {
         pane.setLeft(leftMenu);
         pane.setBackground(Background.EMPTY);
 
+        logger.info("Erstelle HintergrundBild");
         // Hintergrundbild
         ImageView bg = new BackgroundMap().getBackgroundImage(SHORIN_PAPER_MAP, 1.2, 0.8);
 
@@ -112,14 +119,14 @@ public class MainScreen implements Saveble {
         StackPane root = new StackPane();
         root.getChildren().addAll(bg, pane, topBar, bottomBar);
 
+        logger.info("Lade CSS");
         scene = new Scene(root);
-        scene.getStylesheets().add(
-                Objects.requireNonNull(
-                        Main.class.getResource("/css/main.css")
-                ).toExternalForm()
-        );
-
-        Platform.runLater(ImagePreLoader::warmUpAll);
+        String cssUrl = CSSLoader.resolve("css/main.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl);
+        } else {
+            logger.warning("CSS not found: css/main.css");
+        }
     }
 
     @Override

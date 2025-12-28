@@ -8,11 +8,43 @@
     <artifactId>Shorin</artifactId>
     <version>1.0</version>
 
+    <profiles>
+        <profile>
+            <id>DEV</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <excludes>
+                            <exclude>lore/**</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <profile>
+            <id>SHIP</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <excludes>
+                            <exclude>*/**</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.0</junit.version>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <javafx.version>21.0.2</javafx.version>
+
+        <app.name>Shorin</app.name>
+        <app.module>com.fuchsbau.shorin</app.module>
+        <app.mainClass>com.fuchsbau.shorin.Main</app.mainClass>
     </properties>
 
     <dependencies>
@@ -68,42 +100,91 @@
     </dependencies>
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
         <plugins>
+            <!-- Compiler -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
                 <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.fuchsbau.shorin.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <target>21</target>
+                    <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
+
+            <!-- JavaFX: jlink image -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
+                <configuration>
+                    <mainClass>${app.module}/${app.mainClass}</mainClass>
+                    <launcher>${app.name}</launcher>
+                    <jlinkImageName>${app.name}</jlinkImageName>
+                    <stripDebug>true</stripDebug>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <compress>2</compress>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>default-cli</id>
+                        <id>jlink</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jlink</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- jpackage .exe -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.7.1</version>
+                <executions>
+                    <execution>
+                        <id>jpackage</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>jpackage</goal>
+                        </goals>
                         <configuration>
-                            <mainClass>com.fuchsbau.shorin/com.fuchsbau.shorin.Main</mainClass>
-                            <launcher>app</launcher>
-                            <jlinkZipName>app</jlinkZipName>
-                            <jlinkImageName>app</jlinkImageName>
-                            <noManPages>true</noManPages>
-                            <stripDebug>true</stripDebug>
-                            <noHeaderFiles>true</noHeaderFiles>
+                            <name>${app.name}</name>
+                            <appVersion>${project.version}</appVersion>
+                            <type>APP_IMAGE</type>
+                            <destination>${project.build.directory}/installer</destination>
+
+                            <!-- jlink output -->
+                            <runtimeImage>${project.build.directory}/${app.name}</runtimeImage>
+
+                            <!-- modular main -->
+                            <module>${app.module}/${app.mainClass}</module>
+                            <icon>${project.basedir}/src/main/resources/images/logo.ico</icon>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>CopyAssetsToEXE</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/installer/${app.name}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <excludes>
+                                        <exclude>lore/**</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>

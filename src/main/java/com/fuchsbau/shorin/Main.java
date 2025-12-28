@@ -1,29 +1,48 @@
 package com.fuchsbau.shorin;
 
+import com.fuchsbau.shorin.Engine.FXML.ShorinXMLLoader;
+import com.fuchsbau.shorin.Engine.Images.ImagePaths;
+import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Options.StyleOptions;
 import com.fuchsbau.shorin.Engine.Styler.UserCSSHandler;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
 import javafx.application.Application;
-import javafx.fxml.FXML;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.fuchsbau.shorin.Logger.FileLogger.logCauses;
+
 public class Main extends Application {
-    private final Logger logger = FileLogger.getLogger();
+    private static final Logger logger = FileLogger.getLogger();
 
     private static Stage stage;
 
     public static void main(String[] args) {
-        launch(args);
+        logger.info("[BOOTED]");
+
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            logger.severe("[UNCAUGHT] Thread = " + thread.getName());
+            logger.severe("[EXCEPTION] = " + throwable);
+            logCauses(throwable);
+        });
+
+        Platform.runLater(ImagePreLoader::warmUpAll);
+
+        try {
+            launch(args);
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "[BOOT] launch failed", e);
+            logCauses(e);
+            throw e;
+        }
     }
 
     public static Stage getStage() {
@@ -32,16 +51,29 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         logger.info("Guten Morgen!");
+
         UserCSSHandler.loadFonts();
         UserCSSHandler.ensureExists(StyleOptions.buildCss());
 
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("Intro.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.getIcons().add(new Image(
-                Objects.requireNonNull(Main.class.getResourceAsStream("/images/logo.png"))
-        ));
+        FXMLLoader fxmlLoader = ShorinXMLLoader.loader("Intro.fxml");
+        Scene scene = null;
+        try {
+            scene = new Scene(fxmlLoader.load(), 320, 240);
+        } catch (IOException e) {
+            logger.severe("Fehler beim laden = " + e);
+            logCauses(e);
+        }
+        try {
+            stage.getIcons().add(
+                    ImagePreLoader.getCached(ImagePaths.SHORIN_LOGO)
+            );
+        } catch (Exception e) {
+            logger.severe("Fehler beim hinzufügen vom Icons = " + e);
+            logCauses(e);
+        }
+
         stage.setHeight(GameOptions.height);
         stage.setWidth(GameOptions.width);
         stage.setTitle("Shorin");
@@ -50,11 +82,10 @@ public class Main extends Application {
         stage.show();
     }
 
-    @FXML
-    private Label welcomeText;
 
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+    @Override
+    public void stop() throws Exception {
+        FileLogger.closeLogger();
+        super.stop();
     }
 }

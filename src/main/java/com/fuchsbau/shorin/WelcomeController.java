@@ -1,5 +1,8 @@
 package com.fuchsbau.shorin;
 
+import com.fuchsbau.shorin.Engine.Images.ImagePaths;
+import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
+import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.RPG.MainScreen;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
@@ -14,8 +17,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class WelcomeController {
+    Logger logger = FileLogger.getLogger();
 
     @FXML
     private StackPane root;
@@ -26,9 +31,10 @@ public class WelcomeController {
 
     @FXML
     private void initialize() {
-        Image img = new Image(
-                Objects.requireNonNull(Main.class.getResourceAsStream("/images/welcomePage/ShorinMap.png"))
-        );
+        logger.info("Initalisiere WelcomeController");
+
+
+        Image img = ImagePreLoader.getCached(ImagePaths.SHORIN_PAPER_MAP);
         bgImage.setImage(img);
 
 
@@ -52,10 +58,13 @@ public class WelcomeController {
         pulse.setAutoReverse(true);
         pulse.setCycleCount(Animation.INDEFINITE);
         pulse.play();
+
+        logger.info("WelcomeController durchlaufen");
     }
 
     @FXML
     private void goToStart() {
+        logger.info("Ab zum start");
         Stage stage = (Stage) root.getScene().getWindow();
         stage.setScene(new MainScreen().getScene(0));
     }
