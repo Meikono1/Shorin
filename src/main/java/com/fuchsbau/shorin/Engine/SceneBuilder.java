@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -59,7 +60,6 @@ public class SceneBuilder {
                         StyleOptions.largeFontSize,
                         StyleOptions.largeFontWeight
         ));
-        //label.setStyle("-fx-font-size: 26px; -fx-font-weight: bold;");
         label.setTextFill(Paint.valueOf("#ffffff"));
 
         return label;
@@ -196,11 +196,6 @@ public class SceneBuilder {
 
         haupt.setBackground(GameOptions.hintergrund);
         return haupt;
-    }
-
-    private void setRowEnabled(HBox row, boolean enabled) {
-        row.setVisible(enabled);
-        row.setManaged(enabled); // wichtig: entfernt die Row aus dem Layout
     }
 
     public ScrollPane createScrollPane() {
@@ -687,6 +682,13 @@ public class SceneBuilder {
 
     public Button createMenuButton(String label) {
         Button button = new Button(label);
+        button.getStyleClass().add("menu-button");
+        button.setMaxWidth(Double.MAX_VALUE);
+        return button;
+    }
+
+    public ToggleButton createMenuTobbleButton(String label) {
+        ToggleButton button = new ToggleButton(label);
         button.getStyleClass().add("menu-button");
         button.setMaxWidth(Double.MAX_VALUE);
         return button;

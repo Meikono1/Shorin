@@ -43,10 +43,9 @@ public class Whitebridge extends Place implements Saveble {
 
         if (whitebridgestage == 0) {
             Text f = SceneBuilder.getSceneBuilder().makeText("This is your home town, where you grew up an orphan. Your parents died in the ");
-            Text g = Game.getInstance().greatWar.getName();
             Text h = SceneBuilder.getSceneBuilder().makeText(", because of this you want nothing more than to take revenge and you joined the army.\n");
 
-            flow.getChildren().addAll(f, g, h);
+            flow.getChildren().addAll(f, h);
         }
 
         Text i = SceneBuilder.getSceneBuilder().makeText(

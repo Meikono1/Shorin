@@ -21,7 +21,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.TextFlow;
 
-import java.util.Objects;
 import java.util.logging.Logger;
 
 import static com.fuchsbau.shorin.Engine.Images.ImagePaths.SHORIN_CLEAN_MAP;
@@ -93,7 +92,9 @@ public class Intro {
         Button startNomad = sceneBuilder.createMenuButton("Start: Scenario Selector");
         startNomad.setOnAction(e -> {
             Main.getStage().setTitle("Shorin");
-            //Main.getStage().setScene(PlaceholderLocationSelector.getScene());
+            WorldStartLocationSelector selector = new WorldStartLocationSelector();
+            Main.getStage().setScene(selector.getScene(0));
+            selector.recalcPositions();
         });
         System.getProperty("java.io.tmpdir");
 
@@ -120,7 +121,7 @@ public class Intro {
         StackPane root = new StackPane(bg, overlay);
 
         Scene s = new Scene(root, GameOptions.width, GameOptions.height);
-        String cssUrl = CSSLoader.resolve("css/main.css");
+        String cssUrl = CSSLoader.resolveUserOrBackupCSS();
         if (cssUrl != null) {
             s.getStylesheets().add(cssUrl);
         } else {

@@ -34,6 +34,7 @@ public class GameOptions {
     public static Background hintergrund = new Background(new BackgroundFill(Color.valueOf("13141c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background testbackground = new Background(new BackgroundFill(Color.valueOf("23423c"), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background rowHintergrund = new Background(new BackgroundFill(Color.valueOf("0c0c12"), CornerRadii.EMPTY, Insets.EMPTY));
+    public static Background purpleBackground = new Background(new BackgroundFill(Color.valueOf("8585ad").deriveColor(0, 1, 1, 0.40), CornerRadii.EMPTY, Insets.EMPTY));
     public static Background rowHintergrundTrans40 = new Background(new BackgroundFill(Color.valueOf("0c0c12").deriveColor(0, 1, 1, 0.40), CornerRadii.EMPTY, Insets.EMPTY));
     public static Paint player = Paint.valueOf("3094ff");
     public static Paint timestamp = Paint.valueOf("734b4b");

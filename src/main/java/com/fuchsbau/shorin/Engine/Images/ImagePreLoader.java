@@ -16,7 +16,24 @@ public class ImagePreLoader {
     private static final Logger logger = FileLogger.getLogger();
 
     private static void getOrRequest(ImagePaths type, String url) {
-        CACHE.computeIfAbsent(type, t -> CacheEntry.ok(new Image(url, true)));
+        CACHE.computeIfAbsent(type, t -> CacheEntry.ok(createImage(t, url)));
+    }
+
+    private static Image createImage(ImagePaths path, String url) {
+        ImageConfig c = path.getConfig();
+
+        if (c != null && (c.fixedWidth() > 0 || c.fixedHeight() > 0)) {
+            return new Image(
+                    url,
+                    c.fixedWidth() > 0 ? c.fixedWidth() : 0,
+                    c.fixedHeight() > 0 ? c.fixedHeight() : 0,
+                    true,   // preserve ratio
+                    true,   // smooth
+                    true    // async
+            );
+        }
+
+        return new Image(url, true);
     }
 
     public static void warmUpAll() {
@@ -73,19 +90,34 @@ public class ImagePreLoader {
         if (url == null) {
             logger.warning("Bild fehlt: " + path.relative());
             CACHE.put(path, CacheEntry.missing());
-            return new Image(BASE64_PNG);
+            return fallBackImage();
         }
-
-        Image img = new Image(url, false);
+        Image img;
+        if (path.getConfig() != null) {
+            img = new Image(url, path.getConfig().fixedHeight(), path.getConfig().fixedWidth(), true, true);
+        } else {
+            img = new Image(url, false);
+        }
 
         if (img.isError()) {
             logger.warning("Bild konnte nicht geladen werden: " + path.relative());
             CACHE.put(path, CacheEntry.missing());
-            return new Image(BASE64_PNG);
+            return fallBackImage();
         }
 
         CACHE.put(path, CacheEntry.ok(img));
         return img;
+    }
+
+    private static Image fallBackImage() {
+        CacheEntry entry = CACHE.get(ImagePaths.MISSING);
+
+        if (entry.missing) {
+            logger.severe("Keine Bilder? Infrasturktor oder User Error?");
+            return new Image(BASE64_PNG);
+        } else {
+            return entry.image;
+        }
     }
 
     public static boolean isLoaded(ImagePaths key) {

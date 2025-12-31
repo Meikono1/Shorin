@@ -6,6 +6,7 @@ module com.fuchsbau.shorin {
     requires com.dlsc.formsfx;
     requires com.almasb.fxgl.all;
     requires java.logging;
+    requires com.fasterxml.jackson.databind;
 
     opens com.fuchsbau.shorin to javafx.fxml;
     exports com.fuchsbau.shorin;
@@ -13,4 +14,5 @@ module com.fuchsbau.shorin {
     opens com.fuchsbau.shorin.Engine to javafx.fxml;
     exports com.fuchsbau.shorin.Engine.Styler;
     opens com.fuchsbau.shorin.Engine.Styler to javafx.fxml;
+    opens com.fuchsbau.shorin.Engine.RPG to com.fasterxml.jackson.databind;
 }

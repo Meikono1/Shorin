@@ -52,6 +52,10 @@
     -fx-background-radius: 4;
 }
 
+.vbox {
+    -fx-background-color: rgba(160,160,255,0.6);
+}
+
 .scrollPane .scrollPane:vertical .increment-button,
 .scrollPane .scrollPane:vertical .decrement-button {
     -fx-padding: 0;

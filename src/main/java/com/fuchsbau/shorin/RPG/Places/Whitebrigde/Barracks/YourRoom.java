@@ -32,12 +32,11 @@ public class YourRoom implements Saveble {
 
             Text a = SceneBuilder.getSceneBuilder().makeText();//@Todo check text
             a.setText("You lived in this room since you joined the army.\n\nWhen you joined the ");
-            Text b = Game.getInstance().greysmanace.getName();
             Text c = SceneBuilder.getSceneBuilder().makeText(", you were assigned to this bed. Your commander is ");
             Text ca = Game.getInstance().joshua.getText();
             Text d = SceneBuilder.getSceneBuilder().makeText(", your stepfather.\nYou dont know what happened to your old home but its probably in possession of another family working and destroying memories.\nMaybe you should just forget everything about your past, right now you have a mission to fulfill.");
 
-            flow.getChildren().addAll(a, b, c, ca, d);
+            flow.getChildren().addAll(a, c, ca, d);
         }
 
         if (stage == 0) {

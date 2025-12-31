@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Free Start Human",
+    "x": 482,
+    "y": 1014,
+    "icon": "MAP_FLAG",
+    "sceneClass": "game.scenes.FreeStartScene"
+  },
+  {
+    "name": "Free Start Rodini",
+    "x": 321,
+    "y": 1290,
+    "icon": "MAP_FLAG",
+    "sceneClass": "game.scenes.FreeStartScene"
+  },
+  {
+    "name": "Whitebridge Slave",
+    "x": 178,
+    "y": 576,
+    "icon": "MAP_TOWER",
+    "sceneClass": "game.scenes.FreeStartScene"
+  },
+  {
+    "name": "Nagalith Capture",
+    "x": -705,
+    "y": 1460,
+    "icon": "MAP_SNAKE",
+    "sceneClass": "game.scenes.FreeStartScene"
+  },
+  {
+    "name": "Hyrax Capture",
+    "x": 620,
+    "y": -254,
+    "icon": "MAP_HUT",
+    "sceneClass": "game.scenes.FreeStartScene"
+  },
+  {
+    "name": "Kobold den",
+    "x": 1891,
+    "y": 203,
+    "icon": "MAP_CAVE",
+    "sceneClass": "game.scenes.FreeStartScene"
+  }
+]

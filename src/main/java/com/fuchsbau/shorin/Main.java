@@ -4,7 +4,7 @@ import com.fuchsbau.shorin.Engine.FXML.ShorinXMLLoader;
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Options.StyleOptions;
-import com.fuchsbau.shorin.Engine.Styler.UserCSSHandler;
+import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
@@ -34,8 +34,6 @@ public class Main extends Application {
             logCauses(throwable);
         });
 
-        Platform.runLater(ImagePreLoader::warmUpAll);
-
         try {
             launch(args);
         } catch (Throwable e) {
@@ -53,9 +51,10 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) {
         logger.info("Guten Morgen!");
+        Platform.runLater(ImagePreLoader::warmUpAll);
 
-        UserCSSHandler.loadFonts();
-        UserCSSHandler.ensureExists(StyleOptions.buildCss());
+        CSSLoader.loadFonts();
+        CSSLoader.ensureExists(StyleOptions.buildCss());
 
         FXMLLoader fxmlLoader = ShorinXMLLoader.loader("Intro.fxml");
         Scene scene = null;

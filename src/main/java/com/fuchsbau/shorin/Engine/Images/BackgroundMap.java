@@ -6,9 +6,6 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import static com.fuchsbau.shorin.Engine.Images.ImagePreLoader.BASE64_PNG;
-
-
 public class BackgroundMap {
     public ImageView getBackgroundImage(ImagePaths path, double factor, double darkness) {
         if (!ImagePreLoader.isLoaded(path)) {
@@ -39,8 +36,8 @@ public class BackgroundMap {
     public ImageView getDirectImage(ImagePaths path, double factor, double darkness) {
         FileLogger.getLogger().info("Direct Image ?");
         String urlOrNull = path.resolveUrlOrNull();
-        if (urlOrNull==null){
-            return new ImageView(new Image(BASE64_PNG));
+        if (urlOrNull == null) {
+            return new ImageView(ImagePreLoader.getCached(ImagePaths.MISSING));
         }
 
         ImageView bg = new ImageView(new Image(urlOrNull));

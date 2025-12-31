@@ -34,15 +34,6 @@ public class MainScreen implements Saveble {
 
         Image logoImg = ImagePreLoader.getCached(SHORIN_LOGO_128);
 
-        /*Image logoImg = new Image(
-                Objects.requireNonNull(Main.class.getResource("/images/logo2.png")).toExternalForm(),
-                120,
-                0,
-                true,
-                false,
-                true
-        );*/
-
         ImageView logo = new ImageView(logoImg);
 
         Label versionLabel = new Label("v0.1.0");
@@ -121,7 +112,7 @@ public class MainScreen implements Saveble {
 
         logger.info("Lade CSS");
         scene = new Scene(root);
-        String cssUrl = CSSLoader.resolve("css/main.css");
+        String cssUrl = CSSLoader.resolveUserOrBackupCSS();
         if (cssUrl != null) {
             scene.getStylesheets().add(cssUrl);
         } else {
