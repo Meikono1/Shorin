@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.fuchsbau.shorin.Logger.FileLogger.logCauses;
+import static com.fuchsbau.shorin.Logger.FileLogger.logStack;
 
 public class Main extends Application {
     private static final Logger logger = FileLogger.getLogger();
@@ -32,6 +33,7 @@ public class Main extends Application {
             logger.severe("[UNCAUGHT] Thread = " + thread.getName());
             logger.severe("[EXCEPTION] = " + throwable);
             logCauses(throwable);
+            logStack(throwable.getStackTrace(), 5);
         });
 
         try {

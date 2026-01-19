@@ -8,6 +8,7 @@ import com.fuchsbau.shorin.Engine.RPG.ScenarioLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Saveble;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -55,8 +56,8 @@ public class WorldStartLocationSelector implements Saveble {
     private VBox legendBox;
 
     private final Map<String, Node> markerByName = new HashMap<>();
-    private ListView<String> scenarioList = new ListView<>();
-    private String selectedScenario;
+    private final ListView<ScenarioDefinition> scenarioList = SceneBuilder.createScenarioList();
+    private ScenarioDefinition selectedScenario;
 
     private ImageView activeOverlayView;
 
@@ -90,9 +91,8 @@ public class WorldStartLocationSelector implements Saveble {
         // Add markers
         URL url = ScenarioLoader.resolve("Scenarios.json");
         for (ScenarioDefinition definition : ScenarioLoader.load(url)) {
-            addScenarioMarker(definition.name(), ImagePreLoader.getCached(ImagePaths.valueOf(definition.icon())), definition.x(), definition.y());
+            addScenarioMarker(definition, ImagePreLoader.getCached(ImagePaths.valueOf(definition.icon())), definition.x(), definition.y());
         }
-
 
         // UI right panel
         VBox rightPanel = buildRightPanel();
@@ -171,9 +171,9 @@ public class WorldStartLocationSelector implements Saveble {
         Label title = SceneBuilder.createHeaderLabel("Select Scenario");
 
         // Filters
-        ToggleButton tClean = sceneBuilder.createMenuTobbleButton("Clean");
-        ToggleButton tCultures = sceneBuilder.createMenuTobbleButton("Cultures");
-        ToggleButton tKingdoms = sceneBuilder.createMenuTobbleButton("Kingdoms");
+        ToggleButton tClean = sceneBuilder.makeMenuToggleButton("Clean");
+        ToggleButton tCultures = sceneBuilder.makeMenuToggleButton("Cultures");
+        ToggleButton tKingdoms = sceneBuilder.makeMenuToggleButton("Kingdoms");
 
         Slider opacitySlider = new Slider(0.05, 1.0, 0.55);
         opacitySlider.setShowTickLabels(false);
@@ -231,16 +231,24 @@ public class WorldStartLocationSelector implements Saveble {
             selectScenario(newV);
         });
 
+        Button bNext = sceneBuilder.createMenuButton("Continue");
+        bNext.setOnAction(e -> {
+            if (selectedScenario == null) return;
+            Main.getStage().setScene(new CharacterCreator(selectedScenario).getScene(0));
+        });
 
-        VBox box = new VBox(15, title, filters, scenarioList);
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+
+        VBox box = new VBox(15, title, filters, scenarioList, spacer, bNext);
         box.setBackground(GameOptions.rowHintergrundTrans40);
         box.setPadding(new Insets(5));
         return box;
     }
 
-    private void selectScenario(String name) {
+    private void selectScenario(ScenarioDefinition definition) {
         if (selectedScenario != null) {
-            Node oldMarker = markerByName.get(selectedScenario);
+            Node oldMarker = markerByName.get(definition.name());
             if (oldMarker != null) {
                 oldMarker.setScaleX(1.0);
                 oldMarker.setScaleY(1.0);
@@ -248,9 +256,9 @@ public class WorldStartLocationSelector implements Saveble {
             }
         }
 
-        selectedScenario = name;
+        selectedScenario = definition;
 
-        Node marker = markerByName.get(name);
+        Node marker = markerByName.get(definition.name());
         if (marker != null) {
             marker.setScaleX(1.35);
             marker.setScaleY(1.35);
@@ -258,7 +266,9 @@ public class WorldStartLocationSelector implements Saveble {
         }
     }
 
-    private void addScenarioMarker(String name, Image image, double mapX, double mapY) {
+    private void addScenarioMarker(ScenarioDefinition definition, Image image, double mapX, double mapY) {
+        String name = definition.name();
+
         ImageView marker = new ImageView(
                 image
         );
@@ -278,18 +288,18 @@ public class WorldStartLocationSelector implements Saveble {
         Tooltip.install(hitArea, new Tooltip(name));
 
         hitArea.setOnMouseEntered(e -> {
-            if (name.equals(selectedScenario)) return;
+            if (selectedScenario != null && name.equals(selectedScenario.name())) return;
             marker.setScaleX(1.2);
             marker.setScaleY(1.2);
         });
         hitArea.setOnMouseExited(e -> {
-            if (name.equals(selectedScenario)) return;
+            if (selectedScenario != null && name.equals(selectedScenario.name())) return;
             marker.setScaleX(1.0);
             marker.setScaleY(1.0);
         });
 
-        scenarioList.getItems().add(name);
-        hitArea.setOnMouseClicked(e -> scenarioList.getSelectionModel().select(name));
+        scenarioList.getItems().add(definition);
+        hitArea.setOnMouseClicked(e -> scenarioList.getSelectionModel().select(definition));
 
         markerLayer.getChildren().addAll(marker, hitArea);
         markerByName.put(name, marker);
@@ -417,7 +427,7 @@ public class WorldStartLocationSelector implements Saveble {
     /***
      * Muss nach dem Setzen der Scene neu kalkuliert werden, da die Werte vorher nicht vorhanden sind.
      */
-    public void recalcPositions() {
+    public void recalculatePositions() {
         var img = mapView.getImage();
         if (img == null) return;
 

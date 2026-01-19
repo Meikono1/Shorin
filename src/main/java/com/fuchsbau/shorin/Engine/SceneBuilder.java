@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Engine;
 
 import com.fuchsbau.shorin.Engine.Options.StyleOptions;
+import com.fuchsbau.shorin.Engine.RPG.ScenarioDefinition;
 import com.fuchsbau.shorin.Items.Gear.Armor;
 import com.fuchsbau.shorin.Items.Item;
 import com.fuchsbau.shorin.Items.Weapons.Weapon;
@@ -13,10 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -57,12 +55,38 @@ public class SceneBuilder {
                 -fx-font-size: %spx;
                 -fx-font-weight: %s;
                 """.formatted(
-                        StyleOptions.largeFontSize,
-                        StyleOptions.largeFontWeight
+                StyleOptions.largeFontSize,
+                StyleOptions.largeFontWeight
         ));
         label.setTextFill(Paint.valueOf("#ffffff"));
 
         return label;
+    }
+
+    public static ListView<ScenarioDefinition> createScenarioList() {
+        ListView<ScenarioDefinition> listView = new ListView<>();
+        listView.getStyleClass().add("list-view");
+
+        listView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(ScenarioDefinition def, boolean empty) {
+                super.updateItem(def, empty);
+                getStyleClass().remove("unfinished");
+
+                if (empty || def == null) {
+                    setText(null);
+                    return;
+                }
+
+                setText(def.name());
+
+                if (def.finishState() == 0) {
+                    getStyleClass().add("unfinished");
+                }
+            }
+        });
+
+        return listView;
     }
 
     public BorderPane buildShop(ScrollPane scrole, List<Item> liste) {
@@ -260,6 +284,14 @@ public class SceneBuilder {
             }
         }
         button.setText(text);
+        return button;
+    }
+
+
+    public Button makeButton(String label) {
+        Button button = new Button(label);
+        button.getStyleClass().add("stat-button");
+
         return button;
     }
 
@@ -687,13 +719,12 @@ public class SceneBuilder {
         return button;
     }
 
-    public ToggleButton createMenuTobbleButton(String label) {
+    public ToggleButton makeMenuToggleButton(String label) {
         ToggleButton button = new ToggleButton(label);
         button.getStyleClass().add("menu-button");
         button.setMaxWidth(Double.MAX_VALUE);
         return button;
     }
-
 
     public Label makeWhiteLabel(String s) {
         Label label = new Label(s);

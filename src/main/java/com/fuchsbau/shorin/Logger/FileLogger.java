@@ -130,6 +130,12 @@ public class FileLogger {
         }
     }
 
+    public static void logStack(StackTraceElement[] stackTraceElements, int length) {
+        for (int i = 0; i < length || i < stackTraceElements.length; i++) {
+            logger.severe(stackTraceElements[i].toString());
+        }
+    }
+
 
     public static void closeLogger() {
         handler.close();

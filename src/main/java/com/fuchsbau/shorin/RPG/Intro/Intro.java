@@ -94,7 +94,7 @@ public class Intro {
             Main.getStage().setTitle("Shorin");
             WorldStartLocationSelector selector = new WorldStartLocationSelector();
             Main.getStage().setScene(selector.getScene(0));
-            selector.recalcPositions();
+            selector.recalculatePositions();
         });
         System.getProperty("java.io.tmpdir");
 

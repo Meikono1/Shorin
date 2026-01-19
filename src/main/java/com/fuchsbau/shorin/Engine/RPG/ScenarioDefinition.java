@@ -5,6 +5,7 @@ public record ScenarioDefinition(
         double x,
         double y,
         String icon,
-        String sceneClass
+        String sceneClass,
+        int finishState
 ) {
 }
