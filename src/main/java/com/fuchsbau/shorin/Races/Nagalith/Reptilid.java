@@ -1,4 +1,9 @@
 package com.fuchsbau.shorin.Races.Nagalith;
 
-public class Reptilid {
+import com.fuchsbau.shorin.Races.Base.*;
+
+public class Reptilid extends Race {
+    public Reptilid(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    }
 }

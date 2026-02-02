@@ -1,0 +1,6 @@
+{
+  "id": "FORESTELF",
+  "class": "ELF",
+  "name": "Forestelf",
+  "attributes": { "dex": 2, "cha": -1 }
+}

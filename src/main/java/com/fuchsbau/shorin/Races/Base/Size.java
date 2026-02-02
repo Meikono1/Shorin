@@ -10,7 +10,7 @@ public enum Size {
 
     private String description;
 
-    private Size(String description) {
+    Size(String description) {
         this.description = description;
     }
 }

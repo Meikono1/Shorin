@@ -8,6 +8,8 @@ module com.fuchsbau.shorin {
     requires java.logging;
     requires com.fasterxml.jackson.databind;
 
+    exports com.fuchsbau.shorin.Races;
+    exports com.fuchsbau.shorin.Races.Base;
     exports com.fuchsbau.shorin;
     opens com.fuchsbau.shorin to javafx.fxml;
     exports com.fuchsbau.shorin.Engine;

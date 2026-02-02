@@ -1,4 +1,9 @@
 package com.fuchsbau.shorin.Races.Rodini;
 
-public class Squirrel {
+import com.fuchsbau.shorin.Races.Base.*;
+
+public class Squirrel extends Race {
+    public Squirrel(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    }
 }

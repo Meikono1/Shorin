@@ -8,6 +8,7 @@ import com.fuchsbau.shorin.Items.Weapons.Weapon;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
+import javafx.animation.RotateTransition;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,6 +23,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.util.Duration;
 
 import java.util.List;
 import java.util.Objects;
@@ -482,11 +484,9 @@ public class SceneBuilder {
         oben.setPadding(GameOptions.padding);
 
         Text unten;
-        if (item instanceof Armor) {
-            Armor armor = (Armor) item;
+        if (item instanceof Armor armor) {
             unten = makeText("  " + armor.armor + ",   " + armor.qualitaet + ",   " + armor.zustand);
         } else {
-            Weapon waffe = (Weapon) item;
             unten = makeText("  0,   0,   0");
         }
 
@@ -730,5 +730,19 @@ public class SceneBuilder {
         Label label = new Label(s);
         label.setTextFill(primaryTextColourWhite);
         return label;
+    }
+
+    public static ComboBox<String> makeDropdown() {
+        ComboBox<String> box = new ComboBox<>();
+        box.getStyleClass().add("creation-dropdown");
+        box.showingProperty().addListener((obs, wasShowing, isShowing) -> {
+            Node arrow = box.lookup(".arrow");
+            if (arrow == null) return;
+
+            RotateTransition rt = new RotateTransition(Duration.millis(120), arrow);
+            rt.setToAngle(isShowing ? 0 : 180); // passend zu deinem CSS
+            rt.playFromStart();
+        });
+        return box;
     }
 }

@@ -1,4 +1,9 @@
 package com.fuchsbau.shorin.Races.Hyrax;
 
-public class Jackal {
+import com.fuchsbau.shorin.Races.Base.*;
+
+public class Jackal extends Race {
+    public Jackal(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    }
 }

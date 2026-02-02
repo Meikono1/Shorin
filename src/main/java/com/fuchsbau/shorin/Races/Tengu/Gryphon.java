@@ -1,4 +1,9 @@
 package com.fuchsbau.shorin.Races.Tengu;
 
-public class Gryphon {
+import com.fuchsbau.shorin.Races.Base.*;
+
+public class Gryphon extends Race {
+    public Gryphon(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    }
 }

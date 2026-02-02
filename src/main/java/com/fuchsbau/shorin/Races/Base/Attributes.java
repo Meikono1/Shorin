@@ -1,7 +1,9 @@
 package com.fuchsbau.shorin.Races.Base;
 
 public record Attributes(int strength,
-                         int agility,
+                         int dexterity,
+                         int constitution,
                          int intellect,
-                         int endurance) {
+                         int wisdom,
+                         int charisma) {
 }

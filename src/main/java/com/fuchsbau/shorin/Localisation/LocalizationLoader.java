@@ -15,7 +15,7 @@ public class LocalizationLoader {
         UI_MAIN_OPTIONS("main#options_button");
 
         private final String key;
-        private String translation;
+        private final String translation;
 
         TextKey(String text) {
             this.key = text.split(fileNameDevider)[1];

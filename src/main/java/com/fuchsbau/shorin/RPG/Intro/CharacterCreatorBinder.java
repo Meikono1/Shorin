@@ -4,7 +4,7 @@ import javafx.beans.property.*;
 
 public class CharacterCreatorBinder {
     public StringProperty name = new SimpleStringProperty("");
-    public StringProperty race = new SimpleStringProperty("Human");
+    public StringProperty race = new SimpleStringProperty();
     public StringProperty sex = new SimpleStringProperty("Male");
     public IntegerProperty age = new SimpleIntegerProperty(25);
     public DoubleProperty heightCm = new SimpleDoubleProperty(180);

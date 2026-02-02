@@ -1,4 +1,9 @@
 package com.fuchsbau.shorin.Races.Nagalith;
 
-public class Viper {
+import com.fuchsbau.shorin.Races.Base.*;
+
+public class Viper extends Race {
+    public Viper(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    }
 }

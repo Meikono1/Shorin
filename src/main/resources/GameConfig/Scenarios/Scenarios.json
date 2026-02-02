@@ -5,7 +5,8 @@
     "y": 1014,
     "icon": "MAP_FLAG",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 0
+    "finishState": 0,
+    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
   },
   {
     "name": "Free Start Rodini",
@@ -13,7 +14,8 @@
     "y": 1290,
     "icon": "MAP_FLAG",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 0
+    "finishState": 0,
+    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
   },
   {
     "name": "Whitebridge Slave",
@@ -21,7 +23,8 @@
     "y": 576,
     "icon": "MAP_TOWER",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 0
+    "finishState": 1,
+    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
   },
   {
     "name": "Nagalith Capture",
@@ -29,7 +32,8 @@
     "y": 1460,
     "icon": "MAP_SNAKE",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 0
+    "finishState": 0,
+    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
   },
   {
     "name": "Hyrax Capture",
@@ -37,7 +41,8 @@
     "y": -254,
     "icon": "MAP_HUT",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 1
+    "finishState": 0,
+    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
   },
   {
     "name": "Kobold den",
@@ -45,6 +50,7 @@
     "y": 203,
     "icon": "MAP_CAVE",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 0
+    "finishState": 0,
+    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
   }
 ]

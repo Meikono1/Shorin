@@ -3,7 +3,6 @@ package com.fuchsbau.shorin.RPG.Places.Whitebrigde;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Places.Place;
-import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Barracks.Barracks;
 import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Shop.Shop;
 import com.fuchsbau.shorin.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
@@ -14,7 +13,6 @@ import javafx.scene.text.TextFlow;
 
 public class Whitebridge extends Place implements Saveble {
 
-    public Barracks barracks = new Barracks();
     private final Inn inn = new Inn();
     private final Library library = new Library();
     private final Shop shop = new Shop();
@@ -62,7 +60,6 @@ public class Whitebridge extends Place implements Saveble {
                 h.setText("Your old friend Dave is walking around the town centre.");
 
                 Button dave = SceneBuilder.getSceneBuilder().makeButton(1, "Greet Dave");
-                dave.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().dave.getScene(ort)));
                 SceneBuilder.getSceneBuilder().addButton(dave, 1);
                 break;
             case 2:
@@ -89,7 +86,6 @@ public class Whitebridge extends Place implements Saveble {
         SceneBuilder.getSceneBuilder().addButton(entrance, 3);
 
         Button barracks = SceneBuilder.getSceneBuilder().makeButton(3, "Barracks");
-        barracks.setOnMouseClicked(event -> Main.getStage().setScene(this.barracks.getScene(0)));
         SceneBuilder.getSceneBuilder().addButton(barracks, 3);
 
         Button inn = SceneBuilder.getSceneBuilder().makeButton(3, "Inn");

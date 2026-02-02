@@ -5,18 +5,18 @@ import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.Races.Base.Attributes;
+import com.fuchsbau.shorin.Races.Base.Race;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -26,6 +26,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static javafx.scene.paint.Color.RED;
@@ -39,11 +41,9 @@ public class CharacterCreator implements Saveble {
     private final static SceneBuilder scenebuilder = SceneBuilder.getSceneBuilder();
 
     // Controls
-    private final ComboBox<String> raceDropdown = new ComboBox<>();
 
-    private enum Section {BASE, BODY, HEAD, ARMS, LEGS, BREASTS, GENITALIA, TAIL, EXTRAS}
+    private enum Section {BASE, BODY, HEAD, BREASTS, GENITALIA, TAIL, EXTRAS}
 
-    private final ObjectProperty<Section> activeSection = new SimpleObjectProperty<>(Section.BASE);
     private final Button confirmBtn = scenebuilder.createMenuButton("Continue");
 
 
@@ -60,10 +60,9 @@ public class CharacterCreator implements Saveble {
     private final GridPane settingsGrid = new GridPane();
     private final SplitPane split = new SplitPane();
 
+    private Attributes lastRaceMod = new Attributes(0, 0, 0, 0, 0, 0);
 
     // Stats
-    public final IntegerProperty pointsLeft = new SimpleIntegerProperty(8);
-
     public static final class StatBlock {
         public final IntegerProperty pointsLeft = new SimpleIntegerProperty(12);
 
@@ -170,12 +169,8 @@ public class CharacterCreator implements Saveble {
         paperdollWrap.setPadding(new Insets(10));
         paperdollWrap.setStyle("-fx-background-color: rgba(30,30,30,0.18); -fx-background-radius: 12;");
 
-        // Placeholder overlay label
-        Label paperdollTitle = new Label("Paperdoll");
-        paperdollTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
-        StackPane.setAlignment(paperdollTitle, Pos.TOP_LEFT);
 
-        paperdollWrap.getChildren().addAll(paperdollNode, paperdollTitle);
+        paperdollWrap.getChildren().addAll(paperdollNode);
         VBox.setVgrow(paperdollWrap, Priority.ALWAYS);
 
         rightPane.getChildren().addAll(statsBox, paperdollWrap);
@@ -196,7 +191,7 @@ public class CharacterCreator implements Saveble {
         VBox box = new VBox(10);
 
         Label statsTitle = new Label("Stats");
-        statsTitle.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; fx-margin-right: 10; fx.text-fill: e6e6ff;");
+        statsTitle.setStyle("-fx-font-size: 14px; " + "-fx-font-weight: bold; " + "-fx-padding: 0 10 0 0; " + "-fx-text-fill: #e6e6ff;");
 
         // Header: "Punkte" + Restpunkte
         Label pointsLabel = new Label("Remaining points:");
@@ -218,8 +213,8 @@ public class CharacterCreator implements Saveble {
         // 6 Spalten: (Attr | [ -  value  + ]) x2
         for (int i = 0; i < 6; i++) {
             ColumnConstraints c = new ColumnConstraints();
-            if (i == 0 || i == 3) c.setHgrow(Priority.NEVER);          // Attr labels
-            else c.setHgrow(Priority.NEVER);                            // Controls kompakt
+            if (i == 0 || i == 3) c.setHgrow(Priority.NEVER);
+            else c.setHgrow(Priority.NEVER);
             grid.getColumnConstraints().add(c);
         }
 
@@ -239,10 +234,28 @@ public class CharacterCreator implements Saveble {
         return box;
     }
 
-    private void addStatCell(GridPane grid, int row, int col, String name,
-                             IntegerProperty statValue, IntegerProperty minValue, IntegerProperty maxValue) {
+    private void addStatCell(GridPane grid, int row, int col, String name, IntegerProperty statValue, IntegerProperty minValue, IntegerProperty maxValue) {
 
         Label statName = new Label(name);
+
+        Label info = new Label("?");
+        info.setFocusTraversable(false);
+        info.setMinSize(16, 16);
+        info.setAlignment(Pos.CENTER);
+        info.setCursor(Cursor.HAND);
+        info.setOnMouseClicked(mouseEvent -> {
+            setSection(Section.EXTRAS);
+            animateContentSwap(settingsGrid);
+        });
+
+        Tooltip tip = new Tooltip(getStatHelpText(name)); // oder Map/Enum
+        tip.setShowDelay(Duration.millis(250));
+        tip.setWrapText(true);
+        tip.setMaxWidth(280);
+        Tooltip.install(info, tip);
+
+        HBox statHeader = new HBox(6, statName, info);
+        statHeader.setAlignment(Pos.CENTER_LEFT);
 
         Button minus = scenebuilder.makeButton("–");
         Label value = new Label();
@@ -252,24 +265,31 @@ public class CharacterCreator implements Saveble {
         minus.setMinWidth(36);
         plus.setMinWidth(36);
 
-        // Aktionen
         minus.setOnAction(e -> tryDecStat(statValue, minValue));
         plus.setOnAction(e -> tryIncStat(statValue, maxValue));
 
-        // Disable-Logik
         minus.disableProperty().bind(statValue.lessThanOrEqualTo(minValue));
-        plus.disableProperty().bind(
-                stats.pointsLeft.lessThanOrEqualTo(0)
-                        .or(statValue.greaterThanOrEqualTo(maxValue))
-        );
-
+        plus.disableProperty().bind(stats.pointsLeft.lessThanOrEqualTo(0).or(statValue.greaterThanOrEqualTo(maxValue)));
 
         HBox controls = new HBox(6, minus, value, plus);
         controls.setAlignment(Pos.CENTER_LEFT);
 
-        grid.add(statName, col, row);
+        grid.add(statHeader, col, row);
         grid.add(controls, col + 1, row, 2, 1);
     }
+
+    private String getStatHelpText(String name) {
+        return switch (name) {
+            case "STR" -> "Strength: beeinflusst Nahkampfschaden, Traglast, ...";
+            case "DEX" -> "Dexterity: beeinflusst Ausweichen, Initiative, ...";
+            case "CON" -> "Constitution: beeinflusst HP, Resistenz, ...";
+            case "INT" -> "Intelligence: beeinflusst Wissen, Mana, ...";
+            case "WIS" -> "Wisdom: beeinflusst Wahrnehmung, Willenskraft, ...";
+            case "CHA" -> "Charisma: beeinflusst Dialoge, Anführen, ...";
+            default -> "";
+        };
+    }
+
 
     private void tryIncStat(IntegerProperty stat, IntegerProperty max) {
         if (stats.pointsLeft.get() <= 0 || stat.get() >= max.get()) return;
@@ -283,44 +303,67 @@ public class CharacterCreator implements Saveble {
         stats.pointsLeft.set(stats.pointsLeft.get() + 1);
     }
 
+    // ---------- Rassen-Malus anwenden ----------
+    private void applyRaceMalus(Race race) {
+        int baseMax = 4;
 
-    // ---------- Rassen-Malus anwenden (Beispiele) ----------
-    private void applyRaceMalus(String race) {
-        // reset mins
-        stats.minStr.set(0);
-        stats.minDex.set(0);
-        stats.minCon.set(0);
-        stats.minInt.set(0);
-        stats.minWis.set(0);
-        stats.minCha.set(0);
+        // alten Mod zurücknehmen (damit Wechsel nicht akkumuliert)
+        add(stats.str, -lastRaceMod.strength());
+        add(stats.dex, -lastRaceMod.dexterity());
+        add(stats.con, -lastRaceMod.constitution());
+        add(stats.intel, -lastRaceMod.intellect());
+        add(stats.wis, -lastRaceMod.wisdom());
+        add(stats.cha, -lastRaceMod.charisma());
 
-        // Beispiel: Elf -2 CON
-        if ("Elf".equals(race)) {
-            stats.minCon.set(-2);
-        }
-        // Beispiel: Orc -2 INT
-        if ("Orc".equals(race)) {
-            stats.minInt.set(-2);
-        }
+        Attributes mod = (race != null && race.getAttributes() != null) ? race.getAttributes() : new Attributes(0, 0, 0, 0, 0, 0);
 
-        // Optional: wenn aktuelle Werte unter neues Minimum fallen -> clamp
-        clampToMins();
+        // neuen Mod anwenden
+        add(stats.str, mod.strength());
+        add(stats.dex, mod.dexterity());
+        add(stats.con, mod.constitution());
+        add(stats.intel, mod.intellect());
+        add(stats.wis, mod.wisdom());
+        add(stats.cha, mod.charisma());
+
+        // min/max setzen: Bereich wird um mod verschoben
+        setRange(stats.minStr, stats.maxStr, baseMax, mod.strength());
+        setRange(stats.minDex, stats.maxDex, baseMax, mod.dexterity());
+        setRange(stats.minCon, stats.maxCon, baseMax, mod.constitution());
+        setRange(stats.minInt, stats.maxInt, baseMax, mod.intellect());
+        setRange(stats.minWis, stats.maxWis, baseMax, mod.wisdom());
+        setRange(stats.minCha, stats.maxCha, baseMax, mod.charisma());
+
+        lastRaceMod = mod;
+
+        clampToMinMax();
     }
 
-    private void clampToMins() {
-        clamp(stats.str, stats.minStr);
-        clamp(stats.dex, stats.minDex);
-        clamp(stats.con, stats.minCon);
-        clamp(stats.intel, stats.minInt);
-        clamp(stats.wis, stats.minWis);
-        clamp(stats.cha, stats.minCha);
+    private static void setRange(IntegerProperty min, IntegerProperty max, int baseMax, int mod) {
+        min.set(mod);
+        max.set(baseMax + mod);
     }
 
-    private static void clamp(IntegerProperty stat, IntegerProperty min) {
-        if (stat.get() < min.get()) stat.set(min.get());
+    private static void add(IntegerProperty prop, int delta) {
+        prop.set(prop.get() + delta);
+    }
+
+    private void clampToMinMax() {
+        clamp(stats.str, stats.minStr.get(), stats.maxStr.get());
+        clamp(stats.dex, stats.minDex.get(), stats.maxDex.get());
+        clamp(stats.con, stats.minCon.get(), stats.maxCon.get());
+        clamp(stats.intel, stats.minInt.get(), stats.maxInt.get());
+        clamp(stats.wis, stats.minWis.get(), stats.maxWis.get());
+        clamp(stats.cha, stats.minCha.get(), stats.maxCha.get());
+    }
+
+    private static void clamp(IntegerProperty v, int min, int max) {
+        int x = v.get();
+        if (x < min) v.set(min);
+        else if (x > max) v.set(max);
     }
 
     private HBox buildTopStepBar() {
+
         HBox topBar = new HBox(10);
         topBar.setPadding(new Insets(10));
         topBar.setAlignment(Pos.CENTER_LEFT);
@@ -344,9 +387,6 @@ public class CharacterCreator implements Saveble {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        raceDropdown.getItems().setAll("Human", "Elf", "Dwarf", "Orc");
-        raceDropdown.getSelectionModel().selectFirst();
-
         topBar.getChildren().addAll(spacer, confirmBtn);
         return topBar;
     }
@@ -366,12 +406,6 @@ public class CharacterCreator implements Saveble {
                 break;
             case HEAD:
                 buildHeadSection(settingsGrid);
-                break;
-            case ARMS:
-                buildArmsSection(settingsGrid);
-                break;
-            case LEGS:
-                buildLegsSection(settingsGrid);
                 break;
             case BREASTS:
                 buildBreastsSection(settingsGrid);
@@ -393,6 +427,27 @@ public class CharacterCreator implements Saveble {
     }
 
     private void buildBaseSection(GridPane settingsGrid) {
+        ComboBox<String> raceDropdown = SceneBuilder.makeDropdown();
+
+        Map<String, Race> byDisplay = new HashMap<>();
+
+        for (Race entry : definition.parsedRaces()) {
+            String dn = entry.displayName();
+            raceDropdown.getItems().add(dn);
+            byDisplay.put(dn, entry);
+        }
+
+        Race first = definition.parsedRaces().getFirst();
+        raceDropdown.getSelectionModel().select(first.displayName());
+        characterDraft.race.set(first.displayName());
+
+        applyRaceMalus(first);
+
+        raceDropdown.valueProperty().addListener((obs, oldV, newV) -> {
+            Race e = byDisplay.get(newV);
+            applyRaceMalus(e);
+        });
+
         TextField nameTextField = new TextField();
         nameTextField.textProperty().bindBidirectional(characterDraft.name);
         addSettingRow(settingsGrid, 1, "Name", nameTextField, null);
@@ -400,10 +455,13 @@ public class CharacterCreator implements Saveble {
         raceDropdown.valueProperty().bindBidirectional(characterDraft.race);
         addSettingRow(settingsGrid, 2, "Race", raceDropdown, null);
 
-        Slider ageSlider = new Slider();
-        ageSlider.valueProperty().bind(characterDraft.age);
-        addSettingRow(settingsGrid, 3, "Age", ageSlider, null);
 
+        Slider ageSlider = new Slider(1, 100, 50);
+        Label ageValue = new Label();
+        ageValue.textProperty().bind(characterDraft.age.asString());
+        ageSlider.valueProperty().bindBidirectional(characterDraft.age);
+
+        addSettingRow(settingsGrid, 3, "Age", ageSlider, ageValue);
     }
 
     private void buildBodySection(GridPane settingsGrid) {
@@ -423,6 +481,10 @@ public class CharacterCreator implements Saveble {
         bodyHeight.textProperty().bindBidirectional(characterDraft.bodyHeight);
         addSettingRow(settingsGrid, 4, "Height", bodyHeight, null);
         addSettingRow(settingsGrid, 5, "Pattern", new TextField(), null); //Base pattern falls vorhanden, ansonsten skincolour.
+
+        addSettingRow(settingsGrid, 6, "Arms", new TextField(), new Label("Years")); //Papermodel arm selection, maybe more idc
+        addSettingRow(settingsGrid, 7, "Legs", new TextField(), new Label("Years")); //Papermodel leegs selection, maybe more idc , same as arms
+
     }
 
     private void buildHeadSection(GridPane settingsGrid) {
@@ -434,15 +496,6 @@ public class CharacterCreator implements Saveble {
         addSettingRow(settingsGrid, 6, "Throat Depth", new TextField(), null); // wie lang der penis/ anderes sein kann befohr ein gag reflex ausgelöst wird. Später auch ersticken?
         addSettingRow(settingsGrid, 7, "Tongue Modifier", new TextField(), null); // Catzenzunge kann rau oder weich sein.
         addSettingRow(settingsGrid, 8, "Horns", new TextField(), null); // falls hörner vorhanden sind, anpassen für papermodel zusammen mit größen.
-    }
-
-    private void buildArmsSection(GridPane settingsGrid) {
-        addSettingRow(settingsGrid, 1, "Arms", new TextField(), new Label("Years")); //Papermodel arm selection, maybe more idc
-
-    }
-
-    private void buildLegsSection(GridPane settingsGrid) {
-        addSettingRow(settingsGrid, 1, "Legs", new TextField(), new Label("Years")); //Papermodel leegs selection, maybe more idc , same as arms
     }
 
     private void buildBreastsSection(GridPane settingsGrid) {
@@ -483,7 +536,7 @@ public class CharacterCreator implements Saveble {
     }
 
     private void buildExtrasSection(GridPane settingsGrid) {
-        //TODO muss noch überlegen wie ich mit Flügel und sowas umgehe.
+        //TODO Flügel erstmal gestrichen, Extras sind details über Stats zu charakter info
     }
 
     private void wirePaperdollRedraw() {

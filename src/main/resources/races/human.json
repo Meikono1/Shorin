@@ -1,0 +1,6 @@
+{
+  "id": "HUMAN",
+  "class": "HUMAN",
+  "name": "Human",
+  "attributes": { "str": 1, "wis": 1 }
+}

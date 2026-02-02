@@ -31,14 +31,14 @@ public class Intro {
     private final String introText = """
             The world of Shorin is inhabited by multiple races | cultures and different types of dominion.
             While the world lives and advances in its own pace, you are watching over the mortal lives, going on their deeds.
-                        
+            
             You can see yourself as an Spirit.. an immortal, godlike being. Watching and influencing the lives of many.
             No matter where you look, the world is large enough that a single live may not cause that big of a difference. But there is an experience waiting for you too take.
-                        
+            
             Decide where you want to start.
             Either search for s poor unfortunate soul, stumble into the midriff of disaster. Only for you too take over and experience the downfall and life doing their deed.
             Or take on the body of a new vessel, reaching the shores of Shorin. Make yourself a name | Bring yourself to a exciting downfall.
-                        
+            
             But don't get too attached... live is fleeting, even when yours is not.
             """;
 

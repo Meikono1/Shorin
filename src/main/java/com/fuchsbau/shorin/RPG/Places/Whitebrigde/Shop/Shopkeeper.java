@@ -22,24 +22,18 @@ public class Shopkeeper implements Saveble {
         //TODO Items hinzufügen
         Broadsword broadsword = new Broadsword(1, 100, 1, Material.iron, "Iron Broadsword");
         Button broadbuy = SceneBuilder.getSceneBuilder().makeButton(1, "Buy Broadsword");
-        broadbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(new Broadsword(1, 100, 1, Material.iron, "Iron Broadsword"));
-        });
+        broadbuy.setOnMouseClicked(mouseEvent -> Game.getInstance().inventory.addItem(new Broadsword(1, 100, 1, Material.iron, "Iron Broadsword")));
         items.add(broadsword);
         SceneBuilder.getSceneBuilder().addButton(broadbuy, 1);
 
         HealingPotion heal = new HealingPotion("Heiltrank");
         Button healbuy = SceneBuilder.getSceneBuilder().makeButton(1, "Buy Healpotion");
-        healbuy.setOnMouseClicked(mouseEvent -> {
-            Game.getInstance().inventory.addItem(new HealingPotion("Heiltrank"));
-        });
+        healbuy.setOnMouseClicked(mouseEvent -> Game.getInstance().inventory.addItem(new HealingPotion("Heiltrank")));
         items.add(heal);
         SceneBuilder.getSceneBuilder().addButton(healbuy, 1);
 
         Button back = SceneBuilder.getSceneBuilder().makeButton(2, "back to the shop");
-        back.setOnMouseClicked(event -> {
-            Main.getStage().setScene(new Shop().getScene(0));
-        });
+        back.setOnMouseClicked(event -> Main.getStage().setScene(new Shop().getScene(0)));
         SceneBuilder.getSceneBuilder().addButton(back, 2);
 
         scene = new Scene(SceneBuilder.getSceneBuilder().buildShop(SceneBuilder.getSceneBuilder().makeScrollpane(), items));

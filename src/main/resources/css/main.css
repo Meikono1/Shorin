@@ -125,6 +125,63 @@
     -fx-background-radius: 4;
 }
 
+.creation-dropdown {
+    -fx-background-color: rgba(24,24,36,0.75);
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: rgba(160,160,255,0.45);
+    -fx-border-width: 1;
+
+    -fx-padding: 4 8 4 8;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e6e6ff;
+}
+
+.creation-dropdown:hover {
+    -fx-background-color: rgba(40,40,64,0.9);
+    -fx-border-color: rgba(160,160,255,0.8);
+}
+
+.creation-dropdown:focused {
+    -fx-effect: dropshadow(gaussian, rgba(160,160,255,0.6), 10, 0.2, 0, 0);
+}
+
+.creation-dropdown .arrow-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 6 0 6;
+}
+
+.creation-dropdown .arrow {
+    -fx-background-color: #e6e6ff;
+    -fx-rotate: 180;
+}
+
+.creation-dropdown:showing .arrow {
+    -fx-rotate: 0;
+}
+
+.creation-dropdown .list-view {
+    -fx-background-color: rgba(18,18,28,0.95);
+    -fx-background-radius: 6;
+    -fx-border-color: rgba(160,160,255,0.35);
+    -fx-border-radius: 6;
+}
+
+.creation-dropdown .list-cell {
+    -fx-text-fill: #e6e6ff;
+    -fx-background-color: transparent;
+    -fx-padding: 6 10 6 10;
+}
+
+.creation-dropdown .list-cell:hover {
+    -fx-background-color: rgba(64,64,96,0.6);
+}
+
+.creation-dropdown .list-cell:selected {
+    -fx-text-fill: white;
+}
+
 .vbox {
     -fx-background-color: rgba(160,160,255,0.6);
 }

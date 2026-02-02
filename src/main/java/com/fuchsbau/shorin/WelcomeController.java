@@ -16,7 +16,6 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public class WelcomeController {

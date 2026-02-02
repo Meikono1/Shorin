@@ -1,4 +1,9 @@
 package com.fuchsbau.shorin.Races.Tarpan;
 
-public class Asinus {
+import com.fuchsbau.shorin.Races.Base.*;
+
+public class Asinus extends Race {
+    public Asinus(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    }
 }
