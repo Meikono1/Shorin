@@ -1,0 +1,35 @@
+Die zu ladenen Rassen haben Attribute, welche hier gelistet sind.
+
+Id: Die ID zum identifizieren des Objectes, kann in anderen Klassen verwendet werden um diesen eintrag zu finden.
+Class: die grundgklasse die Attribute, Grafiken und anderes zu dieser Rasse lädt.
+Name: Der Anzeigename der in der Anwendung verwendet wird und dem nutzer gezeigt wird.
+AdultAge: Ab welchem Alter diese Rasse ein mitglied als Erwachsen ansieht. Bedeutet erst wenn dieses Alter erreicht wurde, darf dieser Sexuell agieren!
+die ersten 25 % sind Kindheit (Muss sich drum gekümmert werden, Keine Arbeit),
+Die nachfolgenden 50% sind Pubertät (Die Person hilft aus und lernt die welt kennen, 0.4 Arbeitseffectiv)
+Die letzten 25 % sind Teenage (Personen fangen eine Lehre an und suchen sich am Ende eine bleibe, 0.8 Arbeitseffectiv)
+
+GrownAge: Ab welchem Alter die Person ausgewachsen ist. Dabei ist die Größe von der Grownsize abhängig.
+Alle fangen Grundsätzlich als "SMALL" an und erreichen nach 25% der GrownAge die größe Medium. Dabei wächst der Char auf 50% seiner Größe bei 25% der Age und immer 50% der übrigen Größe in 25% der übrigen zeit.
+So Wächst ein Char immer langsamer bis zum zielalter.
+Rassen welche "SMALL" sind fangen bei "TINY" an und haben die selben regeln. (Also TINY bis 25% des Lebensalters dann small)
+Rassen die Größer sind, fangen bei Small an und erreichen nach 25% MEDIUM, 70% LARGE, 90% HUGE, 99% GARGANTUAN
+Grownage >= AdultAge sonst Clam!
+
+GrownSize: Welche Größe am Ende die Person erreicht.
+
+Life Expectancy: Ab diesen Alter kann es passieren das negative effecten kommen, welche irgendwann zum tot führen. Es ist kein Todesalter sondern ein Anfälligkeitsalter.
+
+
+{
+  "id": "ACINONYX",
+  "class": "ACINONYX",
+  "name": "Acinonyx",
+  "health": "10", Additional Health
+  "size": "MEDIUM", Size ingame
+  "speed": "20", Speed in ft, rounded down to 5, sinze every step is 5.
+  "adultAge": "",
+  "grownAge": "",
+  "grownSize": "",
+  "lifeExpectancy": "",
+  "attributes": { "str": 1, "dex": 1, "con": -1 }
+}

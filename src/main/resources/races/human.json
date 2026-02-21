@@ -2,5 +2,15 @@
   "id": "HUMAN",
   "class": "HUMAN",
   "name": "Human",
-  "attributes": { "str": 1, "wis": 1 }
+  "health": "8",
+  "size": "MEDIUM",
+  "speed": "25",
+  "adultAge": "18",
+  "grownAge": "21",
+  "GrownSize": "MEDIUM",
+  "lifeExpectancy": "60",
+  "attributes": {
+    "str": 1,
+    "wis": 1
+  }
 }

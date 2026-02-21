@@ -1,0 +1,17 @@
+{
+  "id": "DWARF",
+  "class": "DWARF",
+  "name": "Dwarf",
+  "health": "10",
+  "size": "MEDIUM",
+  "speed": "20",
+  "adultAge": "23",
+  "grownAge": "30",
+  "grownSize": "MEDIUM",
+  "lifeExpectancy": "250",
+  "attributes": {
+    "wis": 1,
+    "con": 1,
+    "cha": -1
+  }
+}

@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.RPG;
 
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
+import com.fuchsbau.shorin.Engine.Map.Mapeditor;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
@@ -26,7 +27,7 @@ import static com.fuchsbau.shorin.Engine.Images.ImagePaths.*;
 
 public class MainScreen implements Saveble {
     private final SceneBuilder sceneBuilder = SceneBuilder.getSceneBuilder();
-    private final Logger logger= FileLogger.getLogger();
+    private final Logger logger = FileLogger.getLogger();
     private Scene scene;
 
     private void makeScene() {
@@ -55,12 +56,17 @@ public class MainScreen implements Saveble {
         Button start = sceneBuilder.createMenuButton("Start Game");
         start.setOnAction(event -> {
             Main.getStage().setScene(new Intro().getScene());
-            // Main.getStage().setScene(creation.getScene(1));
         });
 
         Button load = sceneBuilder.createMenuButton("Load Game");
 
-        Button encounter = sceneBuilder.createMenuButton("Empty");
+        Button mapEditor = sceneBuilder.createMenuButton("Map editor");
+        mapEditor.setOnAction(event -> {
+            Main.getStage().setScene(new Mapeditor().getScene(0));
+        });
+
+
+        Button encounter = sceneBuilder.createMenuButton("Encounter");
         encounter.setOnAction(event -> {
             //Main.getStage().setScene(new EncounterScreen().getScene());
         });
@@ -80,7 +86,7 @@ public class MainScreen implements Saveble {
 
         logger.info("Erstelle Links");
         // Sektionen links
-        VBox gameSection = new VBox(5, sceneBuilder.makeWhiteLabel("Game"), start, load, encounter);
+        VBox gameSection = new VBox(5, sceneBuilder.makeWhiteLabel("Game"), start, load, mapEditor, encounter);
         gameSection.setFillWidth(true);
         VBox settingsSection = new VBox(5, sceneBuilder.makeWhiteLabel("Settings"), settings, rulebook);
         settingsSection.setFillWidth(true);

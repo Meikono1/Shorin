@@ -2,5 +2,15 @@
   "id": "FORESTELF",
   "class": "ELF",
   "name": "Forestelf",
-  "attributes": { "dex": 2, "cha": -1 }
+  "health": "8",
+  "size": "MEDIUM",
+  "speed": "30",
+  "adultAge": "23",
+  "grownAge": "30",
+  "grownSize": "MEDIUM",
+  "lifeExpectancy": "250",
+  "attributes": {
+    "dex": 2,
+    "cha": -1
+  }
 }

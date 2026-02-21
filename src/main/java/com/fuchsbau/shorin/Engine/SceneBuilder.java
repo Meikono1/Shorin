@@ -65,6 +65,18 @@ public class SceneBuilder {
         return label;
     }
 
+    public static Label createTextLabel(String intro) {
+        Label label = new Label(intro);
+        label.setStyle("""
+                -fx-font-size: %spx;
+                """.formatted(
+                StyleOptions.baseFontSize
+        ));
+        label.setTextFill(Paint.valueOf("#ffffff"));
+
+        return label;
+    }
+
     public static ListView<ScenarioDefinition> createScenarioList() {
         ListView<ScenarioDefinition> listView = new ListView<>();
         listView.getStyleClass().add("list-view");
@@ -326,7 +338,7 @@ public class SceneBuilder {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setBackground(GameOptions.hintergrund);
+        //scrollPane.setBackground(GameOptions.hintergrund);
 
         return scrollPane;
     }

@@ -1,9 +1,10 @@
 package com.fuchsbau.shorin.Races.Coralor;
 
+import com.fuchsbau.shorin.Engine.Race.Size;
 import com.fuchsbau.shorin.Races.Base.*;
 
 public class Cephalopod extends Race {
-    public Cephalopod(String raceName, String name, String description, Attributes baseAttributes, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
-        super(raceName, name, description, baseAttributes, lifeStage, reproduction, appearance);
+    public Cephalopod(String raceName, String name, byte speed, Attributes baseAttributes, int maxHealth, Size size, LifeStages lifeStage, Reproduction reproduction, Appearance appearance) {
+        super(raceName, name, speed, baseAttributes, maxHealth, size, lifeStage, reproduction, appearance);
     }
 }

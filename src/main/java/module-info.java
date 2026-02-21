@@ -18,4 +18,7 @@ module com.fuchsbau.shorin {
     opens com.fuchsbau.shorin.Engine.Styler to javafx.fxml;
     exports com.fuchsbau.shorin.Engine.RPG;
     opens com.fuchsbau.shorin.Engine.RPG to com.fasterxml.jackson.databind;
+
+    exports com.fuchsbau.shorin.test;
+    exports com.fuchsbau.shorin.Engine.Race;
 }

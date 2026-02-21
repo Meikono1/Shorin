@@ -1,0 +1,17 @@
+{
+  "id": "GNOME",
+  "class": "GNOME",
+  "name": "Gnome",
+  "health": "8",
+  "size": "SMALL",
+  "speed": "25",
+  "adultAge": "16",
+  "grownAge": "19",
+  "grownSize": "MEDIUM",
+  "lifeExpectancy": "80",
+  "attributes": {
+    "cha": 1,
+    "con": 1,
+    "str": -1
+  }
+}

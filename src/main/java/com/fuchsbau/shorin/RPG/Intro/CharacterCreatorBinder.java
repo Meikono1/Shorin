@@ -14,19 +14,12 @@ public class CharacterCreatorBinder {
     public StringProperty muscleDefinition = new SimpleStringProperty();
     public StringProperty bodyHeight = new SimpleStringProperty();
 
+    public final IntegerProperty health = new SimpleIntegerProperty(0);
     public final IntegerProperty str = new SimpleIntegerProperty(0);
     public final IntegerProperty dex = new SimpleIntegerProperty(0);
     public final IntegerProperty con = new SimpleIntegerProperty(0);
     public final IntegerProperty intel = new SimpleIntegerProperty(0);
     public final IntegerProperty wis = new SimpleIntegerProperty(0);
     public final IntegerProperty cha = new SimpleIntegerProperty(0);
-
-    // min pro Stat (z.B. durch Rassen-Malus). Standard 0.
-    public final IntegerProperty minStr = new SimpleIntegerProperty(0);
-    public final IntegerProperty minDex = new SimpleIntegerProperty(0);
-    public final IntegerProperty minCon = new SimpleIntegerProperty(0);
-    public final IntegerProperty minInt = new SimpleIntegerProperty(0);
-    public final IntegerProperty minWis = new SimpleIntegerProperty(0);
-    public final IntegerProperty minCha = new SimpleIntegerProperty(0);
 
 }

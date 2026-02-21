@@ -1,5 +1,7 @@
 package com.fuchsbau.shorin.Races.Base;
 
+import com.fuchsbau.shorin.Engine.Race.Size;
+
 public interface RaceInterface {
     String raceName();
 
@@ -19,4 +21,5 @@ public interface RaceInterface {
 
     String describeAdultRole();
 
+    Size getSize();
 }

@@ -10,6 +10,7 @@ import com.fuchsbau.shorin.Races.Feylin.Halfling;
 import com.fuchsbau.shorin.Races.Feylin.Pixie;
 import com.fuchsbau.shorin.Races.Goblin.Goblin;
 import com.fuchsbau.shorin.Races.Goblin.Hobgoblin;
+import com.fuchsbau.shorin.Races.Humanic.Dwarf;
 import com.fuchsbau.shorin.Races.Humanic.Elf;
 import com.fuchsbau.shorin.Races.Humanic.Gnome;
 import com.fuchsbau.shorin.Races.Humanic.Human;
@@ -20,7 +21,6 @@ import com.fuchsbau.shorin.Races.Kataru.*;
 import com.fuchsbau.shorin.Races.Kobold.Dragonkin;
 import com.fuchsbau.shorin.Races.Kobold.Felbold;
 import com.fuchsbau.shorin.Races.Kobold.Kobold;
-import com.fuchsbau.shorin.Races.Kobold.Wingbold;
 import com.fuchsbau.shorin.Races.Merman.Delphinoid;
 import com.fuchsbau.shorin.Races.Merman.Leviathan;
 import com.fuchsbau.shorin.Races.Merman.Merman;
@@ -55,6 +55,7 @@ public enum RacesEnumToClass {
     DRACONICNAGA(DraconicNaga.class, Culture.NAGALITH),
     DRAGONKIN(Dragonkin.class, Culture.KOBOLD),
     DELPHINOID(Delphinoid.class, Culture.MERMAN),
+    DWARF(Dwarf.class, Culture.HUMANIC),
     EUPLERID(Euplerid.class, Culture.RODINI),
     EQUUS(Equus.class, Culture.TARPAN),
     FALCON(Falcon.class, Culture.TENGU),
@@ -100,7 +101,6 @@ public enum RacesEnumToClass {
     SQUIRREL(Squirrel.class, Culture.RODINI),
     URSINE(Ursine.class, Culture.BRUTAHK),
     VIPER(Viper.class, Culture.NAGALITH),
-    WINGBOLD(Wingbold.class, Culture.KOBOLD),
     WOLFKIN(Wolfkin.class, Culture.FENNARI);
 
     private static final FileLogger logger = FileLogger.getInstance();

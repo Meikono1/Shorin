@@ -28,6 +28,7 @@ import javafx.util.Duration;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import static javafx.scene.paint.Color.RED;
@@ -36,12 +37,15 @@ import static javafx.scene.paint.Color.RED;
 public class CharacterCreator implements Saveble {
     private final Logger logger = FileLogger.getLogger();
     private final CharacterCreatorBinder characterDraft = new CharacterCreatorBinder();
+    private byte level = 1;
+    private Label size;
+    private Label speed;
+    private Race selectedRace;
 
     private final ScenarioDefinition definition;
     private final static SceneBuilder scenebuilder = SceneBuilder.getSceneBuilder();
 
     // Controls
-
     private enum Section {BASE, BODY, HEAD, BREASTS, GENITALIA, TAIL, EXTRAS}
 
     private final Button confirmBtn = scenebuilder.createMenuButton("Continue");
@@ -64,7 +68,7 @@ public class CharacterCreator implements Saveble {
 
     // Stats
     public static final class StatBlock {
-        public final IntegerProperty pointsLeft = new SimpleIntegerProperty(12);
+        public final IntegerProperty pointsLeft = new SimpleIntegerProperty(8);
 
         public final IntegerProperty str = new SimpleIntegerProperty(0);
         public final IntegerProperty dex = new SimpleIntegerProperty(0);
@@ -82,12 +86,12 @@ public class CharacterCreator implements Saveble {
         public final IntegerProperty minCha = new SimpleIntegerProperty(0);
 
         // max pro Stat Standard 0.
-        public final IntegerProperty maxStr = new SimpleIntegerProperty(4);
-        public final IntegerProperty maxDex = new SimpleIntegerProperty(4);
-        public final IntegerProperty maxCon = new SimpleIntegerProperty(4);
-        public final IntegerProperty maxInt = new SimpleIntegerProperty(4);
-        public final IntegerProperty maxWis = new SimpleIntegerProperty(4);
-        public final IntegerProperty maxCha = new SimpleIntegerProperty(4);
+        public final IntegerProperty maxStr = new SimpleIntegerProperty(3);
+        public final IntegerProperty maxDex = new SimpleIntegerProperty(3);
+        public final IntegerProperty maxCon = new SimpleIntegerProperty(3);
+        public final IntegerProperty maxInt = new SimpleIntegerProperty(3);
+        public final IntegerProperty maxWis = new SimpleIntegerProperty(3);
+        public final IntegerProperty maxCha = new SimpleIntegerProperty(3);
     }
 
     private final StatBlock stats = new StatBlock();
@@ -110,9 +114,6 @@ public class CharacterCreator implements Saveble {
 
     public Scene makeScene() {
         BorderPane root = new BorderPane();
-
-        HBox topBar = buildTopStepBar();
-        root.setTop(topBar);
 
         // SplitPane (Links = settings, Rechts = stats + paperdoll model)
         split.setDividerPositions(lastDivider); // links 62%, rechts ~38% initial
@@ -182,6 +183,18 @@ public class CharacterCreator implements Saveble {
         setupPaperdollCanvasScaling(paperdollWrap);
 
         split.getItems().addAll(settingsScroll, rightPane);
+
+
+        // Top
+        HBox topBar = buildTopStepBar();
+        HBox statsBar = buildStatsBar();
+
+        VBox topContainer = new VBox();
+
+        topContainer.getStyleClass().add("top-hbox");
+        topContainer.getChildren().addAll(topBar, statsBar);
+
+        root.setTop(topContainer);
 
         return new Scene(root);
     }
@@ -280,13 +293,13 @@ public class CharacterCreator implements Saveble {
 
     private String getStatHelpText(String name) {
         return switch (name) {
-            case "STR" -> "Strength: beeinflusst Nahkampfschaden, Traglast, ...";
-            case "DEX" -> "Dexterity: beeinflusst Ausweichen, Initiative, ...";
-            case "CON" -> "Constitution: beeinflusst HP, Resistenz, ...";
-            case "INT" -> "Intelligence: beeinflusst Wissen, Mana, ...";
-            case "WIS" -> "Wisdom: beeinflusst Wahrnehmung, Willenskraft, ...";
-            case "CHA" -> "Charisma: beeinflusst Dialoge, Anführen, ...";
-            default -> "";
+            case "STR" -> "Strength: Hitchance with Melee weapons, Dmg in Meelee and Carrying capacity";
+            case "DEX" -> "Dexterity: Hitchance with ranged weapons, Armor and dodging";
+            case "CON" -> "Constitution: Total Health, health regeneration and resisting harm";
+            case "INT" -> "Intelligence: Skill points, learning speed and languages";
+            case "WIS" -> "Wisdom: Perception, resistance vs Spells";
+            case "CHA" -> "Charisma: Charming, Intimidating, influencing";
+            default -> "how? (CCJSHT)";
         };
     }
 
@@ -295,17 +308,19 @@ public class CharacterCreator implements Saveble {
         if (stats.pointsLeft.get() <= 0 || stat.get() >= max.get()) return;
         stat.set(stat.get() + 1);
         stats.pointsLeft.set(stats.pointsLeft.get() - 1);
+        characterDraft.health.set(selectedRace.getMaxHealth() + (level * stats.con.get()));
     }
 
     private void tryDecStat(IntegerProperty stat, IntegerProperty min) {
         if (stat.get() <= min.get()) return;
         stat.set(stat.get() - 1);
         stats.pointsLeft.set(stats.pointsLeft.get() + 1);
+        characterDraft.health.set(selectedRace.getMaxHealth() + (level * stats.con.get()));
     }
 
     // ---------- Rassen-Malus anwenden ----------
     private void applyRaceMalus(Race race) {
-        int baseMax = 4;
+        int baseMax = 3;
 
         // alten Mod zurücknehmen (damit Wechsel nicht akkumuliert)
         add(stats.str, -lastRaceMod.strength());
@@ -367,7 +382,7 @@ public class CharacterCreator implements Saveble {
         HBox topBar = new HBox(10);
         topBar.setPadding(new Insets(10));
         topBar.setAlignment(Pos.CENTER_LEFT);
-        topBar.getStyleClass().add("top-hbox");
+        //topBar.getStyleClass().add("top-hbox");
 
         // Step Buttons aus Sections
 
@@ -389,6 +404,28 @@ public class CharacterCreator implements Saveble {
 
         topBar.getChildren().addAll(spacer, confirmBtn);
         return topBar;
+    }
+
+    private HBox buildStatsBar() {
+        HBox stats = new HBox(20);
+        stats.setPadding(new Insets(5, 10, 10, 10));
+        stats.setAlignment(Pos.CENTER_LEFT);
+        stats.getStyleClass().add("stats-hbox");
+
+
+        Label name = SceneBuilder.createTextLabel("Name:");
+        Label nameLabel = SceneBuilder.createTextLabel("");
+        nameLabel.textProperty().bind(characterDraft.name);
+
+        characterDraft.health.set(selectedRace.getMaxHealth() + (level * this.stats.con.get()));
+        Label hp = SceneBuilder.createTextLabel("");
+        hp.textProperty().bind(characterDraft.health.asString("HP: %d"));
+
+        size = SceneBuilder.createTextLabel("Size: " + selectedRace.getSize().name());
+        speed = SceneBuilder.createTextLabel("Speed: " + selectedRace.getSpeed());
+
+        stats.getChildren().addAll(name, nameLabel, hp, size, speed);
+        return stats;
     }
 
     private void setSection(Section section) {
@@ -428,8 +465,37 @@ public class CharacterCreator implements Saveble {
 
     private void buildBaseSection(GridPane settingsGrid) {
         ComboBox<String> raceDropdown = SceneBuilder.makeDropdown();
-
         Map<String, Race> byDisplay = new HashMap<>();
+
+        Slider ageSlider = new Slider();
+        ageSlider.setSnapToTicks(true);
+        ageSlider.setMajorTickUnit(1);
+        ageSlider.setMinorTickCount(0);
+        ageSlider.setBlockIncrement(1);
+
+        ageSlider.valueProperty().addListener((obs, ov, nv) -> {
+            int v = nv.intValue();
+            if (characterDraft.age.get() != v) characterDraft.age.set(v);
+        });
+        characterDraft.age.addListener((obs, ov, nv) -> {
+            double v = nv.doubleValue();
+            if (ageSlider.getValue() != v) ageSlider.setValue(v);
+        });
+
+        Consumer<Race> syncAgeRange = (race) -> {
+            if (race == null) return;
+
+            int min = race.getLifeStage().ageAdult();
+            int max = race.getLifeStage().ageOld();
+
+            ageSlider.setMin(min);
+            ageSlider.setMax(max);
+
+            characterDraft.age.set(min);
+        };
+
+        Label ageValue = new Label();
+        ageValue.textProperty().bind(characterDraft.age.asString());
 
         for (Race entry : definition.parsedRaces()) {
             String dn = entry.displayName();
@@ -437,16 +503,23 @@ public class CharacterCreator implements Saveble {
             byDisplay.put(dn, entry);
         }
 
-        Race first = definition.parsedRaces().getFirst();
-        raceDropdown.getSelectionModel().select(first.displayName());
-        characterDraft.race.set(first.displayName());
+        selectedRace = definition.parsedRaces().getFirst();
+        raceDropdown.getSelectionModel().select(selectedRace.displayName());
+        characterDraft.race.set(selectedRace.displayName());
 
-        applyRaceMalus(first);
+        applyRaceMalus(selectedRace);
 
         raceDropdown.valueProperty().addListener((obs, oldV, newV) -> {
             Race e = byDisplay.get(newV);
+            selectedRace = e;
             applyRaceMalus(e);
+            characterDraft.health.set(e.getMaxHealth() + (level * stats.con.get()));
+            size.setText("Size: " + selectedRace.getSize().name());
+
+
+            syncAgeRange.accept(e);
         });
+
 
         TextField nameTextField = new TextField();
         nameTextField.textProperty().bindBidirectional(characterDraft.name);
@@ -454,14 +527,8 @@ public class CharacterCreator implements Saveble {
 
         raceDropdown.valueProperty().bindBidirectional(characterDraft.race);
         addSettingRow(settingsGrid, 2, "Race", raceDropdown, null);
-
-
-        Slider ageSlider = new Slider(1, 100, 50);
-        Label ageValue = new Label();
-        ageValue.textProperty().bind(characterDraft.age.asString());
-        ageSlider.valueProperty().bindBidirectional(characterDraft.age);
-
         addSettingRow(settingsGrid, 3, "Age", ageSlider, ageValue);
+        if (selectedRace != null) syncAgeRange.accept(selectedRace);
     }
 
     private void buildBodySection(GridPane settingsGrid) {

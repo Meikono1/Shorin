@@ -2,8 +2,10 @@ package com.fuchsbau.shorin.Races;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fuchsbau.shorin.Engine.Race.Size;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Engine.Race.Size;
 import com.fuchsbau.shorin.Races.Base.*;
 import javafx.animation.AnimationTimer;
 
@@ -31,9 +33,9 @@ public final class RaceLoader {
         for (String race : races) {
             if (cachedRaces.get(race) != null) {
                 ret.add(cachedRaces.get(race));
-            }else{
+            } else {
                 RacesEnumToClass saveParse = RacesEnumToClass.safeParse(race);
-                if (cachedRaces.get(saveParse.name())!=null){
+                if (cachedRaces.get(saveParse.name()) != null) {
                     ret.add(cachedRaces.get(saveParse.name()));
                 }
             }
@@ -49,8 +51,23 @@ public final class RaceLoader {
         String id = text(root, "id", file.getFileName().toString());
         String key = text(root, "class", id).toUpperCase(Locale.ROOT);
         String name = text(root, "name", id);
-        String desc = text(root, "description", "");
+        String size = text(root, "size", "medium");
+        byte speed = jsonByte(root, "speed", (byte) 20);
+        int health = jsonInt(root, "health", 6);
+        int adultAge = jsonInt(root, "adultAge", 18);
+        int grownAge = jsonInt(root, "grownAge", 30);
+        if (grownAge < adultAge) {
+            grownAge = adultAge;
+        }
 
+        int lifeExpectancy = jsonInt(root, "lifeExpectancy", 50);
+        if (lifeExpectancy < grownAge) {
+            lifeExpectancy = grownAge;
+        }
+
+        String grownSize = text(root, "grownSize", "SMALL");
+
+        Age ageModel = new Age(0, adultAge, grownAge, lifeExpectancy);
         Attributes attrs = readAttributes(root.path("attributes"));
 
         RacesEnumToClass e = RacesEnumToClass.valueOf(key);
@@ -59,9 +76,13 @@ public final class RaceLoader {
         Constructor<? extends Race> ctor = getCtor(type);
 
         return ctor.newInstance(
-                id, name, desc,
+                id,
+                name,
+                speed,
                 attrs,
-                null,
+                health,
+                Size.valueOf(size.toUpperCase()),
+                ageModel,
                 null,
                 null
         );
@@ -72,8 +93,10 @@ public final class RaceLoader {
             return type.getConstructor(
                     String.class,
                     String.class,
-                    String.class,
+                    byte.class,
                     Attributes.class,
+                    int.class,
+                    Size.class,
                     LifeStages.class,
                     Reproduction.class,
                     Appearance.class
@@ -86,6 +109,34 @@ public final class RaceLoader {
     private static String text(JsonNode node, String field, String def) {
         JsonNode v = node.get(field);
         return (v != null && v.isTextual()) ? v.asText() : def;
+    }
+
+    private static byte jsonByte(JsonNode node, String field, byte def) {
+        JsonNode v = node.get(field);
+        if (v != null && v.isNumber()) {
+            return (byte) v.asInt();
+        }
+        if (v != null && v.isTextual()) {
+            try {
+                return Byte.parseByte(v.asText());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return def;
+    }
+
+    private static int jsonInt(JsonNode node, String field, int def) {
+        JsonNode v = node.get(field);
+        if (v != null && v.isNumber()) {
+            return v.asInt();
+        }
+        if (v != null && v.isTextual()) {
+            try {
+                return Integer.parseInt(v.asText());
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return def;
     }
 
     private static Attributes readAttributes(JsonNode node) {

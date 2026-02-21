@@ -2,5 +2,15 @@
   "id": "KITSUNE",
   "class": "KITSUNE",
   "name": "Kitsune",
-  "attributes": { "dex": 2, "con": -1 }
+  "health": "8",
+  "size": "MEDIUM",
+  "speed": "25",
+  "adultAge": "19",
+  "grownAge": "24",
+  "grownSize": "MEDIUM",
+  "lifeExpectancy": "55",
+  "attributes": {
+    "dex": 2,
+    "con": -1
+  }
 }

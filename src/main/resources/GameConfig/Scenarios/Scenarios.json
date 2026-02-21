@@ -5,8 +5,8 @@
     "y": 1014,
     "icon": "MAP_FLAG",
     "sceneClass": "game.scenes.FreeStartScene",
-    "finishState": 0,
-    "races": ["KITSUNE", "WOLFKIN", "FORESTELF", "HUMAN", "ACINONYX"]
+    "finishState": 1,
+    "races": ["DWARF", "KITSUNE", "HUMAN", "DWARF", "GNOME"]
   },
   {
     "name": "Free Start Rodini",
