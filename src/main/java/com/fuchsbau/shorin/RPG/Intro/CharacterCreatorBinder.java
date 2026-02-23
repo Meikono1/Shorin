@@ -22,4 +22,8 @@ public class CharacterCreatorBinder {
     public final IntegerProperty wis = new SimpleIntegerProperty(0);
     public final IntegerProperty cha = new SimpleIntegerProperty(0);
 
+    public final IntegerProperty gold = new SimpleIntegerProperty(15);
+    public final IntegerProperty silver = new SimpleIntegerProperty(0);
+    public final IntegerProperty copper = new SimpleIntegerProperty(0);
+
 }

@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Characters;
 
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.text.TextFlow;

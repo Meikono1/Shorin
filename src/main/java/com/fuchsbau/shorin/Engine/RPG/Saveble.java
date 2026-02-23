@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.RPG;
+package com.fuchsbau.shorin.Engine.RPG;
 
 import javafx.scene.Scene;
 

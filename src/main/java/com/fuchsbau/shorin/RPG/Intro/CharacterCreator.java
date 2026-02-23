@@ -1,10 +1,13 @@
 package com.fuchsbau.shorin.RPG.Intro;
 
+import com.fuchsbau.shorin.Engine.RPG.DetailWindow;
 import com.fuchsbau.shorin.Engine.RPG.ScenarioDefinition;
+import com.fuchsbau.shorin.Engine.RPG.StartClassLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
-import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.Main;
+import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Races.Base.Attributes;
 import com.fuchsbau.shorin.Races.Base.Race;
 import javafx.animation.FadeTransition;
@@ -16,6 +19,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -37,9 +41,10 @@ import static javafx.scene.paint.Color.RED;
 public class CharacterCreator implements Saveble {
     private final Logger logger = FileLogger.getLogger();
     private final CharacterCreatorBinder characterDraft = new CharacterCreatorBinder();
-    private byte level = 1;
+    private byte level = 0;
     private Label size;
     private Label speed;
+    private Label money;
     private Race selectedRace;
 
     private final ScenarioDefinition definition;
@@ -47,8 +52,6 @@ public class CharacterCreator implements Saveble {
 
     // Controls
     private enum Section {BASE, BODY, HEAD, BREASTS, GENITALIA, TAIL, EXTRAS}
-
-    private final Button confirmBtn = scenebuilder.createMenuButton("Continue");
 
 
     // Paperdoll
@@ -124,30 +127,40 @@ public class CharacterCreator implements Saveble {
 
         root.setCenter(centerWrap);
 
-        // Links: Settings in 3 Spalten (wrap in ScrollPane)
+        // Links: Settings in 4 Spalten (wrap in ScrollPane)
         settingsGrid.setHgap(12);
         settingsGrid.setVgap(10);
         settingsGrid.setPadding(new Insets(10));
+        settingsGrid.setMinWidth(0);
+        settingsGrid.setMaxWidth(Double.MAX_VALUE);
 
-        // 3 columns: Label / Input / extra
-        ColumnConstraints c1 = new ColumnConstraints();
-        c1.setPercentWidth(28);
+        // 4 columns: Label / Alert / Input / Extra
+        ColumnConstraints c1 = new ColumnConstraints(); // Label
+        c1.setPercentWidth(15);
         c1.setHgrow(Priority.NEVER);
+        c1.setMinWidth(Region.USE_PREF_SIZE);
 
-        ColumnConstraints c2 = new ColumnConstraints();
-        c2.setPercentWidth(44);
+        ColumnConstraints cAlert = new ColumnConstraints(); // Alert-Icon
+        cAlert.setPercentWidth(2);
+        cAlert.setHgrow(Priority.NEVER);
+
+        ColumnConstraints c2 = new ColumnConstraints(); // Input
+        c2.setPercentWidth(80);
+        c2.setMinWidth(1);
+        c2.setFillWidth(true);
         c2.setHgrow(Priority.ALWAYS);
 
-        ColumnConstraints c3 = new ColumnConstraints();
-        c3.setPercentWidth(28);
+        ColumnConstraints c3 = new ColumnConstraints(); // Extra
+        c3.setPercentWidth(15);
         c3.setHgrow(Priority.NEVER);
 
-        settingsGrid.getColumnConstraints().addAll(c1, c2, c3);
+        settingsGrid.getColumnConstraints().setAll(c1, cAlert, c2, c3);
         buildBaseSection(settingsGrid);
 
         // Settings
         ScrollPane settingsScroll = new ScrollPane(settingsGrid);
         settingsScroll.setFitToWidth(true);
+        settingsScroll.setMinWidth(0);
         settingsScroll.setStyle("-fx-background-color: transparent;");
 
         // RIGHT: VBox = stats (top) + paperdoll (bottom)
@@ -175,9 +188,7 @@ public class CharacterCreator implements Saveble {
         VBox.setVgrow(paperdollWrap, Priority.ALWAYS);
 
         rightPane.getChildren().addAll(statsBox, paperdollWrap);
-
-        if (settingsScroll instanceof Region r) r.setMinWidth(0);
-        if (rightPane instanceof Region r) r.setMinWidth(0);
+        rightPane.setMinWidth(0);
 
 
         setupPaperdollCanvasScaling(paperdollWrap);
@@ -402,6 +413,11 @@ public class CharacterCreator implements Saveble {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        Button confirmBtn = scenebuilder.createMenuButton("Continue");
+        confirmBtn.setOnMouseClicked(mouseEvent -> {
+            Main.getStage().setScene(StartClassLoader.getEntry(definition.sceneClass()).getScene(-1));
+        });
+
         topBar.getChildren().addAll(spacer, confirmBtn);
         return topBar;
     }
@@ -422,9 +438,11 @@ public class CharacterCreator implements Saveble {
         hp.textProperty().bind(characterDraft.health.asString("HP: %d"));
 
         size = SceneBuilder.createTextLabel("Size: " + selectedRace.getSize().name());
-        speed = SceneBuilder.createTextLabel("Speed: " + selectedRace.getSpeed());
+        speed = SceneBuilder.createTextLabel("Speed: " + selectedRace.getSpeed() + "ft");
 
-        stats.getChildren().addAll(name, nameLabel, hp, size, speed);
+        money = SceneBuilder.createTextLabel("Gold: " + characterDraft.gold.get() + ", Silver: " + characterDraft.silver.get() + ", Copper: " + characterDraft.copper.get());
+
+        stats.getChildren().addAll(name, nameLabel, hp, size, speed, money);
         return stats;
     }
 
@@ -465,6 +483,7 @@ public class CharacterCreator implements Saveble {
 
     private void buildBaseSection(GridPane settingsGrid) {
         ComboBox<String> raceDropdown = SceneBuilder.makeDropdown();
+        ComboBox<String> sexDropdown = SceneBuilder.makeDropdown();
         Map<String, Race> byDisplay = new HashMap<>();
 
         Slider ageSlider = new Slider();
@@ -472,6 +491,7 @@ public class CharacterCreator implements Saveble {
         ageSlider.setMajorTickUnit(1);
         ageSlider.setMinorTickCount(0);
         ageSlider.setBlockIncrement(1);
+        ageSlider.setValue(characterDraft.age.getValue());
 
         ageSlider.valueProperty().addListener((obs, ov, nv) -> {
             int v = nv.intValue();
@@ -491,7 +511,9 @@ public class CharacterCreator implements Saveble {
             ageSlider.setMin(min);
             ageSlider.setMax(max);
 
-            characterDraft.age.set(min);
+            int current = characterDraft.age.get();
+            int clamped = Math.max(min, Math.min(max, current));
+            if (clamped != current) characterDraft.age.set(clamped);
         };
 
         Label ageValue = new Label();
@@ -503,7 +525,10 @@ public class CharacterCreator implements Saveble {
             byDisplay.put(dn, entry);
         }
 
-        selectedRace = definition.parsedRaces().getFirst();
+        if (selectedRace == null) {
+            selectedRace = definition.parsedRaces().getFirst();
+        }
+
         raceDropdown.getSelectionModel().select(selectedRace.displayName());
         characterDraft.race.set(selectedRace.displayName());
 
@@ -515,91 +540,104 @@ public class CharacterCreator implements Saveble {
             applyRaceMalus(e);
             characterDraft.health.set(e.getMaxHealth() + (level * stats.con.get()));
             size.setText("Size: " + selectedRace.getSize().name());
-
+            speed.setText("Speed: " + selectedRace.getSpeed() + "ft");
 
             syncAgeRange.accept(e);
+            characterDraft.age.set(e.getLifeStage().ageAdult());
         });
 
+        sexDropdown.getItems().add("Male");
+        sexDropdown.getItems().add("Female");
+        sexDropdown.getSelectionModel().select("Male");
+
+
+        DetailWindow detailWindow = new DetailWindow(Main.getStage().getScene().getWindow());
+
+        Label info = new Label("?");
+        info.getStyleClass().add("info-icon");
+        info.setCursor(Cursor.HAND);
+        info.setOnMouseClicked(e -> detailWindow.showRace(selectedRace));
 
         TextField nameTextField = new TextField();
         nameTextField.textProperty().bindBidirectional(characterDraft.name);
-        addSettingRow(settingsGrid, 1, "Name", nameTextField, null);
+        addSettingRow(settingsGrid, 1, "Name", null, nameTextField, null);
 
         raceDropdown.valueProperty().bindBidirectional(characterDraft.race);
-        addSettingRow(settingsGrid, 2, "Race", raceDropdown, null);
-        addSettingRow(settingsGrid, 3, "Age", ageSlider, ageValue);
+        addSettingRow(settingsGrid, 2, "Race", info, raceDropdown, null);
+        addSettingRow(settingsGrid, 3, "Gender", null, sexDropdown, null);
+        addSettingRow(settingsGrid, 4, "Age", null, ageSlider, ageValue);
         if (selectedRace != null) syncAgeRange.accept(selectedRace);
     }
 
     private void buildBodySection(GridPane settingsGrid) {
         Slider feminitySlider = new Slider();
         feminitySlider.valueProperty().bind(characterDraft.feminity);
-        addSettingRow(settingsGrid, 1, "Feminity", feminitySlider, null);
+        addSettingRow(settingsGrid, 1, "Feminity", null, feminitySlider, null);
 
         TextField bodySize = new TextField();
         bodySize.textProperty().bindBidirectional(characterDraft.bodySize);
-        addSettingRow(settingsGrid, 2, "BodySize", bodySize, null);
+        addSettingRow(settingsGrid, 2, "BodySize", null, bodySize, null);
 
         TextField muscle = new TextField();
         muscle.textProperty().bindBidirectional(characterDraft.muscleDefinition);
-        addSettingRow(settingsGrid, 3, "Muscle", muscle, null);
+        addSettingRow(settingsGrid, 3, "Muscle", null, muscle, null);
 
         TextField bodyHeight = new TextField();
         bodyHeight.textProperty().bindBidirectional(characterDraft.bodyHeight);
-        addSettingRow(settingsGrid, 4, "Height", bodyHeight, null);
-        addSettingRow(settingsGrid, 5, "Pattern", new TextField(), null); //Base pattern falls vorhanden, ansonsten skincolour.
+        addSettingRow(settingsGrid, 4, "Height", null, bodyHeight, null);
+        addSettingRow(settingsGrid, 5, "Pattern", null, new TextField(), null); //Base pattern falls vorhanden, ansonsten skincolour.
 
-        addSettingRow(settingsGrid, 6, "Arms", new TextField(), new Label("Years")); //Papermodel arm selection, maybe more idc
-        addSettingRow(settingsGrid, 7, "Legs", new TextField(), new Label("Years")); //Papermodel leegs selection, maybe more idc , same as arms
+        addSettingRow(settingsGrid, 6, "Arms", null, new TextField(), new Label("Years")); //Papermodel arm selection, maybe more idc
+        addSettingRow(settingsGrid, 7, "Legs", null, new TextField(), new Label("Years")); //Papermodel leegs selection, maybe more idc , same as arms
 
     }
 
     private void buildHeadSection(GridPane settingsGrid) {
-        addSettingRow(settingsGrid, 1, "Height", new Slider(120, 220, 180), new Label("cm"));// in papermodel abbilden
-        addSettingRow(settingsGrid, 2, "Hair", new TextField(), null); // hair aus liste für papermodel
-        addSettingRow(settingsGrid, 3, "Ears", new TextField(), null); // ohren aus liste für papermodel
-        addSettingRow(settingsGrid, 4, "Lips/Muzzle", new TextField(), null); // unterschiedlliche Muzzles, bzw lippen und dazugehörige größen.
-        addSettingRow(settingsGrid, 5, "Throat Capacity", new TextField(), null); // hat einfluss darauf wieviel breite genommen werden kann.
-        addSettingRow(settingsGrid, 6, "Throat Depth", new TextField(), null); // wie lang der penis/ anderes sein kann befohr ein gag reflex ausgelöst wird. Später auch ersticken?
-        addSettingRow(settingsGrid, 7, "Tongue Modifier", new TextField(), null); // Catzenzunge kann rau oder weich sein.
-        addSettingRow(settingsGrid, 8, "Horns", new TextField(), null); // falls hörner vorhanden sind, anpassen für papermodel zusammen mit größen.
+        addSettingRow(settingsGrid, 1, "Height", null, new Slider(120, 220, 180), new Label("cm"));// in papermodel abbilden
+        addSettingRow(settingsGrid, 2, "Hair", null, new TextField(), null); // hair aus liste für papermodel
+        addSettingRow(settingsGrid, 3, "Ears", null, new TextField(), null); // ohren aus liste für papermodel
+        addSettingRow(settingsGrid, 4, "Lips/Muzzle", null, new TextField(), null); // unterschiedlliche Muzzles, bzw lippen und dazugehörige größen.
+        addSettingRow(settingsGrid, 5, "Throat Capacity", null, new TextField(), null); // hat einfluss darauf wieviel breite genommen werden kann.
+        addSettingRow(settingsGrid, 6, "Throat Depth", null, new TextField(), null); // wie lang der penis/ anderes sein kann befohr ein gag reflex ausgelöst wird. Später auch ersticken?
+        addSettingRow(settingsGrid, 7, "Tongue Modifier", null, new TextField(), null); // Catzenzunge kann rau oder weich sein.
+        addSettingRow(settingsGrid, 8, "Horns", null, new TextField(), null); // falls hörner vorhanden sind, anpassen für papermodel zusammen mit größen.
     }
 
     private void buildBreastsSection(GridPane settingsGrid) {
-        addSettingRow(settingsGrid, 1, "Breast", new TextField(), new Label("Years")); // breast model für paperdoll auch die anzahl an nippel
-        addSettingRow(settingsGrid, 2, "Size", new TextField(), new Label("Years")); // Größe, wenn keine flachen brüste genommen wurden.
-        addSettingRow(settingsGrid, 3, "Lactation", new TextField(), new Label("Years")); // True/false
-        addSettingRow(settingsGrid, 4, "Lactation Capacity", new TextField(), new Label("Years")); // selbst erklärend
-        addSettingRow(settingsGrid, 5, "Nipple", new TextField(), new Label("Years")); // manche rassen haben keine, True/false
-        addSettingRow(settingsGrid, 6, "Nipple größe", new TextField(), new Label("Years")); // kann unterschidedlich sein pro rasse, komm ich später zurück
+        addSettingRow(settingsGrid, 1, "Breast", null, new TextField(), new Label("Years")); // breast model für paperdoll auch die anzahl an nippel
+        addSettingRow(settingsGrid, 2, "Size", null, new TextField(), new Label("Years")); // Größe, wenn keine flachen brüste genommen wurden.
+        addSettingRow(settingsGrid, 3, "Lactation", null, new TextField(), new Label("Years")); // True/false
+        addSettingRow(settingsGrid, 4, "Lactation Capacity", null, new TextField(), new Label("Years")); // selbst erklärend
+        addSettingRow(settingsGrid, 5, "Nipple", null, new TextField(), new Label("Years")); // manche rassen haben keine, True/false
+        addSettingRow(settingsGrid, 6, "Nipple größe", null, new TextField(), new Label("Years")); // kann unterschidedlich sein pro rasse, komm ich später zurück
 
     }
 
     private void buildGenitaliaSection(GridPane settingsGrid) {
-        addSettingRow(settingsGrid, 1, "Penis Type", new TextField(), new Label("Years")); //Für papermodel, Kann auch Pseudopenis sein oder ähnliches. Ist als model hinterlegt
-        addSettingRow(settingsGrid, 2, "Penis MODS", new TextField(), new Label("Years")); // Automatisch gefüllt mit typen für späteres spielen (knot und so)
-        addSettingRow(settingsGrid, 3, "Penis Length", new TextField(), new Label("Years")); // länge ist multiplicator für den typen
-        addSettingRow(settingsGrid, 4, "Penis Girth", new TextField(), new Label("Years")); // Automatisch berechnet mit spielraum
-        addSettingRow(settingsGrid, 5, "Cum Storage", new TextField(), new Label("Years")); // Automatisch gefüllt mit spielraum / Balls kann man nicht einstellen! sind abhängig von Penis größe
+        addSettingRow(settingsGrid, 1, "Penis Type", null, new TextField(), new Label("Years")); //Für papermodel, Kann auch Pseudopenis sein oder ähnliches. Ist als model hinterlegt
+        addSettingRow(settingsGrid, 2, "Penis MODS", null, new TextField(), new Label("Years")); // Automatisch gefüllt mit typen für späteres spielen (knot und so)
+        addSettingRow(settingsGrid, 3, "Penis Length", null, new TextField(), new Label("Years")); // länge ist multiplicator für den typen
+        addSettingRow(settingsGrid, 4, "Penis Girth", null, new TextField(), new Label("Years")); // Automatisch berechnet mit spielraum
+        addSettingRow(settingsGrid, 5, "Cum Storage", null, new TextField(), new Label("Years")); // Automatisch gefüllt mit spielraum / Balls kann man nicht einstellen! sind abhängig von Penis größe
 
 
-        addSettingRow(settingsGrid, 6, "Vagina Type", new TextField(), new Label("Years")); //Für papermodel
-        addSettingRow(settingsGrid, 7, "Vagina MODS", new TextField(), new Label("Years")); // Automatisch gefüllt mit typen für späteres spielen (Eier legen und so)
-        addSettingRow(settingsGrid, 8, "Vagina depth", new TextField(), new Label("Years")); // Tiefe nur für spiel benötigt, wie tief bis zum Cervix, von Rasse/Größe abhängig mit Spielraum
-        addSettingRow(settingsGrid, 9, "Vagina Capacity", new TextField(), null); // Wie weit sich der kanal breiten kann ohne probleme, 1.1 Modifier für unangenehm und so weiter
-        addSettingRow(settingsGrid, 10, "Hymen", new TextField(), new Label("Years")); // true/false
+        addSettingRow(settingsGrid, 6, "Vagina Type", null, new TextField(), new Label("Years")); //Für papermodel
+        addSettingRow(settingsGrid, 7, "Vagina MODS", null, new TextField(), new Label("Years")); // Automatisch gefüllt mit typen für späteres spielen (Eier legen und so)
+        addSettingRow(settingsGrid, 8, "Vagina depth", null, new TextField(), new Label("Years")); // Tiefe nur für spiel benötigt, wie tief bis zum Cervix, von Rasse/Größe abhängig mit Spielraum
+        addSettingRow(settingsGrid, 9, "Vagina Capacity", null, new TextField(), null); // Wie weit sich der kanal breiten kann ohne probleme, 1.1 Modifier für unangenehm und so weiter
+        addSettingRow(settingsGrid, 10, "Hymen", null, new TextField(), new Label("Years")); // true/false
 
 
-        addSettingRow(settingsGrid, 11, "Ass size", new TextField(), new Label("Years")); // Größe der hinterteils, Kein einfluss auf papermodel
-        addSettingRow(settingsGrid, 12, "Anus depth", new TextField(), new Label("Years")); // Tiefe nur für spiel benötigt, wie tief der Rectum ist
-        addSettingRow(settingsGrid, 13, "Anus Capacity", new TextField(), null); // Wie weit sich der anus breiten kann ohne probleme, 1.1 Modifier für unangenehm und so weiter
+        addSettingRow(settingsGrid, 11, "Ass size", null, new TextField(), new Label("Years")); // Größe der hinterteils, Kein einfluss auf papermodel
+        addSettingRow(settingsGrid, 12, "Anus depth", null, new TextField(), new Label("Years")); // Tiefe nur für spiel benötigt, wie tief der Rectum ist
+        addSettingRow(settingsGrid, 13, "Anus Capacity", null, new TextField(), null); // Wie weit sich der anus breiten kann ohne probleme, 1.1 Modifier für unangenehm und so weiter
 
     }
 
     private void buildTailSection(GridPane settingsGrid) {
-        addSettingRow(settingsGrid, 1, "Tail Type", new TextField(), new Label("Years")); //Für papermodel
-        addSettingRow(settingsGrid, 2, "Tail MODS", new TextField(), new Label("Years")); // Automatisch gefüllt mit typen für späteres spielen (Prehensile und sowas)
-        addSettingRow(settingsGrid, 3, "Tail size", new TextField(), new Label("Years")); // länge ist multiplicator für den typen, in maßen
+        addSettingRow(settingsGrid, 1, "Tail Type", null, new TextField(), new Label("Years")); //Für papermodel
+        addSettingRow(settingsGrid, 2, "Tail MODS", null, new TextField(), new Label("Years")); // Automatisch gefüllt mit typen für späteres spielen (Prehensile und sowas)
+        addSettingRow(settingsGrid, 3, "Tail size", null, new TextField(), new Label("Years")); // länge ist multiplicator für den typen, in maßen
     }
 
     private void buildExtrasSection(GridPane settingsGrid) {
@@ -634,17 +672,28 @@ public class CharacterCreator implements Saveble {
         drawPaperdollPlaceholder();
     }
 
-    private static void addSettingRow(GridPane grid, int row, String labelText, Node col2, Node col3) {
+    private static void addSettingRow(GridPane grid, int row, String labelText, Node alertNode, Node col2, Node col3) {
         Label label = new Label(labelText);
         label.setMinWidth(Region.USE_PREF_SIZE);
 
         GridPane.setHgrow(col2, Priority.ALWAYS);
-        if (col2 instanceof Region r) r.setMaxWidth(Double.MAX_VALUE);
+        if (col2 instanceof Region r) {
+            r.setMaxWidth(Double.MAX_VALUE);
+            r.setMinWidth(0);
+            r.setPrefWidth(0);
+        }
 
         grid.add(label, 0, row);
-        grid.add(col2, 1, row);
+
+        if (alertNode != null) {
+            grid.add(alertNode, 1, row);
+            GridPane.setValignment(alertNode, VPos.CENTER);
+        }
+
+        grid.add(col2, 2, row);
+
         if (col3 != null) {
-            grid.add(col3, 2, row);
+            grid.add(col3, 3, row);
         }
     }
 

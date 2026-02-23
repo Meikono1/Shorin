@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.RPG.Places.Whitebrigde.Shop;
 
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

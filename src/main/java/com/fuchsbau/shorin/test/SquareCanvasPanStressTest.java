@@ -18,8 +18,8 @@ import java.util.PriorityQueue;
 public class SquareCanvasPanStressTest extends Application {
 
     // Grid
-    private static final int COLS = 400;
-    private static final int ROWS = 400;
+    private static final int COLS = 1000;
+    private static final int ROWS = 1000;
 
     // Squares
     private static final double BASE_TILE = 16.0; // tile size in world px at zoom=1

@@ -53,13 +53,6 @@
     -fx-border-color: rgba(160,160,255,0.25);
     -fx-border-width: 1;
 
-    -fx-effect: dropshadow(
-        gaussian,
-        rgba(0,0,0,0.45),
-        18, 0.25,
-        0, 6
-    );
-
     -fx-effect:
         dropshadow(gaussian, rgba(0,0,0,0.45), 18, 0.25, 0, 6),
         innershadow(gaussian, rgba(0,0,0,0.45), 8, 0.25, 0, 2);
@@ -100,6 +93,19 @@
 
 .menu-button:focused {
     -fx-effect: dropshadow(gaussian, rgba(160,160,255,0.6), 10, 0.2, 0, 0);
+}
+
+.info-icon {
+    -fx-background-color: rgba(12, 12, 18, 0.6);
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: bold;
+    -fx-padding: 2 4 2 4;
+    -fx-background-radius: 15;
+}
+
+.info-icon:hover {
+    -fx-background-color: rgba(40, 40, 60, 0.9);
+    -fx-text-fill: white;
 }
 
 .scrollPane {

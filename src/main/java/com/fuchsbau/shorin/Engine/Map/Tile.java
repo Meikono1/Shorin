@@ -37,10 +37,14 @@ public final class Tile {
     public short hazardId = -1;
     public short balanceProfileId = -1;
 
+    private Lightlevel lightlevel;
+    private float brightness;
+
     public Tile(int flags) {
+        brightness = 0;
+        lightlevel = Lightlevel.DARKNESS;
         this.flags = flags;
     }
-
 
     public boolean has(int mask) {
         return (flags & mask) != 0;
@@ -67,6 +71,22 @@ public final class Tile {
         return new Tile(0);
     }
 
+    public float getBrightness() {
+        return brightness;
+    }
+
+    public void setBrightness(float brightness) {
+        this.brightness = brightness;
+    }
+
+    public Lightlevel getLightlevel() {
+        return lightlevel;
+    }
+
+    public void setLightlevel(Lightlevel lightlevel) {
+        this.lightlevel = lightlevel;
+    }
+
     // --- Occupant (dynamic) ---
     public static final class Occupant {
         /**
@@ -81,7 +101,7 @@ public final class Tile {
         public final Set<Faction> factions;
 
         /**
-         *  prone/incapacitated flags (affects space sharing rules).
+         * prone/incapacitated flags (affects space sharing rules).
          */
         public final boolean proneOrIncapacitated;
 

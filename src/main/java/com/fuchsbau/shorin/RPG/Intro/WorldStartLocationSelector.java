@@ -9,7 +9,7 @@ import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
-import com.fuchsbau.shorin.RPG.Saveble;
+import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;

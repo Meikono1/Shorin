@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.RPG;
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Map.Mapeditor;
+import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;

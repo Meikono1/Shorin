@@ -4,7 +4,7 @@ import com.fuchsbau.shorin.Characters.Player;
 import com.fuchsbau.shorin.Items.Inventory;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Places.Place;
-import com.fuchsbau.shorin.RPG.Places.Sudbury.Sudbury;
+import com.fuchsbau.shorin.RPG.Places.Humanic.Plyport.Sudbury.Sudbury;
 import com.fuchsbau.shorin.RPG.Places.Whitebrigde.Whitebridge;
 
 public class Game {

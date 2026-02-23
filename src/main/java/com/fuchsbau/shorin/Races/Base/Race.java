@@ -78,6 +78,10 @@ public class Race implements RaceInterface {
         this.maxHealth = maxHealth;
     }
 
+    public String getRaceName() {
+        return raceName;
+    }
+
     @Override
     public String raceName() {
         return raceName;

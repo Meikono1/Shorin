@@ -13,23 +13,20 @@
            onMouseClicked="#goToStart"
            style="-fx-background-color: black;">
 
-    <children>
-        <ImageView fx:id="bgImage"
-                   preserveRatio="true"
-                   fitWidth="1280"
-                   fitHeight="720"
-                   opacity="0.25"/>
+    <ImageView fx:id="bgImage"
+               preserveRatio="true"
+               fitWidth="1280"
+               fitHeight="720"
+               opacity="0.25"/>
 
-        <Label fx:id="clickLabel"
-               text="CLICK TO START"
-               textFill="white">
-            <font>
-                <Font name="Consolas Bold" size="32"/>
-            </font>
-            <effect>
-                <DropShadow radius="10" color="#000000"/>
-            </effect>
-        </Label>
-    </children>
-
+    <Label fx:id="clickLabel"
+           text="CLICK TO START"
+           textFill="white">
+        <font>
+            <Font name="Consolas Bold" size="32"/>
+        </font>
+        <effect>
+            <DropShadow color="#000000"/>
+        </effect>
+    </Label>
 </StackPane>
