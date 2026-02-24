@@ -12,6 +12,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
+
 public class HexCanvasPanStressTest extends Application {
 
     private final boolean[] inRange = new boolean[COLS * ROWS];
@@ -80,8 +82,8 @@ public class HexCanvasPanStressTest extends Application {
             double my = e.getY();
             double worldXBefore = screenToWorldX(mx, oldZoom);
             double worldYBefore = screenToWorldY(my, oldZoom);
-            double worldXAfter  = screenToWorldX(mx, zoom);
-            double worldYAfter  = screenToWorldY(my, zoom);
+            double worldXAfter = screenToWorldX(mx, zoom);
+            double worldYAfter = screenToWorldY(my, zoom);
 
             camX += (worldXBefore - worldXAfter);
             camY += (worldYBefore - worldYAfter);
@@ -112,7 +114,8 @@ public class HexCanvasPanStressTest extends Application {
 
 
         AnimationTimer timer = new AnimationTimer() {
-            @Override public void handle(long now) {
+            @Override
+            public void handle(long now) {
                 render(g, canvas.getWidth(), canvas.getHeight());
                 updateFps(now);
             }
@@ -188,8 +191,6 @@ public class HexCanvasPanStressTest extends Application {
                 }
 
 
-
-
                 drawHex(g, cx, cy, sizeScreen);
                 drawn++;
             }
@@ -260,8 +261,13 @@ public class HexCanvasPanStressTest extends Application {
         return new int[]{row, col};
     }
 
-    private double screenToWorldX(double sx, double z) { return camX + sx / z; }
-    private double screenToWorldY(double sy, double z) { return camY + sy / z; }
+    private double screenToWorldX(double sx, double z) {
+        return camX + sx / z;
+    }
+
+    private double screenToWorldY(double sy, double z) {
+        return camY + sy / z;
+    }
 
     private void updateFps(long now) {
         frames++;
@@ -321,9 +327,7 @@ public class HexCanvasPanStressTest extends Application {
         return new int[]{row, col};
     }
 
-
-    private static int clamp(int v, int lo, int hi) { return Math.max(lo, Math.min(hi, v)); }
-    private static double clamp(double v, double lo, double hi) { return Math.max(lo, Math.min(hi, v)); }
-
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) {
+        launch(args);
+    }
 }

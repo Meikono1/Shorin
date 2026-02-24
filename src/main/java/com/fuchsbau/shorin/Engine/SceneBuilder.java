@@ -19,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -32,6 +33,12 @@ import java.util.TreeMap;
 public class SceneBuilder {
     private static SceneBuilder sceneBuilder;
     private final Paint primaryTextColourWhite = Paint.valueOf("ffffff");
+
+    public final Paint strokeRGB = Color.rgb(160, 160, 255, 0.20);
+    public final Paint whiteRGB = Color.rgb(200, 200, 220);
+    public final Paint beigeRGB = Color.rgb(230, 230, 255, 0.90);
+    public final Paint blackRGB = Color.rgb(10, 10, 16);
+    public final Paint redRGB = Color.rgb(255, 60, 60, 0.9);
 
     private HBox firstButtonrow;
     private HBox secondButtonrow;

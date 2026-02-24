@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Engine.Map;
 
+import com.fuchsbau.shorin.Engine.Map.Core.*;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
@@ -7,44 +8,21 @@ import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.stage.FileChooser;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
+import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
+
 public class Mapeditor implements Saveble {
-
     private static final Logger logger = FileLogger.getLogger();
+    private final SceneBuilder sceneBuilder = SceneBuilder.getSceneBuilder();
 
-    private Image backgroundImage;
     private boolean drawBackground = true;
-
-    // --- Grid model ---
-    private int rows = 30;
-    private int cols = 30;
-
-    private Tile[][] grid = new Tile[rows][cols];
-    private final List<LightSource> lights = new ArrayList<>();
-
-    // --- View / camera ---
-    private static final double BASE_TILE = 24.0; // world px
-    private double camX = 0;
-    private double camY = 0;
-    private double zoom = 1.0;
-
     private boolean panning = false;
     private double lastMouseX, lastMouseY;
 
@@ -52,34 +30,31 @@ public class Mapeditor implements Saveble {
     private Tool currentTool = Tool.WALL;
     private boolean painting = false;
 
-    // --- Tokens (chars) ---
-    private final List<Token> tokens = new ArrayList<>();
-
     // --- UI ---
-    private Canvas canvas;
     private Label toolLabel;
     private TextField mapNameField;
 
+    private MapRenderer mapRenderer;
+    private MutableGameMap gameMap;
+    private LightingSystem lightingSystem;
+
     public Mapeditor() {
-        // init grid
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                grid[r][c] = Tile.empty();
-            }
-        }
+        lightingSystem = new LightingSystem();
+        gameMap = new MutableGameMap();
+        this.mapRenderer = new MapRenderer(gameMap, lightingSystem);
     }
 
     @Override
     public Scene getScene(int stage) {
-        canvas = new Canvas(1200, 800);
-
         BorderPane root = new BorderPane();
+
+        setupInputHandlers();
+
+
         root.setLeft(buildPalette());
-        root.setCenter(buildCanvasPane());
+        root.setCenter(mapRenderer.buildCanvasPane());
 
         Scene scene = new Scene(root, 1400, 900);
-        setupInputHandlers();
-        render();
 
         String cssUrl = CSSLoader.resolveUserOrBackupCSS();
         if (cssUrl != null) {
@@ -102,7 +77,7 @@ public class Mapeditor implements Saveble {
         toolLabel.setTextFill(Color.WHITE);
 
         Label hint = new Label("Klick oder Drag&Drop auf die Map.");
-        hint.setTextFill(Color.rgb(200, 200, 220));
+        hint.setTextFill(sceneBuilder.whiteRGB);
 
         box.getChildren().addAll(toolLabel, hint, new Separator());
 
@@ -127,10 +102,11 @@ public class Mapeditor implements Saveble {
                 if (!dir.exists()) dir.mkdirs();
 
                 File out = new File(dir, name);
-                saveMap(out);
+                new MapSaverLoader().saveMap(out, mapRenderer.getGameMap());
                 System.out.println("Saved: " + out.getAbsolutePath());
             } catch (Exception ex) {
-                ex.printStackTrace();
+                logger.severe("Error");
+                logger.severe(ex.getMessage());
             }
         });
 
@@ -149,67 +125,67 @@ public class Mapeditor implements Saveble {
 
         Button addRowTop = SceneBuilder.getSceneBuilder().makeButton("+ Row Top");
         addRowTop.setOnAction(e -> {
-            addRowTop();
-            render();
+            gameMap.addRowTop();
+            mapRenderer.render();
         });
 
         Button addRowBottom = SceneBuilder.getSceneBuilder().makeButton("+ Row Bottom");
         addRowBottom.setOnAction(e -> {
-            addRowBottom();
-            render();
+            gameMap.addRowBottom();
+            mapRenderer.render();
         });
 
         Button addColLeft = SceneBuilder.getSceneBuilder().makeButton("+ Col Left");
         addColLeft.setOnAction(e -> {
-            addColLeft();
-            render();
+            gameMap.addColLeft();
+            mapRenderer.render();
         });
 
         Button addColRight = SceneBuilder.getSceneBuilder().makeButton("+ Col Right");
         addColRight.setOnAction(e -> {
-            addColRight();
-            render();
+            gameMap.addColRight();
+            mapRenderer.render();
         });
 
         Button remRowTop = SceneBuilder.getSceneBuilder().makeButton("- Row Top");
         remRowTop.setOnAction(e -> {
-            removeRowTop();
-            render();
+            gameMap.removeRowTop();
+            mapRenderer.render();
         });
 
         Button remRowBottom = SceneBuilder.getSceneBuilder().makeButton("- Row Bottom");
         remRowBottom.setOnAction(e -> {
-            removeRowBottom();
-            render();
+            gameMap.removeRowBottom();
+            mapRenderer.render();
         });
 
         Button remColLeft = SceneBuilder.getSceneBuilder().makeButton("- Col Left");
         remColLeft.setOnAction(e -> {
-            removeColLeft();
-            render();
+            gameMap.removeColLeft();
+            mapRenderer.render();
         });
 
         Button remColRight = SceneBuilder.getSceneBuilder().makeButton("- Col Right");
         remColRight.setOnAction(e -> {
-            removeColRight();
-            render();
+            gameMap.removeColRight();
+            mapRenderer.render();
         });
 
         gridLabel.setTextFill(Color.WHITE);
 
-        TextField rowsField = new TextField(String.valueOf(rows));
+        TextField rowsField = new TextField(String.valueOf(gameMap.getRows()));
         rowsField.setPrefWidth(70);
 
-        TextField colsField = new TextField(String.valueOf(cols));
+        TextField colsField = new TextField(String.valueOf(gameMap.getCols()));
         colsField.setPrefWidth(70);
 
         Button applySize = SceneBuilder.getSceneBuilder().makeButton("Apply");
         applySize.setOnAction(e -> {
-            int newRows = parsePositiveInt(rowsField.getText(), rows);
-            int newCols = parsePositiveInt(colsField.getText(), cols);
+            int newRows = parsePositiveInt(rowsField.getText(), gameMap.getRows());
+            int newCols = parsePositiveInt(colsField.getText(), gameMap.getCols());
 
-            resizeGrid(newRows, newCols);
-            render();
+            gameMap.resizeGrid(newRows, newCols);
+            mapRenderer.render();
         });
 
         HBox fieldsRow = new HBox(8,
@@ -224,7 +200,7 @@ public class Mapeditor implements Saveble {
 
 
         Button loadBg = new Button("Load Background...");
-        loadBg.setOnAction(e -> loadBackground());
+        loadBg.setOnAction(e -> mapRenderer.loadBackground());
 
         VBox gridControls = new VBox(4,
                 sizeBox,
@@ -258,21 +234,6 @@ public class Mapeditor implements Saveble {
         scroll.setStyle("-fx-background: rgba(20,20,28,0.95);");
 
         return scroll;
-    }
-
-    private Node buildCanvasPane() {
-        StackPane pane = new StackPane(canvas);
-        pane.setStyle("-fx-background-color: rgb(10,10,16);");
-
-        // resize canvas with pane
-        canvas.widthProperty().bind(pane.widthProperty());
-        canvas.heightProperty().bind(pane.heightProperty());
-
-        // rerender on resize
-        canvas.widthProperty().addListener((obs, o, n) -> render());
-        canvas.heightProperty().addListener((obs, o, n) -> render());
-
-        return pane;
     }
 
     private Label makeToolItem(String name, Tool tool) {
@@ -341,15 +302,17 @@ public class Mapeditor implements Saveble {
 
     private void setupInputHandlers() {
         // Mouse press
+        Canvas canvas = mapRenderer.getCanvas();
+
         canvas.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
                 // Optional: mit SHIFT = Light entfernen, sonst Pan
                 if (e.isShiftDown()) {
-                    int col = screenToCol(e.getX());
-                    int row = screenToRow(e.getY());
-                    if (inBounds(row, col) && removeLightAt(row, col)) {
-                        recomputeLightmapAll();
-                        render();
+                    int col = mapRenderer.screenToCol(e.getX());
+                    int row = mapRenderer.screenToRow(e.getY());
+                    if (gameMap.inBounds(row, col) && gameMap.removeLightAt(row, col)) {
+                        lightingSystem.recomputeLightmapAll(gameMap);
+                        mapRenderer.render();
                     }
                     e.consume();
                     return;
@@ -382,9 +345,9 @@ public class Mapeditor implements Saveble {
                 lastMouseX = e.getX();
                 lastMouseY = e.getY();
 
-                camX -= dx / zoom;
-                camY -= dy / zoom;
-                render();
+                mapRenderer.setCamX(mapRenderer.getCamX() - dx / mapRenderer.getZoom());
+                mapRenderer.setCamY(mapRenderer.getCamY() - dy / mapRenderer.getZoom());
+                mapRenderer.render();
                 e.consume();
                 return;
             }
@@ -397,22 +360,22 @@ public class Mapeditor implements Saveble {
 
         // Zoom: wheel
         canvas.addEventFilter(ScrollEvent.SCROLL, e -> {
-            double oldZoom = zoom;
+            double oldZoom = mapRenderer.getZoom();
             double factor = Math.pow(1.0015, e.getDeltaY());
-            zoom = clamp(zoom * factor, 0.2, 6.0);
+            mapRenderer.setZoom(clamp(mapRenderer.getZoom() * factor, 0.2, 6.0));
 
             double mx = e.getX();
             double my = e.getY();
 
-            double worldXBefore = screenToWorldX(mx, oldZoom);
-            double worldYBefore = screenToWorldY(my, oldZoom);
-            double worldXAfter = screenToWorldX(mx, zoom);
-            double worldYAfter = screenToWorldY(my, zoom);
+            double worldXBefore = mapRenderer.screenToWorldX(mx, oldZoom);
+            double worldYBefore = mapRenderer.screenToWorldY(my, oldZoom);
+            double worldXAfter = mapRenderer.screenToWorldX(mx, mapRenderer.getZoom());
+            double worldYAfter = mapRenderer.screenToWorldY(my, mapRenderer.getZoom());
 
-            camX += (worldXBefore - worldXAfter);
-            camY += (worldYBefore - worldYAfter);
+            mapRenderer.setCamX(mapRenderer.getCamX() + (worldXBefore - worldXAfter));
+            mapRenderer.setCamY(mapRenderer.getCamY() + (worldYBefore - worldYAfter));
 
-            render();
+            mapRenderer.render();
             e.consume();
         });
 
@@ -441,10 +404,10 @@ public class Mapeditor implements Saveble {
                     ok = true;
 
                 } else if (s.startsWith("TOKEN:")) {
-                    int[] rc = pickTile(e.getX(), e.getY());
+                    int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
                     if (rc != null) {
-                        tokens.add(new Token(rc[0], rc[1], s.substring("TOKEN:".length())));
-                        render();
+                        gameMap.getTokens().add(new Token(rc[0], rc[1], s.substring("TOKEN:".length())));
+                        mapRenderer.render();
                         ok = true;
                     }
 
@@ -454,13 +417,13 @@ public class Mapeditor implements Saveble {
                     int dimtiles = Integer.parseInt(p[3]);
                     float intensity = Float.parseFloat(p[4]);
 
-                    int col = screenToCol(e.getX());
-                    int row = screenToRow(e.getY());
+                    int col = mapRenderer.screenToCol(e.getX());
+                    int row = mapRenderer.screenToRow(e.getY());
 
-                    if (inBounds(row, col)) {
-                        addOrReplaceLight(row, col, brightTiles, dimtiles, intensity);
-                        recomputeLightmapAll();
-                        render();
+                    if (gameMap.inBounds(row, col)) {
+                        gameMap.addOrReplaceLight(row, col, brightTiles, dimtiles, intensity);
+                        lightingSystem.recomputeLightmapAll(gameMap);
+                        mapRenderer.render();
                         ok = true;
                     }
                 }
@@ -472,18 +435,17 @@ public class Mapeditor implements Saveble {
     }
 
     private void applyAt(double sx, double sy, boolean isDragPaint) {
-        int[] rc = pickTile(sx, sy);
+        int[] rc = mapRenderer.pickTile(sx, sy);
         if (rc == null) return;
 
         int r = rc[0], c = rc[1];
-        Tile tile = grid[r][c];
+        Tile tile = gameMap.getTile(r, c);
 
         switch (currentTool) {
             case WALL -> {
                 tile.clearAll();
                 tile.add(Tile.WALL);
             }
-
             case DOOR -> {
                 if (!tile.has(Tile.DOOR)) {
                     tile.clearAll();
@@ -493,168 +455,21 @@ public class Mapeditor implements Saveble {
                     tile.set(Tile.DOOR_OPEN, !tile.has(Tile.DOOR_OPEN));
                 }
             }
-
             case DIFFICULT -> {
                 tile.add(Tile.DIFFICULT);
             }
-
             case HAZARD -> {
                 tile.add(Tile.HAZARDOUS);
             }
-
             case ERASE -> {
                 tile.clearAll();
             }
         }
 
-        render();
+        lightingSystem.recomputeLightmapAll(gameMap);
+        mapRenderer.render();
     }
 
-    private int[] pickTile(double sx, double sy) {
-        double wx = screenToWorldX(sx, zoom);
-        double wy = screenToWorldY(sy, zoom);
-
-        int c = (int) Math.floor(wx / BASE_TILE);
-        int r = (int) Math.floor(wy / BASE_TILE);
-
-        if (r < 0 || r >= rows || c < 0 || c >= cols) return null;
-        return new int[]{r, c};
-    }
-
-    // ---------------- Rendering ----------------
-
-    private void render() {
-        if (canvas == null) return;
-
-        GraphicsContext g = canvas.getGraphicsContext2D();
-        double w = canvas.getWidth();
-        double h = canvas.getHeight();
-
-
-        g.setFill(Color.rgb(10, 10, 16));
-        g.fillRect(0, 0, w, h);
-
-        if (drawBackground && backgroundImage != null) {
-            double worldW = cols * BASE_TILE;
-            double worldH = rows * BASE_TILE;
-
-            double sx = (-camX) * zoom;
-            double sy = (-camY) * zoom;
-            double sw = worldW * zoom;
-            double sh = worldH * zoom;
-
-            g.drawImage(backgroundImage, sx, sy, sw, sh);
-        }
-
-        double tileScreen = BASE_TILE * zoom;
-
-        // visible tile bounds
-        double worldLeft = camX;
-        double worldTop = camY;
-        double worldRight = camX + w / zoom;
-        double worldBottom = camY + h / zoom;
-
-        int colMin = clamp((int) Math.floor(worldLeft / BASE_TILE) - 2, 0, cols - 1);
-        int colMax = clamp((int) Math.ceil(worldRight / BASE_TILE) + 2, 0, cols - 1);
-        int rowMin = clamp((int) Math.floor(worldTop / BASE_TILE) - 2, 0, rows - 1);
-        int rowMax = clamp((int) Math.ceil(worldBottom / BASE_TILE) + 2, 0, rows - 1);
-
-        // draw tiles
-        g.setGlobalAlpha(0.8);
-        for (int r = rowMin; r <= rowMax; r++) {
-            double yWorld = r * BASE_TILE;
-            double y = Math.floor((yWorld - camY) * zoom);
-
-            for (int c = colMin; c <= colMax; c++) {
-                Tile t = grid[r][c];
-
-                double xWorld = c * BASE_TILE;
-                double x = Math.floor((xWorld - camX) * zoom);
-
-                // 1) Terrain nur wenn gesetzt
-                if (t.flags != 0) {
-                    g.setFill(colorFor(t));
-                    g.fillRect(x, y, tileScreen + 1, tileScreen + 1);
-                }
-
-                // 2) Light overlay IMMER (auch bei empty tiles / background)
-                float b = t.getBrightness();
-                double darkAlpha = 1.0 - Math.max(0, Math.min(1, b));
-
-                if (darkAlpha > 0.0001) {
-                    g.setFill(Color.rgb(0, 0, 0, darkAlpha));
-                    g.fillRect(x, y, tileScreen + 1, tileScreen + 1);
-                }
-            }
-        }
-        g.setGlobalAlpha(1.0);
-
-
-        // draw grid lines
-        g.setStroke(Color.rgb(160, 160, 255, 0.20));
-        g.setLineWidth(2.0);
-
-        double x0 = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
-        double x1 = Math.floor((((colMax + 1) * BASE_TILE) - camX) * zoom);
-        double y0 = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
-        double y1 = Math.floor((((rowMax + 1) * BASE_TILE) - camY) * zoom);
-
-        for (int c = colMin; c <= colMax + 1; c++) {
-            double xLine = Math.floor(((c * BASE_TILE) - camX) * zoom);
-            g.strokeLine(xLine, y0, xLine, y1);
-        }
-        for (int r = rowMin; r <= rowMax + 1; r++) {
-            double yLine = Math.floor(((r * BASE_TILE) - camY) * zoom);
-            g.strokeLine(x0, yLine, x1, yLine);
-        }
-
-        // draw tokens
-        g.setFont(Font.font(12));
-        for (Token t : tokens) {
-            double xWorld = t.col * BASE_TILE;
-            double yWorld = t.row * BASE_TILE;
-
-            double x = Math.floor((xWorld - camX) * zoom);
-            double y = Math.floor((yWorld - camY) * zoom);
-
-            g.setFill(Color.rgb(230, 230, 255, 0.90));
-            g.fillText(t.name, x + 4, y + 14);
-        }
-
-        // HUD
-        g.setFill(Color.rgb(230, 230, 255, 0.85));
-        g.setFont(Font.font(14));
-        g.fillText("Mapeditor | Tool=" + currentTool + " | Zoom=" + String.format("%.2f", zoom)
-                        + " | Grid=" + rows + "x" + cols,
-                12, 20);
-    }
-
-    private Color colorFor(Tile t) {
-
-        if (t.has(Tile.WALL)) return Color.rgb(80, 80, 90);
-        if (t.has(Tile.DOOR)) return Color.rgb(120, 90, 40);
-        if (t.has(Tile.GREATER_DIFFICULT)) return Color.rgb(30, 120, 30);
-        if (t.has(Tile.DIFFICULT)) return Color.rgb(40, 90, 40);
-        if (t.has(Tile.HAZARDOUS)) return Color.rgb(140, 40, 40);
-
-        return Color.rgb(28, 28, 40);
-    }
-
-    private double screenToWorldX(double sx, double z) {
-        return camX + sx / z;
-    }
-
-    private double screenToWorldY(double sy, double z) {
-        return camY + sy / z;
-    }
-
-    private static int clamp(int v, int lo, int hi) {
-        return Math.max(lo, Math.min(hi, v));
-    }
-
-    private static double clamp(double v, double lo, double hi) {
-        return Math.max(lo, Math.min(hi, v));
-    }
 
     @Override
     public void reset() {
@@ -662,279 +477,6 @@ public class Mapeditor implements Saveble {
     }
 
     // ---------------- Row Buttons ----------------
-    private void saveMap(File file) throws IOException {
-
-        try (BufferedWriter w = Files.newBufferedWriter(file.toPath())) {
-
-            // Header
-            w.write(rows + " " + cols);
-            w.newLine();
-
-            // Grid
-            for (int r = 0; r < rows; r++) {
-                for (int c = 0; c < cols; c++) {
-                    w.write(Integer.toString(grid[r][c].flags));
-                    if (c < cols - 1) w.write(" ");
-                }
-                w.newLine();
-            }
-        }
-    }
-
-    private void loadBackground() {
-        FileChooser fc = new FileChooser();
-        fc.setTitle("Choose background image");
-        fc.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp")
-        );
-
-        File f = fc.showOpenDialog(canvas.getScene().getWindow());
-        if (f == null) return;
-
-        backgroundImage = new Image(f.toURI().toString(), false);
-        render();
-    }
-
-    private int screenToCol(double screenX) {
-        double worldX = camX + screenX / zoom;
-        return (int) Math.floor(worldX / BASE_TILE);
-    }
-
-    private int screenToRow(double screenY) {
-        double worldY = camY + screenY / zoom;
-        return (int) Math.floor(worldY / BASE_TILE);
-    }
-
-    private boolean inBounds(int r, int c) {
-        return r >= 0 && r < rows && c >= 0 && c < cols;
-    }
-
-    private void recomputeLightmapAll() {
-        // reset
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                Tile t = grid[r][c];
-                t.setBrightness(0f);
-                t.setLightlevel(Lightlevel.DARKNESS);
-            }
-        }
-
-        // apply all lights
-        for (LightSource ls : lights) {
-            applyLight(ls);
-        }
-    }
-
-    private void applyLight(LightSource ls) {
-        int brTiles = ls.brightTiles;  // das sind Tiles (5ft pro Tile)
-        int dimTiles = ls.dimTiles;
-
-        // Bounding box in Tiles
-        int radTiles = Math.max(1, dimTiles);
-
-        int r0 = clamp(ls.row - radTiles, 0, rows - 1);
-        int r1 = clamp(ls.row + radTiles, 0, rows - 1);
-        int c0 = clamp(ls.col - radTiles, 0, cols - 1);
-        int c1 = clamp(ls.col + radTiles, 0, cols - 1);
-
-        for (int r = r0; r <= r1; r++) {
-            int dr = Math.abs(r - ls.row);
-            for (int c = c0; c <= c1; c++) {
-                int dc = Math.abs(c - ls.col);
-
-                int distTiles = distanceFt(dc, dr);
-                if (distTiles > dimTiles) continue;
-
-                // Level
-                Lightlevel lvl = (distTiles <= brTiles) ? Lightlevel.BRIGHT_LIGHT : Lightlevel.DIM_LIGHT;
-
-                // Brightness: Ende bright = 0.5, dann bis 0
-                float b = brightnessAtDistanceTiles(distTiles, brTiles, dimTiles, ls.intensity);
-                if (b <= 0f) continue;
-
-                Tile t = grid[r][c];
-
-                if (b > t.getBrightness()) t.setBrightness(b);
-
-                // Level-Priorität: BRIGHT > DIM > DARKNESS
-                if (lvl == Lightlevel.BRIGHT_LIGHT) {
-                    t.setLightlevel(Lightlevel.BRIGHT_LIGHT);
-                } else if (t.getLightlevel() == Lightlevel.DARKNESS) {
-                    t.setLightlevel(Lightlevel.DIM_LIGHT);
-                }
-            }
-        }
-    }
-
-    private int distanceFt(int dxTiles, int dyTiles) {
-        int max = Math.max(dxTiles, dyTiles);
-        int min = Math.min(dxTiles, dyTiles);
-        return max + (min / 2);
-    }
-
-    private float brightnessAtDistanceFt(int distFt, int brightFt, int dimFt, float intensity) {
-        if (distFt <= brightFt) {
-            float t = (brightFt == 0) ? 1f : (distFt / (float) brightFt); // 0..1
-            float base = 1.0f + (0.5f - 1.0f) * t; // 1.0 -> 0.5
-            return base * intensity;
-        }
-        if (distFt <= dimFt) {
-            float t = (dimFt == brightFt) ? 1f : ((distFt - brightFt) / (float) (dimFt - brightFt)); // 0..1
-            float base = 0.5f + (0.0f - 0.5f) * t; // 0.5 -> 0.0
-            return base * intensity;
-        }
-        return 0f;
-    }
-
-    private float brightnessAtDistanceTiles(int d, int bright, int dim, float intensity) {
-        if (d <= bright) {
-            float t = (bright == 0) ? 1f : (d / (float) bright);
-            float base = 1.0f + (0.5f - 1.0f) * t;
-            return base * intensity;
-        }
-        if (d <= dim) {
-            float t = (dim == bright) ? 1f : ((d - bright) / (float) (dim - bright));
-            float base = 0.5f + (0.0f - 0.5f) * t;
-            return base * intensity;
-        }
-        return 0f;
-    }
-
-    private void addOrReplaceLight(int row, int col, int brightTiles, int dimtiles, float intensity) {
-        lights.removeIf(l -> l.row == row && l.col == col);
-        lights.add(new LightSource(row, col, brightTiles, dimtiles, intensity));
-    }
-
-    private boolean removeLightAt(int row, int col) {
-        int before = lights.size();
-        lights.removeIf(l -> l.row == row && l.col == col);
-        return lights.size() != before;
-    }
-
-    private void resizeGrid(int newRows, int newCols) {
-        if (newRows <= 0 || newCols <= 0) return;
-
-        Tile[][] newGrid = new Tile[newRows][newCols];
-
-        // alles erstmal leer füllen
-        for (int r = 0; r < newRows; r++) {
-            for (int c = 0; c < newCols; c++) {
-                newGrid[r][c] = Tile.empty();
-            }
-        }
-
-        // alten Inhalt kopieren (nur soweit möglich)
-        int copyRows = Math.min(rows, newRows);
-        int copyCols = Math.min(cols, newCols);
-
-        for (int r = 0; r < copyRows; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r], 0, copyCols);
-        }
-
-        grid = newGrid;
-        rows = newRows;
-        cols = newCols;
-    }
-
-    private void addRowTop() {
-        Tile[][] newGrid = new Tile[rows + 1][cols];
-
-        // neue erste Zeile
-        for (int c = 0; c < cols; c++) newGrid[0][c] = Tile.empty();
-
-        // alten Inhalt 1 nach unten kopieren
-        for (int r = 0; r < rows; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r + 1], 0, cols);
-        }
-
-        grid = newGrid;
-        rows++;
-    }
-
-    private void addRowBottom() {
-        Tile[][] newGrid = new Tile[rows + 1][cols];
-
-        for (int r = 0; r < rows; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r], 0, cols);
-        }
-        for (int c = 0; c < cols; c++) newGrid[rows][c] = Tile.empty();
-
-        grid = newGrid;
-        rows++;
-    }
-
-    private void addColLeft() {
-        Tile[][] newGrid = new Tile[rows][cols + 1];
-
-        for (int r = 0; r < rows; r++) {
-            newGrid[r][0] = Tile.empty();
-            System.arraycopy(grid[r], 0, newGrid[r], 1, cols);
-        }
-
-        grid = newGrid;
-        cols++;
-    }
-
-    private void addColRight() {
-        Tile[][] newGrid = new Tile[rows][cols + 1];
-
-        for (int r = 0; r < rows; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r], 0, cols);
-            newGrid[r][cols] = Tile.empty();
-        }
-
-        grid = newGrid;
-        cols++;
-    }
-
-    private void removeRowTop() {
-        if (rows <= 1) return;
-
-        Tile[][] newGrid = new Tile[rows - 1][cols];
-        for (int r = 1; r < rows; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r - 1], 0, cols);
-        }
-
-        grid = newGrid;
-        rows--;
-    }
-
-    private void removeRowBottom() {
-        if (rows <= 1) return;
-
-        Tile[][] newGrid = new Tile[rows - 1][cols];
-        for (int r = 0; r < rows - 1; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r], 0, cols);
-        }
-
-        grid = newGrid;
-        rows--;
-    }
-
-    private void removeColLeft() {
-        if (cols <= 1) return;
-
-        Tile[][] newGrid = new Tile[rows][cols - 1];
-        for (int r = 0; r < rows; r++) {
-            System.arraycopy(grid[r], 1, newGrid[r], 0, cols - 1);
-        }
-
-        grid = newGrid;
-        cols--;
-    }
-
-    private void removeColRight() {
-        if (cols <= 1) return;
-
-        Tile[][] newGrid = new Tile[rows][cols - 1];
-        for (int r = 0; r < rows; r++) {
-            System.arraycopy(grid[r], 0, newGrid[r], 0, cols - 1);
-        }
-
-        grid = newGrid;
-        cols--;
-    }
-
     private int parsePositiveInt(String s, int fallback) {
         try {
             int v = Integer.parseInt(s.trim());
@@ -944,39 +486,7 @@ public class Mapeditor implements Saveble {
         }
     }
 
-    public static void loadMap(File file, Map map) throws IOException {
-
-        try (BufferedReader r = Files.newBufferedReader(file.toPath())) {
-
-            String[] header = r.readLine().split(" ");
-            int rows = Integer.parseInt(header[0]);
-            int cols = Integer.parseInt(header[1]);
-
-            Tile[][] grid = new Tile[rows][cols];
-            for (int i = 0; i < rows; i++)
-                for (int j = 0; j < cols; j++)
-                    grid[i][j] = new Tile(0);
-
-            String bgLine = r.readLine();
-            if (bgLine != null && bgLine.startsWith("BG=")) {
-                //backgroundImagePath = bgLine.substring(3);
-                //loadBackgroundFromResources(backgroundImagePath);
-            }
-
-            for (int rIdx = 0; rIdx < rows; rIdx++) {
-                String[] parts = r.readLine().split(" ");
-                for (int cIdx = 0; cIdx < cols; cIdx++) {
-                    grid[rIdx][cIdx].flags = Integer.parseInt(parts[cIdx]);
-                }
-            }
-            map.setTiles(grid, cols, rows);
-        }
-    }
-
 
     // ---------------- Types ----------------
-
-    private enum TileType {EMPTY, WALL, DOOR, DIFFICULT, HAZARD}
-
     private enum Tool {WALL, DOOR, DIFFICULT, HAZARD, ERASE}
 }

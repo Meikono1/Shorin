@@ -12,6 +12,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
+
 public class HexGrid extends Application {
 
     // Grid
@@ -209,14 +211,6 @@ public class HexGrid extends Application {
 
     private double screenToWorldY(double sy, double canvasH, double z) {
         return camY + sy / z;
-    }
-
-    private static int clamp(int v, int lo, int hi) {
-        return Math.max(lo, Math.min(hi, v));
-    }
-
-    private static double clamp(double v, double lo, double hi) {
-        return Math.max(lo, Math.min(hi, v));
     }
 
     public static void main(String[] args) {

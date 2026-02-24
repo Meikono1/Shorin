@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Map;
+package com.fuchsbau.shorin.Engine.Map.Core;
 
 public class LightSource {
     public final int row, col;

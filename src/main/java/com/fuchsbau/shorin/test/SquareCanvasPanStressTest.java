@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 
+import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
+
 public class SquareCanvasPanStressTest extends Application {
 
     // Grid
@@ -447,14 +449,6 @@ public class SquareCanvasPanStressTest extends Application {
             frames = 0;
             lastFpsTime = now;
         }
-    }
-
-    private static int clamp(int v, int lo, int hi) {
-        return Math.max(lo, Math.min(hi, v));
-    }
-
-    private static double clamp(double v, double lo, double hi) {
-        return Math.max(lo, Math.min(hi, v));
     }
 
     private static final class Node implements Comparable<Node> {

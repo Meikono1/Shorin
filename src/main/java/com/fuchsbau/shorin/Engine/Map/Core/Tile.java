@@ -1,6 +1,7 @@
-package com.fuchsbau.shorin.Engine.Map;
+package com.fuchsbau.shorin.Engine.Map.Core;
 
 import com.fuchsbau.shorin.Engine.Race.Size;
+import javafx.scene.paint.Color;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -9,7 +10,6 @@ import java.util.Set;
  * Tile = statische Terrain-/Map-Info + optionaler Occupant (dynamisch).
  */
 public final class Tile {
-
 
     /**
      * Terrain/Map flags.
@@ -25,7 +25,20 @@ public final class Tile {
     public static final int HAZARDOUS = 1 << 5; // triggers damage on move-through/enter
     public static final int NARROW_SURFACE = 1 << 6; // Balance rules
     public static final int UNEVEN_GROUND = 1 << 7; // Balance rules
+    public static final int OUTSIDE = 1 << 8; // daylight can apply
 
+
+    // ---- Debug Colours (cached, keine Allokation im Render) ----
+    private static final Color DEBUG_DEFAULT = Color.rgb(28, 28, 40);
+    private static final Color DEBUG_WALL = Color.rgb(80, 80, 90);
+    private static final Color DEBUG_DOOR = Color.rgb(120, 90, 40);
+    private static final Color DEBUG_GREATER = Color.rgb(30, 120, 30);
+    private static final Color DEBUG_DIFFICULT = Color.rgb(40, 90, 40);
+    private static final Color DEBUG_HAZARD = Color.rgb(140, 40, 40);
+
+    private static final int DEBUG_MASK =
+            WALL | DOOR | GREATER_DIFFICULT |
+                    DIFFICULT | HAZARDOUS;
     /**
      * Optional occupant currently on this tile (creature or object). Null = empty.
      */
@@ -62,6 +75,16 @@ public final class Tile {
         flags = 0;
     }
 
+    public boolean blocksLight() {
+        if (has(WALL)) return true;
+        if (has(DOOR) && !has(DOOR_OPEN)) return true;
+        return false;
+    }
+
+    public boolean isOutside() {
+        return has(OUTSIDE);
+    }
+
     public void set(int mask, boolean value) {
         if (value) add(mask);
         else remove(mask);
@@ -69,6 +92,20 @@ public final class Tile {
 
     public static Tile empty() {
         return new Tile(0);
+    }
+
+    public boolean hasDebugTerrain() {
+        return (flags & DEBUG_MASK) != 0;
+    }
+
+    public Color getDebugColour() {
+        if ((flags & WALL) != 0) return DEBUG_WALL;
+        if ((flags & DOOR) != 0) return DEBUG_DOOR;
+        if ((flags & GREATER_DIFFICULT) != 0) return DEBUG_GREATER;
+        if ((flags & DIFFICULT) != 0) return DEBUG_DIFFICULT;
+        if ((flags & HAZARDOUS) != 0) return DEBUG_HAZARD;
+
+        return DEBUG_DEFAULT;
     }
 
     public float getBrightness() {

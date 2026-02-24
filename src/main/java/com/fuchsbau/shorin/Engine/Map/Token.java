@@ -2,8 +2,9 @@ package com.fuchsbau.shorin.Engine.Map;
 
 public class Token {
 
-    final int row, col;
-    final String name;
+    public final int row;
+    public final int col;
+    public final String name;
 
     Token(int row, int col, String name) {
         this.row = row;
