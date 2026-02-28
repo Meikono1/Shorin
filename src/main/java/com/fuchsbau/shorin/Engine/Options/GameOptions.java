@@ -22,6 +22,7 @@ import java.io.IOException;
 
 public class GameOptions {
 
+    public static final int BASE_TILE = 64;
     public static boolean delete;
     public static double width = 1500;
     public static double height = 900;

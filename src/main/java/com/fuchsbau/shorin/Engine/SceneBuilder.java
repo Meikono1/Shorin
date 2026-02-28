@@ -34,11 +34,12 @@ public class SceneBuilder {
     private static SceneBuilder sceneBuilder;
     private final Paint primaryTextColourWhite = Paint.valueOf("ffffff");
 
-    public final Paint strokeRGB = Color.rgb(160, 160, 255, 0.20);
+    public final Paint strokeRGB = Color.rgb(17, 17, 24, 0.50);
     public final Paint whiteRGB = Color.rgb(200, 200, 220);
     public final Paint beigeRGB = Color.rgb(230, 230, 255, 0.90);
     public final Paint blackRGB = Color.rgb(10, 10, 16);
     public final Paint redRGB = Color.rgb(255, 60, 60, 0.9);
+    public final Paint worldMapBlue = Color.rgb(114,194,207,0.8);
 
     private HBox firstButtonrow;
     private HBox secondButtonrow;

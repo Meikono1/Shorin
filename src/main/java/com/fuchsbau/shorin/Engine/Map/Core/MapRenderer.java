@@ -2,9 +2,12 @@ package com.fuchsbau.shorin.Engine.Map.Core;
 
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -13,13 +16,13 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 
+import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
 
 public class MapRenderer {
     private final SceneBuilder sceneBuilder = SceneBuilder.getSceneBuilder();
 
     // --- View / camera ---
-    private static final double BASE_TILE = 24.0; // world px
     private double camX = 0;
     private double camY = 0;
     private double zoom = 1.0;
@@ -32,6 +35,9 @@ public class MapRenderer {
     // --- Map ---
     private GameMap gameMap;
     private LightingSystem lightingSystem;
+
+    public boolean debug = false;
+
     public MapRenderer(GameMap gameMap, LightingSystem lightingSystem) {
         this.gameMap = gameMap;
         this.lightingSystem = lightingSystem;
@@ -54,11 +60,10 @@ public class MapRenderer {
         if (f == null) return;
 
         backgroundImage = new Image(f.toURI().toString(), false);
-        render();
     }
 
     // ---------------- Rendering ----------------
-    public Node buildCanvasPane() {
+    private Node buildCanvasPane() {
         StackPane pane = new StackPane(canvas);
         pane.setStyle("-fx-background-color: rgb(10,10,16);");
 
@@ -66,17 +71,64 @@ public class MapRenderer {
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
 
-        // rerender on resize
-        canvas.widthProperty().addListener((obs, o, n) -> render());
-        canvas.heightProperty().addListener((obs, o, n) -> render());
-
-        lightingSystem.recomputeLightmapAll(gameMap);
-        render();
-
         return pane;
     }
 
-    public void render() {
+    private Node buildCanvasWithNameOverlayPane(TextField mapNameField) {
+        Node canvasNode = buildCanvasPane();
+
+        // TextField konfigurieren
+        mapNameField.setPromptText("Map-Name");
+        mapNameField.setMaxWidth(260);
+        mapNameField.getStyleClass().add("map-name-field"); // falls du CSS nutzt
+
+        // oben über dem Canvas positionieren
+        StackPane.setAlignment(mapNameField, Pos.TOP_CENTER);
+        StackPane.setMargin(mapNameField, new Insets(10, 10, 0, 10));
+
+        StackPane root = new StackPane();
+        root.getChildren().addAll(canvasNode, mapNameField); // Reihenfolge: Canvas unten, TextField oben
+
+        // wenn du willst, dass das TextField nicht die Mouse-Events "frisst" außerhalb seines Bereichs:
+        // root.setPickOnBounds(false);
+
+        return root;
+    }
+
+    public Node buildBattleMapPane(TextField textField) {
+        Node node;
+        if (textField != null) {
+            node = buildCanvasWithNameOverlayPane(textField);
+        } else {
+            node = buildCanvasPane();
+        }
+
+        // rerender on resize
+        canvas.widthProperty().addListener((obs, o, n) -> renderBattlemap());
+        canvas.heightProperty().addListener((obs, o, n) -> renderBattlemap());
+
+        lightingSystem.recomputeLightmapAll(gameMap);
+        return node;
+    }
+
+    public Node buildWorldMapPane(TextField textField) {
+        Node node;
+        if (textField != null) {
+            node = buildCanvasWithNameOverlayPane(textField);
+        } else {
+            node = buildCanvasPane();
+        }
+
+        // rerender on resize
+        canvas.widthProperty().addListener((obs, o, n) -> renderWorldmap());
+        canvas.heightProperty().addListener((obs, o, n) -> renderWorldmap());
+
+        lightingSystem.recomputeLightmapAll(gameMap);
+        return node;
+    }
+
+
+    public void renderBattlemap() {
         if (canvas == null) return;
 
         GraphicsContext g = canvas.getGraphicsContext2D();
@@ -99,8 +151,6 @@ public class MapRenderer {
             g.drawImage(backgroundImage, sx, sy, sw, sh);
         }
 
-        double tileScreen = BASE_TILE * zoom;
-
         // visible tile bounds
         double worldLeft = camX;
         double worldTop = camY;
@@ -119,7 +169,7 @@ public class MapRenderer {
         double startX = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
         double startY = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
 
-        g.setFill(Color.BLACK); // Overlay-Farbe einmal setzen
+        //g.setFill(Color.BLACK); // Overlay-Farbe einmal setzen
 
         for (int r = rowMin; r <= rowMax; r++) {
             double y = startY + (r - rowMin) * step;
@@ -135,7 +185,7 @@ public class MapRenderer {
                     g.fillRect(x, y, tileDraw, tileDraw);
                 }
 
-                // Light overlay (immer möglich, unabhängig von Terrain)
+                // Darkness overlay
                 float b = t.getBrightness();
                 if (b < 0f) b = 0f;
                 if (b > 1f) b = 1f;
@@ -187,22 +237,24 @@ public class MapRenderer {
         }
 
         for (LightSource ls : gameMap.getLights()) {
-            double xWorld = ls.col * BASE_TILE;
-            double yWorld = ls.row * BASE_TILE;
+            // ls.x / ls.y in Tile-Koordinaten (z.B. 12.5 = Tile-Center, 12.0 = Ecke)
+            double xWorld = ls.x;
+            double yWorld = ls.y;
 
-            double x = Math.floor((xWorld - camX) * zoom);
-            double y = Math.floor((yWorld - camY) * zoom);
+            double x = (xWorld - camX) * zoom;
+            double y = (yWorld - camY) * zoom;
 
             double size = BASE_TILE * zoom * 0.35;
 
             g.setFill(sceneBuilder.redRGB);
             g.fillOval(
-                    x + (BASE_TILE * zoom - size) / 2,
-                    y + (BASE_TILE * zoom - size) / 2,
+                    x - size * 0.5,
+                    y - size * 0.5,
                     size,
                     size
             );
         }
+
 
         // HUD
         g.setFill(sceneBuilder.beigeRGB);
@@ -210,6 +262,130 @@ public class MapRenderer {
         g.fillText("Mapeditor | Tool=" + "currentTool" + " | Zoom=" + String.format("%.2f", zoom)
                         + " | Grid=" + gameMap.getRows() + "x" + gameMap.getCols(),
                 12, 20);
+    }
+
+
+    public void renderWorldmap() {
+        if (canvas == null) return;
+
+        GraphicsContext g = canvas.getGraphicsContext2D();
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+
+        g.setFill(sceneBuilder.blackRGB);
+        g.fillRect(0, 0, w, h);
+
+        if (backgroundImage != null) {
+            double worldW = gameMap.getCols() * BASE_TILE;
+            double worldH = gameMap.getRows() * BASE_TILE;
+
+            double sx = (-camX) * zoom;
+            double sy = (-camY) * zoom;
+            double sw = worldW * zoom;
+            double sh = worldH * zoom;
+
+            g.drawImage(backgroundImage, sx, sy, sw, sh);
+        }
+
+        // visible tile bounds
+        double worldLeft = camX;
+        double worldTop = camY;
+        double worldRight = camX + w / zoom;
+        double worldBottom = camY + h / zoom;
+
+        int colMin = clamp((int) Math.floor(worldLeft / BASE_TILE) - 2, 0, gameMap.getCols() - 1);
+        int colMax = clamp((int) Math.ceil(worldRight / BASE_TILE) + 2, 0, gameMap.getCols() - 1);
+        int rowMin = clamp((int) Math.floor(worldTop / BASE_TILE) - 2, 0, gameMap.getRows() - 1);
+        int rowMax = clamp((int) Math.ceil(worldBottom / BASE_TILE) + 2, 0, gameMap.getRows() - 1);
+
+        // draw tiles
+        double step = BASE_TILE * zoom;
+        double tileDraw = step + 1;
+
+        double startX = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
+        double startY = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
+
+        // konstante Innen-Marge in Bildschirm-Pixeln
+        double insetPx = 4.0;
+        double innerSize = Math.max(7.0, step - insetPx * 2.0);
+
+        // Eckradius in Pixeln (konstant) + Clamp, damit es nie zu groß wird
+        double radius = Math.min(10.0, innerSize * 0.25);
+
+        // Border
+        g.setStroke(Color.BLACK);
+        g.setLineWidth(1.0);
+
+        for (int r = rowMin; r <= rowMax; r++) {
+            double y = startY + (r - rowMin) * step;
+
+            double x = startX;
+            for (int c = colMin; c <= colMax; c++) {
+                Tile t = gameMap.getTile(r, c);
+                if (t.has(Tile.DISABLED) && !debug) {
+                    continue;
+                }
+
+                // Terrain
+                if (t.hasDebugTerrain() && debug) {
+                    g.setFill(t.getDebugColour());
+                    g.fillRect(x, y, tileDraw, tileDraw);
+                }
+
+                // zentriertes inneres "Tile"
+                double ix = x + (step - innerSize) * 0.5;
+                double iy = y + (step - innerSize) * 0.5;
+
+                // Fill
+                if (!t.has(Tile.DISABLED)) {
+                    g.setFill(SceneBuilder.getSceneBuilder().worldMapBlue);
+                    g.fillRoundRect(ix, iy, innerSize, innerSize, radius, radius);
+                }
+
+                // Border
+                double bw = 1.0;
+                g.strokeRoundRect(ix + bw * 0.5, iy + bw * 0.5,
+                        innerSize - bw, innerSize - bw,
+                        radius, radius);
+
+                x += step;
+            }
+        }
+
+        // nach Tile-Loop Alpha zurück
+        g.setGlobalAlpha(1.0);
+
+        // draw grid lines
+        g.setStroke(sceneBuilder.strokeRGB);
+        g.setLineWidth(1.0);
+
+        double x0 = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
+        double x1 = Math.floor((((colMax + 1) * BASE_TILE) - camX) * zoom);
+        double y0 = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
+        double y1 = Math.floor((((rowMax + 1) * BASE_TILE) - camY) * zoom);
+
+        for (int c = colMin; c <= colMax + 1; c++) {
+            double xLine = Math.floor(((c * BASE_TILE) - camX) * zoom);
+            g.strokeLine(xLine, y0, xLine, y1);
+        }
+        for (int r = rowMin; r <= rowMax + 1; r++) {
+            double yLine = Math.floor(((r * BASE_TILE) - camY) * zoom);
+            g.strokeLine(x0, yLine, x1, yLine);
+        }
+
+        // draw tokens
+        g.setFont(Font.font(12));
+        for (Token t : gameMap.getTokens()) {
+            double xWorld = t.col * BASE_TILE;
+            double yWorld = t.row * BASE_TILE;
+
+            double x = Math.floor((xWorld - camX) * zoom);
+            double y = Math.floor((yWorld - camY) * zoom);
+
+            g.setFill(sceneBuilder.beigeRGB);
+            g.fillText(t.name, x + 4, y + 14);
+        }
     }
 
     //camera
@@ -241,8 +417,6 @@ public class MapRenderer {
         double worldY = camY + screenY / zoom;
         return (int) Math.floor(worldY / BASE_TILE);
     }
-
-
 
     public GameMap getGameMap() {
         return gameMap;

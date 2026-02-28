@@ -5,6 +5,9 @@ import com.fuchsbau.shorin.Engine.Map.Token;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
+
+
 public class GameMap {
     // --- Grid model ---
     protected int rows = 30;
@@ -92,15 +95,96 @@ public class GameMap {
     }
 
     // --- Light ---
-    public void addOrReplaceLight(int row, int col, int brightTiles, int dimtiles, float intensity) {
-        lights.removeIf(l -> l.row == row && l.col == col);
-        lights.add(new LightSource(row, col, brightTiles, dimtiles, intensity));
+    public void addOrReplaceLight(double worldX,
+                                  double worldY,
+                                  int brightTiles,
+                                  int dimTiles,
+                                  float intensity) {
+
+        double[] snapped = snapWorldToCornersOrCenter(worldX, worldY);
+        double snappedX = snapped[0];
+        double snappedY = snapped[1];
+
+        final double eps = 0.0001;
+
+        lights.removeIf(l ->
+                Math.abs(l.x - snappedX) < eps &&
+                        Math.abs(l.y - snappedY) < eps
+        );
+
+        lights.add(new LightSource(snappedX, snappedY, brightTiles, dimTiles, intensity));
     }
 
-    public boolean removeLightAt(int row, int col) {
-        int before = lights.size();
-        lights.removeIf(l -> l.row == row && l.col == col);
-        return lights.size() != before;
+    private double[] snapWorldToCornersOrCenter(double worldX, double worldY) {
+        int col = (int) Math.floor(worldX / BASE_TILE);
+        int row = (int) Math.floor(worldY / BASE_TILE);
+
+        double tileX = col * BASE_TILE;
+        double tileY = row * BASE_TILE;
+        double t = BASE_TILE;
+
+        // Kandidaten: Center + 4 Ecken
+        double[][] pts = new double[][]{
+                {tileX + t * 0.5, tileY + t * 0.5}, // center
+                {tileX, tileY},                     // NW
+                {tileX + t, tileY},                 // NE
+                {tileX, tileY + t},                 // SW
+                {tileX + t, tileY + t}              // SE
+        };
+
+        double bestX = pts[0][0], bestY = pts[0][1];
+        double bestD2 = dist2(worldX, worldY, bestX, bestY);
+
+        for (int i = 1; i < pts.length; i++) {
+            double d2 = dist2(worldX, worldY, pts[i][0], pts[i][1]);
+            if (d2 < bestD2) {
+                bestD2 = d2;
+                bestX = pts[i][0];
+                bestY = pts[i][1];
+            }
+        }
+        return new double[]{bestX, bestY};
+    }
+
+    private double dist2(double ax, double ay, double bx, double by) {
+        double dx = ax - bx;
+        double dy = ay - by;
+        return dx * dx + dy * dy;
+    }
+
+    public boolean removeLightNear(double mouseScreenX, double mouseScreenY,
+                                   double camWorldX, double camWorldY, double zoom,
+                                   double tolerancePx) {
+
+        int bestIdx = -1;
+        double bestDist2 = tolerancePx * tolerancePx;
+
+        for (int i = 0; i < lights.size(); i++) {
+            LightSource ls = lights.get(i);
+
+            // LightSource ist in world px
+            double worldX = ls.x;
+            double worldY = ls.y;
+
+            // world -> screen
+            double sx = (worldX - camWorldX) * zoom;
+            double sy = (worldY - camWorldY) * zoom;
+
+            double dx = sx - mouseScreenX;
+            double dy = sy - mouseScreenY;
+            double d2 = dx * dx + dy * dy;
+
+            if (d2 <= bestDist2) {
+                bestDist2 = d2;
+                bestIdx = i;
+            }
+        }
+
+        if (bestIdx >= 0) {
+            lights.remove(bestIdx);
+            return true;
+        }
+        return false;
     }
 
     public boolean inBounds(int r, int c) {

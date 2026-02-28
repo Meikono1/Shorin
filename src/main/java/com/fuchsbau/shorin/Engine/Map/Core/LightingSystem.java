@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
+import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
 
 public class LightingSystem {
@@ -69,20 +70,45 @@ public class LightingSystem {
     private void applyLight(LightSource ls, GameMap gameMap) {
         int brTiles = ls.brightTiles;
         int dimTiles = ls.dimTiles;
+        int rad = Math.max(1, dimTiles);
 
-        int radTiles = Math.max(1, dimTiles);
+        // Tile-space
+        double lx = ls.x / BASE_TILE;
+        double ly = ls.y / BASE_TILE;
 
-        int r0 = clamp(ls.row - radTiles, 0, gameMap.getRows() - 1);
-        int r1 = clamp(ls.row + radTiles, 0, gameMap.getRows() - 1);
-        int c0 = clamp(ls.col - radTiles, 0, gameMap.getCols() - 1);
-        int c1 = clamp(ls.col + radTiles, 0, gameMap.getCols() - 1);
+        // Bounding box in Tiles
+        int r0 = clamp((int) Math.floor(ly - rad) - 1, 0, gameMap.getRows() - 1);
+        int r1 = clamp((int) Math.ceil(ly + rad) + 1, 0, gameMap.getRows() - 1);
+        int c0 = clamp((int) Math.floor(lx - rad) - 1, 0, gameMap.getCols() - 1);
+        int c1 = clamp((int) Math.ceil(lx + rad) + 1, 0, gameMap.getCols() - 1);
+
+        // LOS start tile
+        int srcR = clamp((int) Math.floor(ly), 0, gameMap.getRows() - 1);
+        int srcC = clamp((int) Math.floor(lx), 0, gameMap.getCols() - 1);
+
+        // Center check (tile fractions)
+        boolean isCenter =
+                isNear(frac(lx), 0.5, 1e-6) &&
+                        isNear(frac(ly), 0.5, 1e-6);
 
         for (int r = r0; r <= r1; r++) {
-            int dr = Math.abs(r - ls.row);
             for (int c = c0; c <= c1; c++) {
-                int dc = Math.abs(c - ls.col);
 
-                int distTiles = distanceFt(dc, dr);
+                double dx, dy;
+
+                if (isCenter) {
+                    // PF2 wie bisher: Tile-Center
+                    double tx = c + 0.5;
+                    double ty = r + 0.5;
+                    dx = Math.abs(tx - lx);
+                    dy = Math.abs(ty - ly);
+                } else {
+                    // Rand/Ecke: Distanz zum Tile-Quadrat (AABB)
+                    dx = distanceToInterval(lx, c, c + 1.0);
+                    dy = distanceToInterval(ly, r, r + 1.0);
+                }
+
+                int distTiles = distanceTiles(dx, dy);
                 if (distTiles > dimTiles) continue;
 
                 Lightlevel lvl = (distTiles <= brTiles) ? Lightlevel.BRIGHT_LIGHT : Lightlevel.DIM_LIGHT;
@@ -93,13 +119,13 @@ public class LightingSystem {
                 Tile t = gameMap.getTile(r, c);
 
                 boolean improvesBrightness = b > t.getBrightness();
-                boolean improvesLevel = (lvl == Lightlevel.BRIGHT_LIGHT && t.getLightlevel() != Lightlevel.BRIGHT_LIGHT)
-                        || (lvl == Lightlevel.DIM_LIGHT && t.getLightlevel() == Lightlevel.DARKNESS);
+                boolean improvesLevel =
+                        (lvl == Lightlevel.BRIGHT_LIGHT && t.getLightlevel() != Lightlevel.BRIGHT_LIGHT)
+                                || (lvl == Lightlevel.DIM_LIGHT && t.getLightlevel() == Lightlevel.DARKNESS);
 
-                // Wenn weder Level noch Brightness besser wird
                 if (!improvesBrightness && !improvesLevel) continue;
 
-                if (!gameMap.hasLineOfSight(ls.row, ls.col, r, c)) continue;
+                if (!gameMap.hasLineOfSight(srcR, srcC, r, c)) continue;
 
                 if (improvesBrightness) t.setBrightness(b);
 
@@ -110,6 +136,26 @@ public class LightingSystem {
                 }
             }
         }
+    }
+
+    private static double distanceToInterval(double v, double a, double b) {
+        if (v < a) return a - v;
+        if (v > b) return v - b;
+        return 0.0;
+    }
+
+    private static double frac(double v) {
+        return v - Math.floor(v);
+    }
+
+    private static boolean isNear(double a, double b, double eps) {
+        return Math.abs(a - b) <= eps;
+    }
+
+    private int distanceTiles(double dx, double dy) {
+        double max = Math.max(dx, dy);
+        double min = Math.min(dx, dy);
+        return (int) Math.floor(max + Math.floor(min / 2f));
     }
 
     private float brightnessAtDistanceTiles(int d, int bright, int dim, float intensity) {

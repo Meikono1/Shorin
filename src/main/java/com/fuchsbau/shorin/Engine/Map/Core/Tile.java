@@ -17,15 +17,16 @@ public final class Tile {
     public int flags;
 
     // --- Flags (bitmask) ---
-    public static final int WALL = 1; // impassable tile
-    public static final int DOOR = 1 << 1; // door tile
-    public static final int DOOR_OPEN = 1 << 2; // only meaningful if DOOR set
-    public static final int DIFFICULT = 1 << 3; // +5 ft
-    public static final int GREATER_DIFFICULT = 1 << 4; // +10 ft
-    public static final int HAZARDOUS = 1 << 5; // triggers damage on move-through/enter
-    public static final int NARROW_SURFACE = 1 << 6; // Balance rules
-    public static final int UNEVEN_GROUND = 1 << 7; // Balance rules
-    public static final int OUTSIDE = 1 << 8; // daylight can apply
+    public static final int DISABLED = 1; // impassable tile
+    public static final int WALL = 1 << 1; // impassable tile
+    public static final int DOOR = 1 << 2; // door tile
+    public static final int DOOR_OPEN = 1 << 3; // only meaningful if DOOR set
+    public static final int DIFFICULT = 1 << 4; // +5 ft
+    public static final int GREATER_DIFFICULT = 1 << 5; // +10 ft
+    public static final int HAZARDOUS = 1 << 6; // triggers damage on move-through/enter
+    public static final int NARROW_SURFACE = 1 << 7; // Balance rules
+    public static final int UNEVEN_GROUND = 1 << 8; // Balance rules
+    public static final int OUTSIDE = 1 << 9; // daylight can apply
 
 
     // ---- Debug Colours (cached, keine Allokation im Render) ----
@@ -122,6 +123,16 @@ public final class Tile {
 
     public void setLightlevel(Lightlevel lightlevel) {
         this.lightlevel = lightlevel;
+    }
+
+    public double getTerrainmultiplier() {
+        if (this.has(GREATER_DIFFICULT)) {
+            return (double) 1 / 3;
+        } else if (this.has(DIFFICULT)) {
+            return 2;
+        } else {
+            return 1;
+        }
     }
 
     // --- Occupant (dynamic) ---

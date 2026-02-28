@@ -21,4 +21,5 @@ module com.fuchsbau.shorin {
 
     exports com.fuchsbau.shorin.test;
     exports com.fuchsbau.shorin.Engine.Race;
+    exports  com.fuchsbau.shorin.Engine.Map.Core;
 }
