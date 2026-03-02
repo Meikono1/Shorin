@@ -306,12 +306,9 @@ public class MapRenderer {
         double startX = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
         double startY = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
 
-        // konstante Innen-Marge in Bildschirm-Pixeln
-        double insetPx = 4.0;
-        double innerSize = Math.max(7.0, step - insetPx * 2.0);
-
-        // Eckradius in Pixeln (konstant) + Clamp, damit es nie zu groß wird
-        double radius = Math.min(10.0, innerSize * 0.25);
+        // Tile ist immer 75% der Zelle, aber min 6px, max 48px
+        double innerSize = clamp(step * 0.65, 6.0, 48.0);
+        double radius = clamp(innerSize * 0.2, 2.0, 8.0);
 
         // Border
         g.setStroke(Color.BLACK);

@@ -20,6 +20,7 @@ public class GameMap {
     public GameMap(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
+        grid = new Tile[rows][cols];
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 grid[r][c] = Tile.empty();
@@ -37,7 +38,6 @@ public class GameMap {
 
 
     // --- Grid Calculation ---
-
     public boolean hasLineOfSight(int r0, int c0, int r1, int c1) {
         int dx = Math.abs(c1 - c0);
         int dy = Math.abs(r1 - r0);

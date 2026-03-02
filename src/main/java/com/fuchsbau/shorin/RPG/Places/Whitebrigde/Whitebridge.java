@@ -13,10 +13,10 @@ import javafx.scene.text.TextFlow;
 
 public class Whitebridge extends Place implements Saveble {
 
-    private final Inn inn = new Inn();
-    private final Library library = new Library();
-    private final Shop shop = new Shop();
-    private final Entrance entrance = new Entrance();
+    private final Inn inn = new Inn("", "");
+    private final Library library = new Library("", "");
+    private final Shop shop = new Shop("", "");
+    private final Entrance entrance = new Entrance("", "");
     private Scene scene;
     private final int ort = 1;
     private final int whitebridgestage = 0;
@@ -26,6 +26,10 @@ public class Whitebridge extends Place implements Saveble {
 
     public Whitebridge(String name, String beschreibung) {
         super(name, beschreibung);
+        addSubPlace(inn);
+        addSubPlace(library);
+        addSubPlace(shop);
+        addSubPlace(entrance);
     }
 
     private void makeScene() {
@@ -34,10 +38,9 @@ public class Whitebridge extends Place implements Saveble {
         Text a = SceneBuilder.getSceneBuilder().makeText("You`re in the city of ");
         Text b = this.getOrtText();
         Text c = SceneBuilder.getSceneBuilder().makeText(", the first city outside of ");
-        Text d = Game.getInstance().sudbury.getOrtText();
         Text e = SceneBuilder.getSceneBuilder().makeText(". \n\n");
 
-        flow.getChildren().addAll(a, b, c, d, e);
+        flow.getChildren().addAll(a, b, c, e);
 
         if (whitebridgestage == 0) {
             Text f = SceneBuilder.getSceneBuilder().makeText("This is your home town, where you grew up an orphan. Your parents died in the ");
@@ -92,7 +95,7 @@ public class Whitebridge extends Place implements Saveble {
         inn.setOnMouseClicked(event -> Main.getStage().setScene(this.inn.getScene(0)));
         SceneBuilder.getSceneBuilder().addButton(inn, 3);
 
-        scene = new Scene(SceneBuilder.getSceneBuilder().buildGameScene( flow));
+        scene = new Scene(SceneBuilder.getSceneBuilder().buildGameScene(flow));
     }
 
     @Override

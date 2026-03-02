@@ -1,5 +1,7 @@
 package com.fuchsbau.shorin.Engine.RPG;
 
+import com.fuchsbau.shorin.RPG.Places.Humanic.Plyport.PlyPort;
+
 import java.util.HashMap;
 
 public class StartClassLoader {
@@ -14,6 +16,6 @@ public class StartClassLoader {
     }
 
     private static void initialise() {
-        savedStarts.put("FreeStartShipArrivalHumans", null);
+        savedStarts.put("FreeStartShipArrivalHumans", new PlyPort());
     }
 }

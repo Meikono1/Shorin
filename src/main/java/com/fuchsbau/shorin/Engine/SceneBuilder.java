@@ -317,6 +317,27 @@ public class SceneBuilder {
         return button;
     }
 
+    public Button makeActionButton(String key, String label) {
+        Button btn = new Button(label);
+        btn.setMaxWidth(Double.MAX_VALUE);
+        btn.setPrefHeight(56);
+        btn.getStyleClass().addAll("menu-button", "action-button");
+
+        Label keyLabel = new Label(key);
+        keyLabel.setTextFill(Color.rgb(150, 150, 180));
+        keyLabel.setStyle("-fx-font-size: 15px;");
+        keyLabel.setPadding(new Insets(2, 0, 0, 5));
+
+        StackPane graphic = new StackPane(keyLabel);
+        StackPane.setAlignment(keyLabel, Pos.TOP_LEFT);
+        graphic.setMaxWidth(Double.MAX_VALUE);
+        graphic.prefWidthProperty().bind(btn.widthProperty());
+        graphic.setPrefHeight(14);
+
+        btn.setGraphic(graphic);
+        btn.setContentDisplay(ContentDisplay.TOP);
+        return btn;
+    }
 
     public Button makeButton(int row) {
         Button button = new Button();

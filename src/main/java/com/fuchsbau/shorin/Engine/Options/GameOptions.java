@@ -79,7 +79,7 @@ public class GameOptions {
             if (stage == 0) {
                 Main.getStage().setScene(new MainScreen().getScene(0));
             } else {
-                Main.getStage().setScene(Game.getInstance().inventory.getScene());
+                Main.getStage().setScene(Game.getInstance().spieler.getCurrentScene());
             }
         });
         SceneBuilder.getSceneBuilder().addButton(back, 1);

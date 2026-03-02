@@ -33,7 +33,7 @@ public class Shopkeeper implements Saveble {
         SceneBuilder.getSceneBuilder().addButton(healbuy, 1);
 
         Button back = SceneBuilder.getSceneBuilder().makeButton(2, "back to the shop");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(new Shop().getScene(0)));
+        back.setOnMouseClicked(event -> Main.getStage().setScene(new Shop("","").getScene(0)));
         SceneBuilder.getSceneBuilder().addButton(back, 2);
 
         scene = new Scene(SceneBuilder.getSceneBuilder().buildShop(SceneBuilder.getSceneBuilder().makeScrollpane(), items));

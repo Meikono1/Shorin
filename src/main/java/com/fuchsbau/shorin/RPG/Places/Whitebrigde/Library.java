@@ -4,14 +4,19 @@ import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Places.Place;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class Library implements Saveble {
+public class Library extends Place implements Saveble {
     private Scene scene;
+
+    public Library(String name, String description) {
+        super(name, description);
+    }
 
     private void makeScene() {
         TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();

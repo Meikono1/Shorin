@@ -4,12 +4,17 @@ import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.RPG.Places.Place;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 
-public class Entrance implements Saveble {
+public class Entrance extends Place implements Saveble {
     // TODO: 23.09.2019  make entrance
     private Scene scene;
+
+    public Entrance(String name, String description) {
+        super(name, description);
+    }
 
     private void makeScene() {
         Button back = SceneBuilder.getSceneBuilder().makeButton(3, "Back to Whitebridge");

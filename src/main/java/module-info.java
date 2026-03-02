@@ -22,4 +22,6 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.test;
     exports com.fuchsbau.shorin.Engine.Race;
     exports  com.fuchsbau.shorin.Engine.Map.Core;
+    exports com.fuchsbau.shorin.Engine.Paperdoll;
+    opens com.fuchsbau.shorin.Engine.Paperdoll to com.fasterxml.jackson.databind;
 }

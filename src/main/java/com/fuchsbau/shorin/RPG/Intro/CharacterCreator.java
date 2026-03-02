@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.RPG.Intro;
 
-import com.fuchsbau.shorin.Engine.RPG.DetailWindow;
+import com.fuchsbau.shorin.Engine.Paperdoll.DetailWindow;
 import com.fuchsbau.shorin.Engine.RPG.ScenarioDefinition;
 import com.fuchsbau.shorin.Engine.RPG.StartClassLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;

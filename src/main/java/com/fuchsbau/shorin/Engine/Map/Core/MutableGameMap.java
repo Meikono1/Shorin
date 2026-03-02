@@ -1,6 +1,14 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
 public class MutableGameMap extends GameMap {
+    public MutableGameMap() {
+        rows = 30;
+        cols = 30;
+    }
+
+    public MutableGameMap(int rows, int cols) {
+        super(rows, cols);
+    }
 
     // --- Grid Manipulation ---
     public void resizeGrid(int newRows, int newCols) {
@@ -26,6 +34,14 @@ public class MutableGameMap extends GameMap {
         grid = newGrid;
         rows = newRows;
         cols = newCols;
+    }
+
+    public void clearAll() {
+        for (int c = 0; c < grid.length; c++) {
+            for (int r = 0; r < grid[c].length; r++) {
+                grid[c][r] = Tile.empty();
+            }
+        }
     }
 
     public void addRowTop() {
