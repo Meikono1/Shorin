@@ -213,9 +213,11 @@ public class PlayerScreen implements Saveble {
 
         // Platzhalter-Text
         storyFlow.getChildren().add(sb.makeText(
-                "[ Hier erscheint die Story, Beschreibungen und Dialoge... ]\n\n" +
-                        "Du stehst am Hafendeck. Das Holz unter deinen Füßen knarrt im " +
-                        "Rhythmus der Wellen. Der Geruch von Salz und Teer liegt in der Luft."
+                """
+                        [ Hier erscheint die Story, Beschreibungen und Dialoge... ]
+
+                        Du stehst am Hafendeck. Das Holz unter deinen Füßen knarrt im \
+                        Rhythmus der Wellen. Der Geruch von Salz und Teer liegt in der Luft."""
         ));
 
         ScrollPane storyScroll = new ScrollPane(storyFlow);
@@ -271,15 +273,17 @@ public class PlayerScreen implements Saveble {
         VBox navTree = new VBox(2);
         navTree.setPadding(new Insets(4));
 
-        // Alle Top-Level Places aus Game
         for (Place place : getTopLevelPlaces()) {
             navTree.getChildren().add(buildNavEntry(place, 0));
         }
 
         ScrollPane navScroll = new ScrollPane(navTree);
-        navScroll.setFitToHeight(true);
+        navScroll.setFitToWidth(true);
         navScroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        VBox navSection = new VBox(4, navHeader, navScroll);
         VBox.setVgrow(navScroll, Priority.ALWAYS);
+        VBox.setVgrow(navSection, Priority.ALWAYS);
 
         // --- Zeitsteuerung ---
         Label timeHeader = sb.makeWhiteLabel("Zeit");
@@ -308,7 +312,7 @@ public class PlayerScreen implements Saveble {
         rightPanel.getChildren().addAll(
                 mapBox,
                 new Separator(),
-                navHeader, navTree,
+                navSection,
                 new Separator(),
                 timeHeader, currentTime, speedRow,
                 new Separator(),
@@ -316,31 +320,6 @@ public class PlayerScreen implements Saveble {
         );
 
         return rightPanel;
-    }
-
-    // Hilfsmethoden
-    private VBox placeholderSection(String title, String... lines) {
-        VBox box = new VBox(4);
-        Label header = sb.makeWhiteLabel(title);
-        header.setStyle("-fx-font-size: 13px; -fx-font-weight: bold;");
-        box.getChildren().add(header);
-        for (String line : lines) {
-            Label l = new Label(line);
-            l.setTextFill(Color.LIGHTGRAY);
-            l.setStyle("-fx-font-size: 11px;");
-            box.getChildren().add(l);
-        }
-        return box;
-    }
-
-    /**
-     * Kleiner Navigations-Button
-     */
-    private Button navBtn(String symbol) {
-        Button btn = new Button(symbol);
-        btn.setPrefSize(40, 40);
-        btn.getStyleClass().add("menu-button");
-        return btn;
     }
 
     /**

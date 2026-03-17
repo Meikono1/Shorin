@@ -1,9 +1,9 @@
 package com.fuchsbau.shorin.RPG;
 
+import com.fuchsbau.shorin.Engine.Editor.GameEditor;
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Map.MapEditor;
-import com.fuchsbau.shorin.Engine.Map.WorldMapEditor;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
@@ -73,9 +73,9 @@ public class MainScreen implements Saveble {
             Main.getStage().setScene(new MapEditor().getScene(0));
         });
 
-        Button worldmapEditor = sceneBuilder.createMenuButton("Worldmap Editor");
+        Button worldmapEditor = sceneBuilder.createMenuButton("Game Editor");
         worldmapEditor.setOnAction(event -> {
-            Main.getStage().setScene(new WorldMapEditor().getScene(0));
+            Main.getStage().setScene(new GameEditor().buildScene());
         });
 
         Button settings = sceneBuilder.createMenuButton("Settings");
