@@ -53,7 +53,8 @@ public class GameEditor {
                         new WorldMapModule(),
                         new BattleMapModule(),
                         new ShopModule(),
-                        new ScenarioModule()
+                        new ScenarioModule(),
+                        new CharacterModule()
                 )),
                 new ModuleGroup("System", List.of(
                         new ClassModule(),

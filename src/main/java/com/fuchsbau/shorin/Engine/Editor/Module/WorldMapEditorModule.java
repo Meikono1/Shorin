@@ -1,6 +1,5 @@
-package com.fuchsbau.shorin.Engine.Editor;
+package com.fuchsbau.shorin.Engine.Editor.Module;
 
-import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
