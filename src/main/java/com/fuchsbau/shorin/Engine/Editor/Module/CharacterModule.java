@@ -4,26 +4,44 @@ import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.Proficiency;
 import com.fuchsbau.shorin.Engine.System.SlotType;
 import com.fuchsbau.shorin.Logger.FileLogger;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class CharacterModule implements EditorModule {
 
     private static final Logger logger = FileLogger.getLogger();
 
-    private PlayerCharacter character = new PlayerCharacter();
 
     // UI-Refs
-    private TextField nameField, levelField, classField, ancestryField;
+    private TextField nameField, levelField;
+    private ComboBox<String> classDropdown, ancestryDropdown;
     private Label activeLevelLabel;
     private VBox featPanel;       // rechts unten — dynamisch
     private VBox tabContextPanel; // rechts mitte — dynamisch
+
+
+    private PlayerCharacter character = new PlayerCharacter();
+
+    // Stats panel
+    private final IntegerProperty strMod = new SimpleIntegerProperty(0);
+    private final IntegerProperty dexMod = new SimpleIntegerProperty(0);
+    private final IntegerProperty conMod = new SimpleIntegerProperty(0);
+    private final IntegerProperty intMod = new SimpleIntegerProperty(0);
+    private final IntegerProperty wisMod = new SimpleIntegerProperty(0);
+    private final IntegerProperty chaMod = new SimpleIntegerProperty(0);
+
 
     // ────────────────────────────────────────────────────────────
     @Override
@@ -50,19 +68,24 @@ public class CharacterModule implements EditorModule {
         nameField.setPromptText("Name");
         levelField = new TextField("1");
         levelField.setPrefWidth(45);
-        classField = new TextField();
-        classField.setPromptText("Klasse");
-        ancestryField = new TextField();
-        ancestryField.setPromptText("Ancestry");
+
+        classDropdown = new ComboBox<>();
+        classDropdown.setPromptText("Klasse");
+        classDropdown.getItems().addAll("Fighter", "Rogue", "Wizard", "Cleric"); // später aus ClassModule
+        classDropdown.setPrefWidth(120);
+
+        ancestryDropdown = new ComboBox<>();
+        ancestryDropdown.setPromptText("Ancestry");
+        ancestryDropdown.getItems().addAll("Human", "Elf", "Dwarf", "Gnome"); // später aus AncestryModule
+        ancestryDropdown.setPrefWidth(120);
 
         HBox header = new HBox(10,
                 makeLabel("Name"), nameField,
                 makeLabel("Level"), levelField,
-                makeLabel("Klasse"), classField,
-                makeLabel("Ancestry"), ancestryField
+                makeLabel("Klasse"), classDropdown,
+                makeLabel("Ancestry"), ancestryDropdown
         );
         header.setPadding(new Insets(8));
-        header.setStyle("-fx-background-color: rgba(20,20,30,0.95);");
         return header;
     }
 
@@ -101,14 +124,31 @@ public class CharacterModule implements EditorModule {
         grid.setVgap(4);
         grid.setPadding(new Insets(8));
 
-        String[] stats = {"STR", "DEX", "CON", "INT", "WIS", "CHA"};
-        for (int i = 0; i < stats.length; i++) {
-            grid.add(makeLabel(stats[i]), 0, i);
-            TextField f = new TextField("10");
-            f.setPrefWidth(50);
-            grid.add(f, 1, i);
-        }
+        // Stat + Property → Label zeigt berechneten Modifier
+        addStatRow(grid, "STR", strMod, 0);
+        addStatRow(grid, "DEX", dexMod, 1);
+        addStatRow(grid, "CON", conMod, 2);
+        addStatRow(grid, "INT", intMod, 3);
+        addStatRow(grid, "WIS", wisMod, 4);
+        addStatRow(grid, "CHA", chaMod, 5);
+
         return grid;
+    }
+
+    private void addStatRow(GridPane grid, String name, IntegerProperty mod, int row) {
+        grid.add(makeLabel(name), 0, row);
+
+        // Modifier-Label
+        Label modLabel = new Label("+0");
+        modLabel.setPrefWidth(35);
+        modLabel.setTextFill(Color.BLACK);
+        modLabel.setStyle("-fx-font-weight: bold;");
+        mod.addListener((obs, ov, nv) -> {
+            modLabel.setText((nv.intValue() >= 0 ? "+" : "") + nv.intValue());
+            recalculateSkills();
+        });
+
+        grid.add(modLabel, 1, row);
     }
 
     // --- COMBAT ---
@@ -139,46 +179,78 @@ public class CharacterModule implements EditorModule {
     }
 
     // --- SKILLS ---
+    private final Map<String, ObjectProperty<Proficiency>> skillProfs = new LinkedHashMap<>();
+    private final Map<String, Label> skillBonusLabels = new LinkedHashMap<>();
+
+    private static final String[] SKILLS = {
+            "Acrobatics", "Arcana", "Athletics", "Crafting", "Deception",
+            "Diplomacy", "Intimidation", "Lore", "Medicine", "Nature",
+            "Occultism", "Performance", "Religion", "Society", "Stealth",
+            "Survival", "Thievery"
+    };
+
+    // Welcher Stat gehört zu welchem Skill
+    private static IntegerProperty skillStat(String skill,
+                                             IntegerProperty str, IntegerProperty dex, IntegerProperty con,
+                                             IntegerProperty intel, IntegerProperty wis, IntegerProperty cha) {
+        return switch (skill) {
+            case "Athletics" -> str;
+            case "Acrobatics", "Stealth", "Thievery" -> dex;
+            case "Arcana", "Crafting", "Lore", "Occultism", "Society" -> intel;
+            case "Medicine", "Nature", "Perception", "Religion", "Survival" -> wis;
+            case "Deception", "Diplomacy", "Intimidation", "Performance" -> cha;
+            default -> wis;
+        };
+    }
+
     private Node buildSkillsPanel() {
         VBox box = new VBox(3);
         box.setPadding(new Insets(8));
 
-        // PF2e Standardskills
-        String[] skills = {
-                "Acrobatics", "Arcana", "Athletics", "Crafting", "Deception",
-                "Diplomacy", "Intimidation", "Lore", "Medicine", "Nature",
-                "Occultism", "Performance", "Religion", "Society", "Stealth",
-                "Survival", "Thievery"
-        };
+        for (String skill : SKILLS) {
+            ObjectProperty<Proficiency> prof = new SimpleObjectProperty<>(Proficiency.UNTRAINED);
+            skillProfs.put(skill, prof);
 
-        for (String skill : skills) {
-            ComboBox<Proficiency> prof = new ComboBox<>();
-            prof.getItems().addAll(Proficiency.values());
-            prof.setValue(Proficiency.UNTRAINED);
-            prof.setPrefWidth(35);
+            // Feste Breiten für alle Spalten
+            Label nameLabel = makeLabel(skill);
+            nameLabel.setPrefWidth(100);
+            nameLabel.setMinWidth(100);
+            nameLabel.setMaxWidth(100);
 
-            // Proficiency als Kurzzeichen anzeigen
-            prof.setCellFactory(lv -> new ListCell<>() {
+            ComboBox<Proficiency> profBox = new ComboBox<>();
+            profBox.getItems().addAll(Proficiency.values());
+            profBox.setValue(Proficiency.UNTRAINED);
+            profBox.setPrefWidth(95);
+            profBox.setMinWidth(95);
+
+            // Volltext anzeigen statt "..."
+            profBox.setCellFactory(lv -> new ListCell<>() {
                 @Override
                 protected void updateItem(Proficiency p, boolean empty) {
                     super.updateItem(p, empty);
-                    setText(empty || p == null ? null : p.shortLabel());
+                    setText(empty || p == null ? null : p.name());
                 }
             });
-            prof.setButtonCell(new ListCell<>() {
+            profBox.setButtonCell(new ListCell<>() {
                 @Override
                 protected void updateItem(Proficiency p, boolean empty) {
                     super.updateItem(p, empty);
-                    setText(empty || p == null ? null : p.shortLabel());
+                    setText(empty || p == null ? null : p.name());
                 }
             });
+            profBox.valueProperty().addListener((obs, ov, nv) -> {
+                prof.set(nv);
+                recalculateSkills();
+            });
 
-            TextField bonus = new TextField("+0");
-            bonus.setPrefWidth(40);
-            bonus.setEditable(false);
+            // Bonus-Label — read-only, berechnet
+            Label bonusLabel = new Label("+0");
+            bonusLabel.setPrefWidth(35);
+            bonusLabel.setMinWidth(35);
+            bonusLabel.setTextFill(Color.BLACK);
+            skillBonusLabels.put(skill, bonusLabel);
 
-            HBox row = new HBox(4, makeSmallLabel(skill), prof, bonus);
-            HBox.setHgrow(makeSmallLabel(skill), Priority.ALWAYS);
+            HBox row = new HBox(4, nameLabel, profBox, bonusLabel);
             box.getChildren().add(row);
         }
 
@@ -186,6 +258,38 @@ public class CharacterModule implements EditorModule {
         scroll.setFitToWidth(true);
         scroll.setPrefHeight(200);
         return scroll;
+    }
+
+    // Alle Skill-Boni neu berechnen — wird bei Stat- oder Proficiency-Änderung aufgerufen
+    private void recalculateSkills() {
+        int level = parseLevel();
+        logger.fine("Skills neu berechnen — Level " + level);
+
+        for (String skill : SKILLS) {
+            Proficiency prof = skillProfs.get(skill).get();
+            IntegerProperty stat = skillStat(skill, strMod, dexMod, conMod, intMod, wisMod, chaMod);
+
+            // PF2e Formel: Stat-Mod + Level (wenn trained+) + Proficiency-Bonus
+            int profBonus = switch (prof) {
+                case UNTRAINED -> 0;                  // kein Level-Bonus
+                case TRAINED -> level + 2;
+                case EXPERT -> level + 4;
+                case MASTER -> level + 6;
+                case LEGENDARY -> level + 8;
+            };
+
+            int total = stat.get() + profBonus;
+            Label lbl = skillBonusLabels.get(skill);
+            lbl.setText((total >= 0 ? "+" : "") + total);
+        }
+    }
+
+    private int parseLevel() {
+        try {
+            return Math.max(1, Integer.parseInt(levelField.getText().trim()));
+        } catch (Exception e) {
+            return 1;
+        }
     }
 
     // --- TABS (Waffen/Rüstung/etc) ---
@@ -308,13 +412,13 @@ public class CharacterModule implements EditorModule {
     // --- Helpers ---
     private Label makeLabel(String text) {
         Label l = new Label(text);
-        l.setTextFill(Color.LIGHTGRAY);
+        l.setTextFill(Color.BLACK);
         return l;
     }
 
     private Label makeSmallLabel(String text) {
         Label l = new Label(text);
-        l.setTextFill(Color.GRAY);
+        l.setTextFill(Color.BLACK);
         l.setStyle("-fx-font-size: 11px;");
         return l;
     }

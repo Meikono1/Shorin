@@ -105,7 +105,6 @@ public class GameEditor {
         if (!groups.isEmpty()) activateGroup(groups.getFirst());
 
         Scene scene = new Scene(root, 1400, 900);
-        // CSS hier einhängen wenn CSSLoader verfügbar
         return scene;
     }
 
@@ -142,6 +141,9 @@ public class GameEditor {
 
         // SidePanel + Center setzen
         moduleSidePane.setContent(module.buildSidePanel());
+        moduleSidePane.setFitToWidth(true);
+        moduleSidePane.setFitToHeight(true);
+
         root.setCenter(module.buildContent());
 
         module.onActivate();

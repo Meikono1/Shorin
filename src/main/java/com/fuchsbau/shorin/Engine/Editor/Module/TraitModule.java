@@ -59,7 +59,7 @@ public class TraitModule implements EditorModule {
         search.textProperty().addListener((obs, ov, nv) ->
                 filtered.setPredicate(t ->
                         nv == null || nv.isBlank() ||
-                                t.name.toLowerCase().contains(nv.toLowerCase())));
+                                t.getName().toLowerCase().contains(nv.toLowerCase())));
 
         ListView<Trait> listView = new ListView<>(filtered);
         listView.setOnMouseClicked(e -> {
@@ -113,8 +113,8 @@ public class TraitModule implements EditorModule {
     // --- Formular befüllen ---
     private void loadIntoForm(Trait t) {
         selected = t;
-        nameField.setText(t.name);
-        descField.setText(t.description);
+        nameField.setText(t.getName());
+        descField.setText(t.getDescription());
     }
 
     // --- Neuen Trait anlegen ---
