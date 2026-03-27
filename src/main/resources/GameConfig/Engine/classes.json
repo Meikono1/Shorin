@@ -4,20 +4,20 @@
   "hpPerLevel" : 8,
   "keyAbilities" : [ "STR", "DEX" ],
   "savingThrows" : {
-    "FORTITUDE" : "E",
-    "REFLEX" : "E",
+    "FORTITUDE" : "T",
+    "REFLEX" : "T",
     "WILL" : "T"
   },
   "armorProficiencies" : {
-    "UNARMORED" : "E",
-    "LIGHT" : "U",
-    "MEDIUM" : "M",
-    "HEAVY" : "U"
+    "UNARMORED" : "T",
+    "LIGHT" : "T",
+    "MEDIUM" : "T",
+    "HEAVY" : "T"
   },
   "weaponProficiencies" : {
-    "UNARMED" : "E",
-    "SIMPLE" : "E",
-    "MARTIAL" : "L",
+    "UNARMED" : "T",
+    "SIMPLE" : "T",
+    "MARTIAL" : "T",
     "ADVANCED" : "U"
   }
 } ]

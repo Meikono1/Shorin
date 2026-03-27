@@ -39,7 +39,7 @@ public class ClassModule implements EditorModule {
 
     @Override
     public String getTitle() {
-        return "Class";
+        return "Classes";
     }
 
     @Override
@@ -225,7 +225,7 @@ public class ClassModule implements EditorModule {
 
         HBox columns = new HBox(24, saveCol, new Separator(), armorCol, new Separator(), weaponCol);
 
-        return buildSection("Proficiencies", columns);
+        return buildSection("Proficiencies at level 1", columns);
     }
 
     private ComboBox<Expertise> makeExpertiseBox(Expertise min) {
@@ -307,7 +307,6 @@ public class ClassModule implements EditorModule {
     // --- Klasse in Formular laden ---
     private void loadClass(ClassBuild gc) {
         selectedClass = gc;
-        classNameField.setText(gc.name);
         getClassNameField().setText(gc.name);
         descriptionArea.setText(gc.description);
 
