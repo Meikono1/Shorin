@@ -1,0 +1,19 @@
+[ {
+  "name" : "Aid",
+  "description" : "",
+  "category" : "BASIC",
+  "cost" : "ONE",
+  "trigger" : "",
+  "requirements" : "",
+  "traits" : [ ],
+  "criticalSuccess" : "",
+  "success" : "",
+  "failure" : "",
+  "criticalFailure" : "",
+  "effectType" : "NONE",
+  "hasDC" : false,
+  "dcType" : null,
+  "fixedDC" : 0,
+  "dcStat" : null,
+  "secretRoll" : false
+} ]

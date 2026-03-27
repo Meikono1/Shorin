@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Engine.Editor;
 
 import com.fuchsbau.shorin.Engine.Editor.Module.*;
+import com.fuchsbau.shorin.Engine.Editor.Module.Actions.ActionModule;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.MainScreen;
@@ -144,9 +145,8 @@ public class GameEditor {
         moduleSidePane.setFitToWidth(true);
         moduleSidePane.setFitToHeight(true);
 
-        root.setCenter(module.buildContent());
-
         module.onActivate();
+        root.setCenter(module.buildContent());
         logger.info("Modul aktiviert: " + module.getTitle());
     }
 

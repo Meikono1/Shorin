@@ -20,6 +20,8 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Engine.RPG;
     opens com.fuchsbau.shorin.Engine.RPG to com.fasterxml.jackson.databind;
 
+    exports com.fuchsbau.shorin.Engine.Editor.Module.Actions;
+
     exports com.fuchsbau.shorin.test;
     exports com.fuchsbau.shorin.Engine.Race;
     exports  com.fuchsbau.shorin.Engine.Map.Core;
