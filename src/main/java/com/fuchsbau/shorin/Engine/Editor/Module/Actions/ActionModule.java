@@ -21,7 +21,7 @@ public class ActionModule implements EditorModule {
 
     private final Logger logger = FileLogger.getLogger();
 
-    private static final String FILE = "actions.json";
+    private static final String FILE = "Engine/actions.json";
 
     private ListView<GameAction> actionListView;
     private final ObservableList<GameAction> actions = FXCollections.observableArrayList();

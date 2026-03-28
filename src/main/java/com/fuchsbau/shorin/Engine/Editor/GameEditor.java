@@ -145,8 +145,9 @@ public class GameEditor {
         moduleSidePane.setFitToWidth(true);
         moduleSidePane.setFitToHeight(true);
 
-        module.onActivate();
         root.setCenter(module.buildContent());
+        module.onActivate();
+
         logger.info("Modul aktiviert: " + module.getTitle());
     }
 

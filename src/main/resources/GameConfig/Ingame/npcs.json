@@ -1,0 +1,54 @@
+[ {
+  "name" : "Red Fox",
+  "level" : -1,
+  "size" : "Tiny",
+  "tokenPath" : "images/logo128.png",
+  "traits" : [ ],
+  "str" : 0,
+  "dex" : 0,
+  "con" : 0,
+  "intel" : 0,
+  "wis" : 0,
+  "cha" : 0,
+  "ac" : 10,
+  "hp" : 1,
+  "speed" : 25,
+  "immunities" : [ ],
+  "resistances" : [ {
+    "type" : "PHYSICAL",
+    "value" : 6
+  } ],
+  "weaknesses" : [ {
+    "type" : "PHYSICAL",
+    "value" : 4
+  } ],
+  "fortitude" : 0,
+  "reflex" : 0,
+  "will" : 0,
+  "perception" : 0,
+  "senses" : [ {
+    "sense" : "DARKVISION",
+    "range" : 0
+  }, {
+    "sense" : "TREMORSENSE",
+    "range" : 0
+  } ],
+  "skills" : { },
+  "attacks" : [ {
+    "name" : "",
+    "cost" : "ONE",
+    "bonus" : 0,
+    "damage" : "",
+    "damageType" : "PIERCING",
+    "traits" : [ ]
+  } ],
+  "actionIds" : [ ],
+  "lootIds" : [ ],
+  "recallKnowledge" : [ {
+    "skill" : "OCCULTISM",
+    "dc" : 0
+  }, {
+    "skill" : "ATHLETICS",
+    "dc" : 24
+  } ]
+} ]

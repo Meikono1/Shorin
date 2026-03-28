@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public class TraitModule implements EditorModule {
 
     private static final Logger logger = FileLogger.getLogger();
-    private static final String FILE = "traits.json";
+    private static final String FILE = "Engine/traits.json";
 
     // Daten
     private final ObservableList<Trait> traits = FXCollections.observableArrayList();

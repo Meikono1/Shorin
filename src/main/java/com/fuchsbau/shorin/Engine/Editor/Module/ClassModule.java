@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class ClassModule implements EditorModule {
     private static final Logger logger = FileLogger.getLogger();
-    private static final String FILE = "classes.json";
+    private static final String FILE = "Engine/classes.json";
 
     private TextField classNameField = new TextField();
     private TextArea descriptionArea = new TextArea();
@@ -31,11 +31,6 @@ public class ClassModule implements EditorModule {
     private Spinner<Integer> hpPerLevelSpinner = new Spinner<>(1, 99, 1);
 
     private final Map<AbilityScores, CheckBox> abilityButtons = new EnumMap<>(AbilityScores.class);
-
-
-    public ClassModule() {
-        loadFromDisk();
-    }
 
     @Override
     public String getTitle() {
