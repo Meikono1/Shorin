@@ -65,6 +65,7 @@ public class BattleMapModule implements EditorModule {
     private boolean drawingActive = false;
     private boolean tokensActive = false;
     private Token selectedToken = null;
+    private double dragOldX, dragOldY;
 
     // Maps
     private static final File MAPS_DIR = PathResolver.resolveWritable("maps/battle").toFile();
@@ -76,6 +77,12 @@ public class BattleMapModule implements EditorModule {
     private double wallStartX = -1, wallStartY = -1;
     private boolean placingWall = false;
     private WallType activeWallType = WallType.WALL;
+    private WallSegment highlightedSeg = null;
+
+    // Wand-Punkt-Selektion
+    private WallSegment selectedWallSeg = null;
+    private boolean draggingStart = false; // true = x1/y1, false = x2/y2
+    private static final double SNAP_TOLERANCE = BASE_TILE / 15.0; // Klick-Toleranz
 
     // Lights
     private TextField lightNameField;
@@ -112,6 +119,7 @@ public class BattleMapModule implements EditorModule {
 
         // --- Mouse Press ---
         canvas.setOnMousePressed(e -> {
+            canvas.requestFocus();
             if (e.getButton() == MouseButton.SECONDARY) {
                 if (placingWall) {
                     placingWall = false;
@@ -142,7 +150,6 @@ public class BattleMapModule implements EditorModule {
                 return;
             }
             if (e.getButton() == MouseButton.PRIMARY) {
-                // Token-Auswahl immer prüfen — unabhängig vom Panel
                 Token hit = pickToken(e.getX(), e.getY());
                 if (hit != null) {
                     selectedToken = hit;
@@ -152,50 +159,85 @@ public class BattleMapModule implements EditorModule {
                     return;
                 }
 
-                // Zeichnen nur wenn Draw-Panel aktiv
-                if (drawingActive) {
-                    painting = true;
-                    applyAt(e.getX(), e.getY());
-                }
                 if (isWallTool(currentTool)) {
+                    // Erst prüfen ob ein Punkt getroffen wird
+                    WallHit wallHit = pickWallPoint(e.getX(), e.getY());
+                    if (wallHit != null) {
+                        selectedWallSeg = wallHit.seg();
+                        draggingStart = wallHit.isStart();
+                        // Exakte Position merken
+                        dragOldX = draggingStart ? selectedWallSeg.x1 : selectedWallSeg.x2;
+                        dragOldY = draggingStart ? selectedWallSeg.y1 : selectedWallSeg.y2;
+                        placingWall = false;
+                        mapRenderer.renderBattlemap();
+                        e.consume();
+                        return;
+                    }
+
+                    // Sonst neue Wand starten
                     double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
                     double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
-
-                    // Snap auf Grid-Ecken
                     double[] snapped = snapToGrid(wx, wy);
-
-                    if (!placingWall) {
-                        // Erster Klick — Startpunkt setzen
-                        wallStartX = snapped[0];
-                        wallStartY = snapped[1];
-                        placingWall = true;
-                        logger.fine("Wand Start: " + wallStartX + "/" + wallStartY);
-                    } else {
-                        // Zweiter Klick — Segment abschließen
-                        WallSegment seg = new WallSegment(
-                                wallStartX, wallStartY,
-                                snapped[0], snapped[1],
-                                activeWallType);
-                        gameMap.addWall(seg);
-                        wallStartX = snapped[0];
-                        wallStartY = snapped[1];
-                        // Startpunkt wird Endpunkt — so kann man Ketten zeichnen
-                        mapRenderer.renderBattlemap();
-                        logger.fine("Wand hinzugefügt: " + activeWallType);
-                    }
+                    wallStartX = snapped[0];
+                    wallStartY = snapped[1];
+                    placingWall = true;
+                    selectedWallSeg = null;
                     e.consume();
                     return;
                 }
 
+                if (drawingActive) {
+                    painting = true;
+                    applyAt(e.getX(), e.getY());
+                }
                 e.consume();
             }
         });
 
         // --- Mouse Released ---
         canvas.setOnMouseReleased(e -> {
-            if (e.getButton() == MouseButton.SECONDARY) panning = false;
-            if (e.getButton() == MouseButton.PRIMARY) painting = false;
-            e.consume();
+            if (e.getButton() == MouseButton.SECONDARY) {
+                panning = false;
+                e.consume();
+                return;
+            }
+
+            if (e.getButton() == MouseButton.PRIMARY) {
+                if (placingWall) {
+                    double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                    double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                    double[] snapped = snapToGrid(wx, wy);
+
+                    // Nur hinzufügen wenn Start != End
+                    if (snapped[0] != wallStartX || snapped[1] != wallStartY) {
+                        WallSegment seg = new WallSegment(
+                                wallStartX, wallStartY,
+                                snapped[0], snapped[1],
+                                activeWallType);
+                        gameMap.addWall(seg);
+                        logger.fine("Wand platziert: " + activeWallType
+                                + " (" + wallStartX + "/" + wallStartY
+                                + " → " + snapped[0] + "/" + snapped[1] + ")");
+                    }
+
+                    placingWall = false;
+                    wallStartX = -1;
+                    wallStartY = -1;
+                    mapRenderer.clearWallPreview();
+                    mapRenderer.renderBattlemap();
+                    e.consume();
+                    return;
+                }
+
+                if (selectedWallSeg != null) {
+                    selectedWallSeg = null;
+                    logger.fine("Wand-Punkt verschoben");
+                    e.consume();
+                    return;
+                }
+                painting = false;
+                e.consume();
+            }
         });
 
         // --- Mouse Dragged ---
@@ -211,17 +253,50 @@ public class BattleMapModule implements EditorModule {
                 e.consume();
                 return;
             }
-            if (painting && e.isPrimaryButtonDown()) {
-                applyAt(e.getX(), e.getY());
+
+            if (placingWall && e.isPrimaryButtonDown()) {
+                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double[] snapped = snapToGrid(wx, wy);
+                mapRenderer.setWallPreview(wallStartX, wallStartY,
+                        snapped[0], snapped[1], activeWallType);
+                mapRenderer.renderBattlemap();
                 e.consume();
+                return;
             }
-            if (tokensActive && selectedToken != null && e.isPrimaryButtonDown() && !painting) {
+
+            if (tokensActive && selectedToken != null && e.isPrimaryButtonDown()) {
                 int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
                 if (rc != null && gameMap.inBounds(rc[0], rc[1])) {
                     selectedToken.row = rc[0];
                     selectedToken.col = rc[1];
                     mapRenderer.renderBattlemap();
                 }
+                e.consume();
+                return;
+            }
+
+            if (isWallTool(currentTool) && selectedWallSeg != null && e.isPrimaryButtonDown()) {
+                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double[] snapped = snapToGrid(wx, wy);
+
+                // Nur den direkt ausgewählten Punkt bewegen
+                if (draggingStart) {
+                    selectedWallSeg.x1 = snapped[0];
+                    selectedWallSeg.y1 = snapped[1];
+                } else {
+                    selectedWallSeg.x2 = snapped[0];
+                    selectedWallSeg.y2 = snapped[1];
+                }
+
+                mapRenderer.renderBattlemap();
+                e.consume();
+                return;
+            }
+
+            if (painting && e.isPrimaryButtonDown()) {
+                applyAt(e.getX(), e.getY());
                 e.consume();
             }
         });
@@ -303,10 +378,42 @@ public class BattleMapModule implements EditorModule {
             e.consume();
         });
 
+        // --- MouseMovement
+        canvas.setOnMouseMoved(e -> {
+            if (!isWallTool(currentTool)) return;
+            WallHit hit = pickWallPoint(e.getX(), e.getY());
+            if (hit != null) {
+                highlightedSeg = hit.seg();
+                double px = hit.isStart() ? hit.seg().x1 : hit.seg().x2;
+                double py = hit.isStart() ? hit.seg().y1 : hit.seg().y2;
+                mapRenderer.setHighlightPoint(px, py);
+            } else {
+                highlightedSeg = null;
+                mapRenderer.clearHighlight();
+            }
+            mapRenderer.renderBattlemap();
+        });
+
         // Pfeiltasten auf Canvas
         mapRenderer.getCanvas().setFocusTraversable(true);
+
         mapRenderer.getCanvas().setOnKeyPressed(e -> {
+            // Wand löschen — unabhängig von Token
+            if (e.getCode() == KeyCode.DELETE && isWallTool(currentTool)) {
+                if (highlightedSeg != null) {
+                    gameMap.removeWall(highlightedSeg);
+                    highlightedSeg = null;
+                    mapRenderer.clearHighlight();
+                    mapRenderer.renderBattlemap();
+                    logger.fine("Wand gelöscht");
+                }
+                e.consume();
+                return;
+            }
+
+            // Token bewegen
             if (selectedToken == null || !tokensActive) return;
+
             int dr = 0, dc = 0;
             switch (e.getCode()) {
                 case UP -> dr = -1;
@@ -317,6 +424,7 @@ public class BattleMapModule implements EditorModule {
                     return;
                 }
             }
+
             int newRow = selectedToken.row + dr;
             int newCol = selectedToken.col + dc;
             if (gameMap.inBounds(newRow, newCol)) {
@@ -1229,10 +1337,27 @@ public class BattleMapModule implements EditorModule {
         };
     }
 
+    private record WallHit(WallSegment seg, boolean isStart) {
+    }
+
+    private WallHit pickWallPoint(double sx, double sy) {
+        double wx = mapRenderer.screenToWorldX(sx, mapRenderer.getZoom());
+        double wy = mapRenderer.screenToWorldY(sy, mapRenderer.getZoom());
+        double tol = SNAP_TOLERANCE;
+
+        for (WallSegment seg : gameMap.getWalls()) {
+            if (Math.abs(seg.x1 - wx) < tol && Math.abs(seg.y1 - wy) < tol)
+                return new WallHit(seg, true);
+            if (Math.abs(seg.x2 - wx) < tol && Math.abs(seg.y2 - wy) < tol)
+                return new WallHit(seg, false);
+        }
+        return null;
+    }
+
     private double[] snapToGrid(double wx, double wy) {
-        double tile = BASE_TILE;
-        double snapX = Math.round(wx / tile) * tile;
-        double snapY = Math.round(wy / tile) * tile;
+        double snap = BASE_TILE / 8.0; // 8 Positionen pro Tile
+        double snapX = Math.round(wx / snap) * snap;
+        double snapY = Math.round(wy / snap) * snap;
         return new double[]{snapX, snapY};
     }
 }

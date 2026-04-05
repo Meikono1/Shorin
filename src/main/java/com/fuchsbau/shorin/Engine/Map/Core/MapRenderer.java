@@ -48,6 +48,7 @@ public class MapRenderer {
     private double wallPreviewX = -1, wallPreviewY = -1;
     private double wallPreviewStartX, wallPreviewStartY;
     private WallType wallPreviewType = WallType.WALL;
+    private double highlightX = -1, highlightY = -1;
 
 
     public boolean debug = false;
@@ -469,6 +470,19 @@ public class MapRenderer {
         g.setLineWidth(2.5);
 
         for (WallSegment wall : gameMap.getWalls()) {
+            drawWallPoint(g, wall.x1, wall.y1, camX, camY, zoom, wallColor(wall.type));
+            drawWallPoint(g, wall.x2, wall.y2, camX, camY, zoom, wallColor(wall.type));
+        }
+
+        // Ausgewählter Punkt gelb
+        if (highlightX >= 0) {
+            double sx = (highlightX - camX) * zoom;
+            double sy = (highlightY - camY) * zoom;
+            g.setFill(Color.YELLOW);
+            g.fillOval(sx - 5, sy - 5, 10, 10);
+        }
+
+        for (WallSegment wall : gameMap.getWalls()) {
             g.setStroke(wallColor(wall.type));
 
             double sx1 = (wall.x1 - camX) * zoom;
@@ -494,24 +508,32 @@ public class MapRenderer {
         g.setLineDashes(0);
     }
 
+    private void drawWallPoint(GraphicsContext g, double wx, double wy,
+                               double camX, double camY, double zoom, Color color) {
+        double sx = (wx - camX) * zoom;
+        double sy = (wy - camY) * zoom;
+        g.setFill(color);
+        g.fillOval(sx - 3, sy - 3, 6, 6);
+    }
+
     private Color wallColor(WallType type) {
         return switch (type) {
-            case WALL        -> Color.rgb(180, 180, 190);
-            case TERRAIN     -> Color.rgb(100, 160, 80);
-            case INVISIBLE   -> Color.rgb(100, 150, 255);
-            case ETHEREAL    -> Color.rgb(180, 100, 255);
-            case DOOR        -> Color.rgb(180, 130, 60);
+            case WALL -> Color.rgb(180, 180, 190);
+            case TERRAIN -> Color.rgb(100, 160, 80);
+            case INVISIBLE -> Color.rgb(100, 150, 255);
+            case ETHEREAL -> Color.rgb(180, 100, 255);
+            case DOOR -> Color.rgb(180, 130, 60);
             case SECRET_DOOR -> Color.rgb(160, 60, 60);
-            case WINDOW      -> Color.rgb(100, 220, 255);
+            case WINDOW -> Color.rgb(100, 220, 255);
         };
     }
 
     public void setWallPreview(double startX, double startY, double endX, double endY, WallType type) {
         wallPreviewStartX = startX;
         wallPreviewStartY = startY;
-        wallPreviewX      = endX;
-        wallPreviewY      = endY;
-        wallPreviewType   = type;
+        wallPreviewX = endX;
+        wallPreviewY = endY;
+        wallPreviewType = type;
     }
 
     public void clearWallPreview() {
@@ -548,5 +570,14 @@ public class MapRenderer {
 
     public void setSelectedToken(Token selectedToken) {
         this.selectedToken = selectedToken;
+    }
+
+    public void setHighlightPoint(double x, double y) {
+        highlightX = x;
+        highlightY = y;
+    }
+
+    public void clearHighlight() {
+        highlightX = -1;
     }
 }
