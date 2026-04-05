@@ -1,5 +1,6 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Tiles;
 
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.Lightlevel;
 import com.fuchsbau.shorin.Engine.Race.Size;
 import javafx.scene.paint.Color;
 

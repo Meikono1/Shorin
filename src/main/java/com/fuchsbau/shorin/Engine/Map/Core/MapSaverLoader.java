@@ -1,5 +1,10 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;

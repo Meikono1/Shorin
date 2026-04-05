@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.RPG;
 
-import com.fuchsbau.shorin.Engine.Map.Core.GameMap;
-import com.fuchsbau.shorin.Engine.Map.Core.LightingSystem;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.RPG.AktionBar.ActionMenu;

@@ -1,6 +1,12 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
@@ -29,7 +35,6 @@ public class MapRenderer {
     private double camY = 0;
     private double zoom = 1.0;
 
-
     // --- Convas / Drawing ---
     private Canvas canvas;
     private Image backgroundImage;
@@ -39,6 +44,12 @@ public class MapRenderer {
     private final LightingSystem lightingSystem;
     private Token selectedToken;
 
+    // Wall Preview
+    private double wallPreviewX = -1, wallPreviewY = -1;
+    private double wallPreviewStartX, wallPreviewStartY;
+    private WallType wallPreviewType = WallType.WALL;
+
+
     public boolean debug = false;
 
     public MapRenderer(GameMap gameMap, LightingSystem lightingSystem) {
@@ -46,7 +57,6 @@ public class MapRenderer {
         this.lightingSystem = lightingSystem;
         canvas = new Canvas(1200, 800);
     }
-
 
     public Canvas getCanvas() {
         return canvas;
@@ -177,7 +187,6 @@ public class MapRenderer {
         double startX = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
         double startY = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
 
-        //g.setFill(Color.BLACK); // Overlay-Farbe einmal setzen
 
         for (int r = rowMin; r <= rowMax; r++) {
             double y = startY + (r - rowMin) * step;
@@ -230,6 +239,11 @@ public class MapRenderer {
             double yLine = Math.floor(((r * BASE_TILE) - camY) * zoom);
             g.strokeLine(x0, yLine, x1, yLine);
         }
+
+        // Wände zeichnen
+        renderWalls(g, camX, camY, zoom);
+
+        if (wallPreviewX >= 0) renderWallPreview(g, camX, camY, zoom);
 
         // draw tokens
         g.setFont(Font.font(12));
@@ -433,6 +447,75 @@ public class MapRenderer {
     public int screenToRow(double screenY) {
         double worldY = camY + screenY / zoom;
         return (int) Math.floor(worldY / BASE_TILE);
+    }
+
+    private void renderWallPreview(GraphicsContext g, double camX, double camY, double zoom) {
+        g.setStroke(wallColor(wallPreviewType));
+        g.setLineWidth(1.5);
+        g.setLineDashes(6, 3);
+        g.setGlobalAlpha(0.6);
+
+        double sx1 = (wallPreviewStartX - camX) * zoom;
+        double sy1 = (wallPreviewStartY - camY) * zoom;
+        double sx2 = (wallPreviewX - camX) * zoom;
+        double sy2 = (wallPreviewY - camY) * zoom;
+
+        g.strokeLine(sx1, sy1, sx2, sy2);
+        g.setLineDashes(0);
+        g.setGlobalAlpha(1.0);
+    }
+
+    private void renderWalls(GraphicsContext g, double camX, double camY, double zoom) {
+        g.setLineWidth(2.5);
+
+        for (WallSegment wall : gameMap.getWalls()) {
+            g.setStroke(wallColor(wall.type));
+
+            double sx1 = (wall.x1 - camX) * zoom;
+            double sy1 = (wall.y1 - camY) * zoom;
+            double sx2 = (wall.x2 - camX) * zoom;
+            double sy2 = (wall.y2 - camY) * zoom;
+
+            // Gestrichelt für spezielle Typen
+            if (wall.type == WallType.INVISIBLE || wall.type == WallType.ETHEREAL) {
+                g.setLineDashes(8, 4);
+            } else {
+                g.setLineDashes(0);
+            }
+
+            g.strokeLine(sx1, sy1, sx2, sy2);
+
+            // Endpunkte markieren
+            g.setFill(wallColor(wall.type));
+            g.fillOval(sx1 - 3, sy1 - 3, 6, 6);
+            g.fillOval(sx2 - 3, sy2 - 3, 6, 6);
+        }
+
+        g.setLineDashes(0);
+    }
+
+    private Color wallColor(WallType type) {
+        return switch (type) {
+            case WALL        -> Color.rgb(180, 180, 190);
+            case TERRAIN     -> Color.rgb(100, 160, 80);
+            case INVISIBLE   -> Color.rgb(100, 150, 255);
+            case ETHEREAL    -> Color.rgb(180, 100, 255);
+            case DOOR        -> Color.rgb(180, 130, 60);
+            case SECRET_DOOR -> Color.rgb(160, 60, 60);
+            case WINDOW      -> Color.rgb(100, 220, 255);
+        };
+    }
+
+    public void setWallPreview(double startX, double startY, double endX, double endY, WallType type) {
+        wallPreviewStartX = startX;
+        wallPreviewStartY = startY;
+        wallPreviewX      = endX;
+        wallPreviewY      = endY;
+        wallPreviewType   = type;
+    }
+
+    public void clearWallPreview() {
+        wallPreviewX = -1;
     }
 
     public GameMap getGameMap() {

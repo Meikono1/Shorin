@@ -4,6 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Map.Core.*;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
+import com.fuchsbau.shorin.Engine.Map.Core.Sound.SoundPoint;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.LightPreset;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.RPG.GameClock;
@@ -32,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
 
 public class BattleMapModule implements EditorModule {
@@ -63,6 +71,11 @@ public class BattleMapModule implements EditorModule {
     private final ObservableList<String> mapFiles = FXCollections.observableArrayList();
     private ListView<String> mapListView;
     private String backgroundImage;
+
+    // Walls
+    private double wallStartX = -1, wallStartY = -1;
+    private boolean placingWall = false;
+    private WallType activeWallType = WallType.WALL;
 
     // Lights
     private TextField lightNameField;
@@ -100,6 +113,15 @@ public class BattleMapModule implements EditorModule {
         // --- Mouse Press ---
         canvas.setOnMousePressed(e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
+                if (placingWall) {
+                    placingWall = false;
+                    wallStartX = -1;
+                    wallStartY = -1;
+                    mapRenderer.renderBattlemap();
+                    e.consume();
+                    return;
+                }
+
                 if (e.isShiftDown()) {
                     // Shift + Rechtsklick = Licht entfernen
                     boolean removed = gameMap.removeLightNear(
@@ -135,6 +157,36 @@ public class BattleMapModule implements EditorModule {
                     painting = true;
                     applyAt(e.getX(), e.getY());
                 }
+                if (isWallTool(currentTool)) {
+                    double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                    double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+
+                    // Snap auf Grid-Ecken
+                    double[] snapped = snapToGrid(wx, wy);
+
+                    if (!placingWall) {
+                        // Erster Klick — Startpunkt setzen
+                        wallStartX = snapped[0];
+                        wallStartY = snapped[1];
+                        placingWall = true;
+                        logger.fine("Wand Start: " + wallStartX + "/" + wallStartY);
+                    } else {
+                        // Zweiter Klick — Segment abschließen
+                        WallSegment seg = new WallSegment(
+                                wallStartX, wallStartY,
+                                snapped[0], snapped[1],
+                                activeWallType);
+                        gameMap.addWall(seg);
+                        wallStartX = snapped[0];
+                        wallStartY = snapped[1];
+                        // Startpunkt wird Endpunkt — so kann man Ketten zeichnen
+                        mapRenderer.renderBattlemap();
+                        logger.fine("Wand hinzugefügt: " + activeWallType);
+                    }
+                    e.consume();
+                    return;
+                }
+
                 e.consume();
             }
         });
@@ -303,6 +355,7 @@ public class BattleMapModule implements EditorModule {
             case DIFFICULT -> tile.add(Tile.DIFFICULT);
             case HAZARD -> tile.add(Tile.HAZARDOUS);
             case DISABLED -> tile.add(Tile.DISABLED);
+            case OUTSIDE -> tile.add(Tile.OUTSIDE);
             case ERASE -> tile.clearAll();
         }
 
@@ -516,6 +569,7 @@ public class BattleMapModule implements EditorModule {
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setOnAction(e -> {
             currentTool = tool;
+            drawingActive = true;
             toolLabel.setText("Tool: " + tool);
             logger.fine("Tool gewechselt: " + tool);
         });
@@ -651,14 +705,23 @@ public class BattleMapModule implements EditorModule {
     private Node buildDrawPanel() {
         toolLabel = new Label("Tool: " + currentTool);
 
+        Label wallLabel = new Label("Wände");
+        VBox wallTools = new VBox(4,
+                makeWallBtn("Wall", WallType.WALL),
+                makeWallBtn("Terrain", WallType.TERRAIN),
+                makeWallBtn("Invisible", WallType.INVISIBLE),
+                makeWallBtn("Ethereal", WallType.ETHEREAL),
+                makeWallBtn("Door", WallType.DOOR),
+                makeWallBtn("Secret Door", WallType.SECRET_DOOR),
+                makeWallBtn("Window", WallType.WINDOW)
+        );
+
         VBox tools = new VBox(4,
-                toolLabel,
-                new Separator(),
-                makeToolBtn("Wall", Tool.WALL),
                 makeToolBtn("Door", Tool.DOOR),
                 makeToolBtn("Difficult", Tool.DIFFICULT),
                 makeToolBtn("Hazard", Tool.HAZARD),
                 makeToolBtn("Disabled", Tool.DISABLED),
+                makeToolBtn("Outside", Tool.OUTSIDE),
                 makeToolBtn("Erase", Tool.ERASE)
         );
 
@@ -731,7 +794,17 @@ public class BattleMapModule implements EditorModule {
                 })
         );
 
-        VBox panel = new VBox(8, tools, new Separator(), gridLabel, gridSection);
+        VBox panel = new VBox(8,
+                toolLabel,
+                new Separator(),
+                wallLabel, wallTools,
+                new Separator(),
+                new TextField("Terrain"),
+                tools,
+                new Separator(),
+                gridLabel, gridSection
+        );
+
         panel.setPadding(new Insets(8));
         return panel;
     }
@@ -1130,5 +1203,36 @@ public class BattleMapModule implements EditorModule {
         }
         npcBuildObservableList.addAll(loaded);
         logger.info("NPCs geladen: " + npcs.size());
+    }
+
+    private Button makeWallBtn(String name, WallType type) {
+        Button btn = new Button(name);
+        btn.setMaxWidth(Double.MAX_VALUE);
+        btn.setOnAction(e -> {
+            currentTool = Tool.WALL;
+            activeWallType = type;
+            placingWall = false;
+            drawingActive = false;
+            wallStartX = -1;
+            wallStartY = -1;
+            toolLabel.setText("Tool: " + type.name());
+            logger.fine("WallType: " + type);
+        });
+        return btn;
+    }
+
+    private boolean isWallTool(Tool tool) {
+        return switch (tool) {
+            case WALL, TERRAIN, INVISIBLE, ETHEREAL,
+                 DOOR, SECRET_DOOR, WINDOW -> true;
+            default -> false;
+        };
+    }
+
+    private double[] snapToGrid(double wx, double wy) {
+        double tile = BASE_TILE;
+        double snapX = Math.round(wx / tile) * tile;
+        double snapY = Math.round(wy / tile) * tile;
+        return new double[]{snapX, snapY};
     }
 }

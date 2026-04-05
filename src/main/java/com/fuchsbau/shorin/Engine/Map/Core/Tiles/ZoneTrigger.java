@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Tiles;
 
 
 public final class ZoneTrigger {

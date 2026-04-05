@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.RPG;
 
-import com.fuchsbau.shorin.Engine.Map.Core.Tile;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.*;
 

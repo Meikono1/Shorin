@@ -1,5 +1,7 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Lighting;
 
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
 import com.fuchsbau.shorin.Engine.RPG.GameClock;
 
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;

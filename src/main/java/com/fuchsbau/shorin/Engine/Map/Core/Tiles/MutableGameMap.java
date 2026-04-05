@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Tiles;
 
 public class MutableGameMap extends GameMap {
     public MutableGameMap() {
@@ -42,6 +42,7 @@ public class MutableGameMap extends GameMap {
                 grid[c][r] = Tile.empty();
             }
         }
+        this.getWalls().clear();
     }
 
     public void addRowTop() {

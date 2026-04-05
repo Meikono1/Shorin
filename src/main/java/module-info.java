@@ -29,4 +29,8 @@ module com.fuchsbau.shorin {
     opens com.fuchsbau.shorin.Engine.Paperdoll to com.fasterxml.jackson.databind;
 
     exports com.fuchsbau.shorin.Engine.System to com.fasterxml.jackson.databind;
+    exports com.fuchsbau.shorin.Engine.Map.Core.Lighting;
+    exports com.fuchsbau.shorin.Engine.Map.Core.Tiles;
+    exports com.fuchsbau.shorin.Engine.Map.Core.Sound;
+    exports com.fuchsbau.shorin.Engine.Map.Core.Walls;
 }

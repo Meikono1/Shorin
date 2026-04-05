@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Lighting;
 
 public class LightSource {
     public double x, y;

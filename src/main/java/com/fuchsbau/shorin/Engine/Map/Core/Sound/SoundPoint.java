@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Sound;
 
 public class SoundPoint {
     public double x, y;

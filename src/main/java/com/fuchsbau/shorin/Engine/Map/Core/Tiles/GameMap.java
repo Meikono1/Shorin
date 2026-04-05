@@ -1,5 +1,7 @@
-package com.fuchsbau.shorin.Engine.Map.Core;
+package com.fuchsbau.shorin.Engine.Map.Core.Tiles;
 
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Token;
 
 import java.util.ArrayList;
@@ -16,6 +18,8 @@ public class GameMap {
     protected Tile[][] grid = new Tile[rows][cols];
     private final List<Token> tokens = new ArrayList<>();
     private final List<LightSource> lights = new ArrayList<>();
+
+    private final List<WallSegment> walls = new ArrayList<>();
 
     public GameMap(int rows, int cols) {
         this.rows = rows;
@@ -209,5 +213,21 @@ public class GameMap {
 
     public List<LightSource> getLights() {
         return lights;
+    }
+
+    public List<WallSegment> getWalls() {
+        return walls;
+    }
+
+    public void clearWalls() {
+        walls.clear();
+    }
+
+    public void addWall(WallSegment wall) {
+        walls.add(wall);
+    }
+
+    public void removeWall(WallSegment wall) {
+        walls.remove(wall);
     }
 }

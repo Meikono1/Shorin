@@ -1,6 +1,9 @@
 package com.fuchsbau.shorin.Engine.Map;
 
 import com.fuchsbau.shorin.Engine.Map.Core.*;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
