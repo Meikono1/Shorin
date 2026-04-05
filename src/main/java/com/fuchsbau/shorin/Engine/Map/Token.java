@@ -6,7 +6,7 @@ public class Token {
     public final int col;
     public final String name;
 
-    Token(int row, int col, String name) {
+    public Token(int row, int col, String name) {
         this.row = row;
         this.col = col;
         this.name = name;

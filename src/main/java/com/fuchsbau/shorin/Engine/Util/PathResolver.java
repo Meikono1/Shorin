@@ -27,17 +27,9 @@ public class PathResolver {
         }
 
         // SHIP: neben EXE/JAR
-        try {
-            Path p = Paths.get(
-                    Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            Path base = Files.isDirectory(p) ? p : p.getParent();
-            logger.info("PathResolver SHIP-Modus: " + base);
-            return base;
-        } catch (Exception e) {
-            Path wd = Paths.get(System.getProperty("user.dir")).toAbsolutePath();
-            logger.warning("PathResolver Fallback auf WD: " + wd);
-            return wd;
-        }
+        Path wd = Paths.get(System.getProperty("user.dir")).toAbsolutePath();
+        logger.info("PathResolver SHIP-Modus (user.dir): " + wd);
+        return wd;
     }
 
     public static URL resolve(String relativePath) {

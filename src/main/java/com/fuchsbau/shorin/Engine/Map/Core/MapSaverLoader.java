@@ -11,19 +11,19 @@ import java.util.List;
  * ┌──────────────────────────────────────────────────────────────┐
  * │  Dateistruktur .shorin                                       │
  * │                                                              │
- * │  [4 bytes] Magic: 'S','H','O','R'                           │
+ * │  [4 bytes] Magic: 'S','H','O','R'                            │
  * │  [1 byte]  Version (aktuell: 1)                              │
- * │  [1 byte]  MapType: 0=WorldMap, 1=LocalMap, 2=Battlemap     │
+ * │  [1 byte]  MapType: 0=WorldMap, 1=LocalMap, 2=Battlemap      │
  * │  [4 bytes] rows                                              │
  * │  [4 bytes] cols                                              │
- * │  [rows × cols × 4 bytes] Tile-flags                         │
+ * │  [rows × cols × 4 bytes] Tile-flags                          │
  * │                                                              │
  * │  --- nur WorldMap (type=0) ---                               │
  * │  [4 bytes] locationCount                                     │
  * │    per Location:                                             │
  * │      [4 bytes] row                                           │
  * │      [4 bytes] col                                           │
- * │      [4 bytes] tileRadius  (belegt N×N Tiles)               │
+ * │      [4 bytes] tileRadius  (belegt N×N Tiles)                │
  * │      [UTF]     name                                          │
  * │      [UTF]     linkedFile  (relativer Pfad zur SubMap)       │
  * │                                                              │

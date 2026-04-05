@@ -51,4 +51,32 @@
     "skill" : "ATHLETICS",
     "dc" : 24
   } ]
+}, {
+  "name" : "Neuer NPC",
+  "level" : 0,
+  "size" : "Medium",
+  "tokenPath" : "",
+  "traits" : [ ],
+  "str" : 0,
+  "dex" : 0,
+  "con" : 0,
+  "intel" : 0,
+  "wis" : 0,
+  "cha" : 0,
+  "ac" : 10,
+  "hp" : 0,
+  "speed" : 25,
+  "immunities" : [ ],
+  "resistances" : [ ],
+  "weaknesses" : [ ],
+  "fortitude" : 0,
+  "reflex" : 0,
+  "will" : 0,
+  "perception" : 0,
+  "senses" : [ ],
+  "skills" : { },
+  "attacks" : [ ],
+  "actionIds" : [ ],
+  "lootIds" : [ ],
+  "recallKnowledge" : [ ]
 } ]

@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Engine.Editor;
 
 import com.fuchsbau.shorin.Engine.Editor.Module.*;
 import com.fuchsbau.shorin.Engine.Editor.Module.Actions.ActionModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.BattleMap.BattleMapModule;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.MainScreen;
