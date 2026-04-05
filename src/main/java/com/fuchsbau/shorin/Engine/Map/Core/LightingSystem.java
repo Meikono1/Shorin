@@ -1,5 +1,7 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
+import com.fuchsbau.shorin.Engine.RPG.GameClock;
+
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
 
@@ -19,51 +21,69 @@ public class LightingSystem {
             }
         }
 
-        applySunlight(1800, gameMap);
+        applySunlight(gameMap);
+
         // apply all lights
         for (LightSource ls : gameMap.getLights()) {
             applyLight(ls, gameMap);
         }
     }
 
-    private void applySunlight(int hour, GameMap gameMap) {
-        //if (!isSunUp(hour)) return;
+    // LightingSystem — applySunlight anpassen
+    private void applySunlight(GameMap gameMap) {
+        float degree = sunDegree();
+        if (degree <= 0f) return; // kein Sonnenlicht
 
-        // 1) Outside => Bright
         for (int r = 0; r < gameMap.getRows(); r++) {
             for (int c = 0; c < gameMap.getCols(); c++) {
                 Tile t = gameMap.getTile(r, c);
                 if (!t.has(Tile.OUTSIDE)) continue;
 
-                t.setLightlevel(Lightlevel.BRIGHT_LIGHT);
-                if (t.getBrightness() < 1.0f) t.setBrightness(1.0f);
+                // Helligkeit abhängig vom Sonnenstand
+                Lightlevel lvl = degree >= 0.5f ? Lightlevel.BRIGHT_LIGHT : Lightlevel.DIM_LIGHT;
+                t.setLightlevel(lvl);
+                if (t.getBrightness() < degree) t.setBrightness(degree);
             }
         }
 
-        // 2) Adjacent to outside => min Dim (4-neighborhood oder 8-neighborhood; hier 4)
+        // Nachbarn zu OUTSIDE bekommen min DIM
         for (int r = 0; r < gameMap.getRows(); r++) {
             for (int c = 0; c < gameMap.getCols(); c++) {
                 if (!gameMap.getTile(r, c).has(Tile.OUTSIDE)) continue;
-
                 for (int i = 0; i < 4; i++) {
                     int rr = r + dr[i];
                     int cc = c + dc[i];
                     if (!gameMap.inBounds(rr, cc)) continue;
-
                     Tile n = gameMap.getTile(rr, cc);
                     if (n.has(Tile.OUTSIDE)) continue;
-
-                    // Optional: Blocker zwischen outside und neighbor (Tür/Wand)
-                    // Für direktes Nachbarfeld reicht oft: wenn Nachbar selbst blockt, dann kein dim.
-                    if (n.blocksLight()) continue;
-
                     if (n.getLightlevel() == Lightlevel.DARKNESS) {
                         n.setLightlevel(Lightlevel.DIM_LIGHT);
+                        if (n.getBrightness() < 0.5f * degree) n.setBrightness(0.5f * degree);
                     }
-                    if (n.getBrightness() < 0.5f) n.setBrightness(0.5f);
                 }
             }
         }
+    }
+
+    // Sonnenstand als 0.0 - 1.0
+    // 0.0 = Nacht, 1.0 = Mittag
+    private float sunDegree() {
+        int hour = GameClock.getInstance().getHour();
+        int minute = GameClock.getInstance().getMinute();
+        float timeOfDay = hour + minute / 60f;
+
+        // Sonnenaufgang 6:00, Sonnenuntergang 20:00, Mittag 13:00
+        if (timeOfDay < 6f || timeOfDay >= 20f) return 0f;  // Nacht
+
+        // Dawn 6:00-7:00 → 0.0-0.5
+        if (timeOfDay < 7f) return (timeOfDay - 6f) * 0.5f;
+
+        // Dusk 19:00-20:00 → 0.5-0.0
+        if (timeOfDay >= 19f) return (20f - timeOfDay) * 0.5f;
+
+        // Tag 7:00-19:00 → Sinus-Kurve mit Peak bei 13:00
+        float normalized = (timeOfDay - 7f) / 12f; // 0.0-1.0
+        return 0.5f + 0.5f * (float) Math.sin(Math.PI * normalized);
     }
 
     // Light

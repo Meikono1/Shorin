@@ -19,7 +19,7 @@ import java.util.List;
  * clock.travelTo("Whitebridge", 12.0, 25, TerrainType.NORMAL, () -> ankommen());
  */
 public class GameClock {
-    // ── Singleton ──────────────────────────────────────────────────────────────
+    // Singleton
     private static GameClock instance;
 
     public static GameClock getInstance() {
@@ -27,7 +27,7 @@ public class GameClock {
         return instance;
     }
 
-    // ── PF2e Konstanten ────────────────────────────────────────────────────────
+    // PF2e Konstanten
 
     public static final double SECONDS_PER_TURN = 6.0;
     public static final int TURNS_PER_MINUTE = 10;
@@ -49,7 +49,7 @@ public class GameClock {
         return Math.max(1, Math.round(minutes * TURNS_PER_MINUTE));
     }
 
-    // ── Speed-Enum ─────────────────────────────────────────────────────────────
+    // Speed-Enum
 
     /**
      * Turns pro Real-Sekunde bei den verschiedenen Speeds.
@@ -70,7 +70,7 @@ public class GameClock {
         }
     }
 
-    // ── State ──────────────────────────────────────────────────────────────────
+    // State
 
     /**
      * Gesamte vergangene Turns seit Spielstart (Tag 1, 08:00)
@@ -87,7 +87,7 @@ public class GameClock {
     private final StringProperty timeStringProperty = new SimpleStringProperty();
     private final ObjectProperty<Speed> speedProperty = new SimpleObjectProperty<>(Speed.PAUSED);
 
-    // ── Travel ─────────────────────────────────────────────────────────────────
+    // Travel
     private TravelJob activeTravelJob = null;
 
     private static class TravelJob {
@@ -118,7 +118,7 @@ public class GameClock {
         }
     }
 
-    // ── Listeners ──────────────────────────────────────────────────────────────
+    // Listeners
 
     public interface ClockListener {
         /**
@@ -252,7 +252,7 @@ public class GameClock {
         updateTimeProperties();
     }
 
-    // ── Getters ────────────────────────────────────────────────────────────────
+    // Getters
     public int getDay() {
         return dayProperty.get();
     }
@@ -267,7 +267,7 @@ public class GameClock {
 
     public int getTurnOfMinute() {
         return turnOfMinuteProperty.get();
-    } // 0–9
+    }
 
     public DayPhase getDayPhase() {
         int h = getHour();
@@ -281,7 +281,7 @@ public class GameClock {
 
     public enum DayPhase {DAWN, MORNING, AFTERNOON, DUSK, EVENING, NIGHT}
 
-    // ── Properties ─────────────────────────────────────────────────────────────
+    // Properties
     public IntegerProperty dayProperty() {
         return dayProperty;
     }
@@ -302,7 +302,7 @@ public class GameClock {
         return speedProperty;
     }
 
-    // ── Listener ───────────────────────────────────────────────────────────────
+    // Listener
     public void addClockListener(ClockListener l) {
         clockListeners.add(l);
     }

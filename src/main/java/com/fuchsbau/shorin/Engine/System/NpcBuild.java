@@ -47,7 +47,7 @@ public class NpcBuild {
     // --- Loot ---
     public List<String> lootIds = new ArrayList<>();
 
-    // -- Recall KNowledge --
+    // -- Recall Knowledge --
     public List<RecallKnowledge> recallKnowledge = new ArrayList<>();
 
     // ────────────────────────────────────────────────────────────

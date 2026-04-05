@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Engine.Images;
 
+import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.animation.AnimationTimer;
 import javafx.scene.image.Image;
@@ -10,13 +11,17 @@ import java.util.logging.Logger;
 public class ImagePreLoader {
     protected static final String BASE64_PNG =
             "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAFUlEQVR4Xu3BAQ0AAADCIPunNsN+YAAAAABJRU5ErkJggg==";
-    private static final Map<ImagePaths, CacheEntry> CACHE = new EnumMap<>(ImagePaths.class);
+    private static final Map<String, CacheEntry> CACHE = new HashMap<>();
     private static final Deque<ImagePaths> QUEUE = new ArrayDeque<>();
     private static boolean running;
     private static final Logger logger = FileLogger.getLogger();
 
-    private static void getOrRequest(ImagePaths type, String url) {
-        CACHE.computeIfAbsent(type, t -> CacheEntry.ok(createImage(t, url)));
+    private static void getOrRequest(String key, String url) {
+        CACHE.computeIfAbsent(key, k -> CacheEntry.ok(createImage(url)));
+    }
+
+    private static Image createImage(String url) {
+        return new Image(url, true);
     }
 
     private static Image createImage(ImagePaths path, String url) {
@@ -27,9 +32,9 @@ public class ImagePreLoader {
                     url,
                     c.fixedWidth() > 0 ? c.fixedWidth() : 0,
                     c.fixedHeight() > 0 ? c.fixedHeight() : 0,
-                    true,   // preserve ratio
-                    true,   // smooth
-                    true    // async
+                    true,
+                    true,
+                    true
             );
         }
 
@@ -71,11 +76,11 @@ public class ImagePreLoader {
 
                 String url = next.resolveUrlOrNull();
                 if (url == null) {
-                    CACHE.put(next, CacheEntry.missing());
+                    CACHE.put(next.relative(), CacheEntry.missing());
                     return;
                 }
 
-                getOrRequest(next, url);
+                getOrRequest(next.relative(), url);
             }
         }.start();
     }
@@ -89,7 +94,7 @@ public class ImagePreLoader {
         String url = path.resolveUrlOrNull();
         if (url == null) {
             logger.warning("Bild fehlt: " + path.relative());
-            CACHE.put(path, CacheEntry.missing());
+            CACHE.put(path.relative(), CacheEntry.missing());
             return fallBackImage();
         }
         Image img;
@@ -101,12 +106,27 @@ public class ImagePreLoader {
 
         if (img.isError()) {
             logger.warning("Bild konnte nicht geladen werden: " + path.relative());
-            CACHE.put(path, CacheEntry.missing());
+            CACHE.put(path.relative(), CacheEntry.missing());
             return fallBackImage();
         }
 
-        CACHE.put(path, CacheEntry.ok(img));
+        CACHE.put(path.relative(), CacheEntry.ok(img));
         return img;
+    }
+
+    public static Image getCached(String relativePath) {
+        CacheEntry cached = CACHE.get(relativePath);
+        if (cached != null) return cached.missing ? fallBackImage() : cached.image;
+
+        String url = PathResolver.resolveString(relativePath);
+        if (url == null) {
+            logger.warning("Bild fehlt: " + relativePath);
+            CACHE.put(relativePath, CacheEntry.missing());
+            return fallBackImage();
+        }
+
+        getOrRequest(relativePath, url);
+        return CACHE.get(relativePath).image;
     }
 
     private static Image fallBackImage() {

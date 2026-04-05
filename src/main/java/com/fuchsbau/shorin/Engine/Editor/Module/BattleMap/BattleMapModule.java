@@ -6,6 +6,7 @@ import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Map.Core.*;
 import com.fuchsbau.shorin.Engine.Map.LightPreset;
 import com.fuchsbau.shorin.Engine.Map.Token;
+import com.fuchsbau.shorin.Engine.RPG.GameClock;
 import com.fuchsbau.shorin.Engine.System.NpcBuild;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
@@ -25,9 +26,10 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
@@ -50,13 +52,17 @@ public class BattleMapModule implements EditorModule {
     private final BorderPane sidebarContainer = new BorderPane();
     private Tool currentTool = Tool.WALL;
     private Label toolLabel;
-    private final ObservableList<NpcBuild> npcs = FXCollections.observableArrayList();
-    private TextField npcSearchField;
+    private final Map<String, NpcBuild> npcs = new HashMap<>();
+    private final ObservableList<NpcBuild> npcBuildObservableList = FXCollections.observableArrayList();
+    private boolean drawingActive = false;
+    private boolean tokensActive = false;
+    private Token selectedToken = null;
 
     // Maps
-    private static final File MAPS_DIR = PathResolver.resolveWritable("maps").toFile();
+    private static final File MAPS_DIR = PathResolver.resolveWritable("maps/battle").toFile();
     private final ObservableList<String> mapFiles = FXCollections.observableArrayList();
     private ListView<String> mapListView;
+    private String backgroundImage;
 
     // Lights
     private TextField lightNameField;
@@ -67,6 +73,20 @@ public class BattleMapModule implements EditorModule {
     private ListView<LightSource> lightListView;
 
     private TextField mapNameField = new TextField("neue_karte");
+
+    // Sound
+    private SoundPoint selectedSound = null;
+    private ListView<SoundPoint> soundListView;
+    private Spinner<Integer> soundRadiusSpinner;
+    private Spinner<Double> soundVolumeSpinner;
+    private Spinner<Double> soundEasingSpinner;
+    private Spinner<Double> soundMinLightSpinner;
+    private CheckBox soundLoopBox;
+    private CheckBox soundConstrainBox;
+    private CheckBox soundLightBox;
+    private Label soundPathLabel;
+
+    private final ObservableList<SoundPoint> soundPoints = FXCollections.observableArrayList();
 
 
     @Override
@@ -100,8 +120,21 @@ public class BattleMapModule implements EditorModule {
                 return;
             }
             if (e.getButton() == MouseButton.PRIMARY) {
-                painting = true;
-                applyAt(e.getX(), e.getY());
+                // Token-Auswahl immer prüfen — unabhängig vom Panel
+                Token hit = pickToken(e.getX(), e.getY());
+                if (hit != null) {
+                    selectedToken = hit;
+                    mapRenderer.setSelectedToken(selectedToken);
+                    mapRenderer.renderBattlemap();
+                    e.consume();
+                    return;
+                }
+
+                // Zeichnen nur wenn Draw-Panel aktiv
+                if (drawingActive) {
+                    painting = true;
+                    applyAt(e.getX(), e.getY());
+                }
                 e.consume();
             }
         });
@@ -128,6 +161,15 @@ public class BattleMapModule implements EditorModule {
             }
             if (painting && e.isPrimaryButtonDown()) {
                 applyAt(e.getX(), e.getY());
+                e.consume();
+            }
+            if (tokensActive && selectedToken != null && e.isPrimaryButtonDown() && !painting) {
+                int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
+                if (rc != null && gameMap.inBounds(rc[0], rc[1])) {
+                    selectedToken.row = rc[0];
+                    selectedToken.col = rc[1];
+                    mapRenderer.renderBattlemap();
+                }
                 e.consume();
             }
         });
@@ -178,7 +220,7 @@ public class BattleMapModule implements EditorModule {
                 } else if (s.startsWith("NPC:") || s.startsWith("CHAR:")) {
                     int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
                     if (rc != null) {
-                        gameMap.getTokens().add(new Token(rc[0], rc[1], s));
+                        gameMap.getTokens().add(new Token(rc[0], rc[1], npcs.get(s.split(":")[1])));
                         mapRenderer.renderBattlemap();
                         logger.fine("Token platziert: " + s + " @ " + rc[0] + "/" + rc[1]);
                         ok = true;
@@ -206,6 +248,31 @@ public class BattleMapModule implements EditorModule {
                 }
             }
             e.setDropCompleted(ok);
+            e.consume();
+        });
+
+        // Pfeiltasten auf Canvas
+        mapRenderer.getCanvas().setFocusTraversable(true);
+        mapRenderer.getCanvas().setOnKeyPressed(e -> {
+            if (selectedToken == null || !tokensActive) return;
+            int dr = 0, dc = 0;
+            switch (e.getCode()) {
+                case UP -> dr = -1;
+                case DOWN -> dr = 1;
+                case LEFT -> dc = -1;
+                case RIGHT -> dc = 1;
+                default -> {
+                    return;
+                }
+            }
+            int newRow = selectedToken.row + dr;
+            int newCol = selectedToken.col + dc;
+            if (gameMap.inBounds(newRow, newCol)) {
+                selectedToken.row = newRow;
+                selectedToken.col = newCol;
+                mapRenderer.renderBattlemap();
+                logger.fine("Token bewegt: " + selectedToken.name + " → " + newRow + "/" + newCol);
+            }
             e.consume();
         });
 
@@ -273,7 +340,7 @@ public class BattleMapModule implements EditorModule {
         ToggleButton soundBtn = makeSidebarBtn("Sound", "SOUND");
 
         // Standard: Zeichnen
-        drawBtn.setSelected(true);
+        mapsBtn.setSelected(true);
 
         Separator sep = new Separator();
         sep.setOrientation(javafx.geometry.Orientation.VERTICAL);
@@ -311,6 +378,16 @@ public class BattleMapModule implements EditorModule {
         newBtn.setMaxWidth(Double.MAX_VALUE);
         newBtn.setOnAction(e -> newMap());
 
+        Button loadBgBtn = new Button("Hintergrundbild");
+        loadBgBtn.setMaxWidth(Double.MAX_VALUE);
+        loadBgBtn.setOnAction(e -> {
+            String path = mapRenderer.loadBackground();
+            if (path == null) return;
+            backgroundImage = path;
+
+            mapRenderer.renderBattlemap();
+        });
+
         // --- Kartenliste ---
         Label listLabel = new Label("Verfügbare Karten");
 
@@ -328,7 +405,7 @@ public class BattleMapModule implements EditorModule {
         refreshBtn.setOnAction(e -> refreshMapList());
 
         VBox panel = new VBox(6,
-                mapNameField, saveBtn, loadBtn, newBtn,
+                mapNameField, saveBtn, loadBtn, newBtn, loadBgBtn,
                 new Separator(),
                 listLabel, mapListView, refreshBtn
         );
@@ -346,9 +423,11 @@ public class BattleMapModule implements EditorModule {
             MAPS_DIR.mkdirs();
             return;
         }
-        File[] files = MAPS_DIR.listFiles((dir, name) -> name.endsWith(".shorin"));
+        File[] files = MAPS_DIR.listFiles();
         if (files == null) return;
-        for (File f : files) mapFiles.add(f.getName());
+        for (File f : files) {
+            mapFiles.add(f.getName());
+        }
         logger.fine("Kartenliste aktualisiert: " + mapFiles.size());
     }
 
@@ -418,6 +497,8 @@ public class BattleMapModule implements EditorModule {
     }
 
     private void switchSidebar(String mode) {
+        drawingActive = mode.equals("DRAW");
+        tokensActive = mode.equals("TOKENS");
         Node panel = switch (mode) {
             case "MAPS" -> buildMapsPanel();
             case "DRAW" -> buildDrawPanel();
@@ -455,7 +536,7 @@ public class BattleMapModule implements EditorModule {
         TextField npcSearch = new TextField();
         npcSearch.setPromptText("NPC suchen...");
 
-        FilteredList<NpcBuild> filtered = new FilteredList<>(npcs, n -> true);
+        FilteredList<NpcBuild> filtered = new FilteredList<>(npcBuildObservableList, n -> true);
         npcSearch.textProperty().addListener((obs, ov, nv) ->
                 filtered.setPredicate(n ->
                         nv == null || nv.isBlank() ||
@@ -551,6 +632,16 @@ public class BattleMapModule implements EditorModule {
         return panel;
     }
 
+    private Token pickToken(double sx, double sy) {
+        int[] rc = mapRenderer.pickTile(sx, sy);
+        if (rc == null) return null;
+
+        for (Token t : gameMap.getTokens()) {
+            if (t.row == rc[0] && t.col == rc[1]) return t;
+        }
+        return null;
+    }
+
     private void loadChars(ObservableList<String> chars) {
         chars.clear();
         chars.add("(noch keine Charaktere)");
@@ -599,35 +690,43 @@ public class BattleMapModule implements EditorModule {
                 sizeRow,
                 makeGridBtn("+ Oben", () -> {
                     gameMap.addRowTop();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 makeGridBtn("+ Unten", () -> {
                     gameMap.addRowBottom();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 makeGridBtn("+ Links", () -> {
                     gameMap.addColLeft();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 makeGridBtn("+ Rechts", () -> {
                     gameMap.addColRight();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 new Separator(),
                 makeGridBtn("- Oben", () -> {
                     gameMap.removeRowTop();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 makeGridBtn("- Unten", () -> {
                     gameMap.removeRowBottom();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 makeGridBtn("- Links", () -> {
                     gameMap.removeColLeft();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 }),
                 makeGridBtn("- Rechts", () -> {
                     gameMap.removeColRight();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                 })
         );
@@ -654,6 +753,58 @@ public class BattleMapModule implements EditorModule {
     }
 
     private Node buildLightPanel() {
+        // --- Uhrzeit-Anzeige ---
+        Label timeLabel = new Label();
+        timeLabel.textProperty().bind(GameClock.getInstance().timeStringProperty());
+
+        Button plusHalfBtn = new Button("+30min");
+        plusHalfBtn.setOnAction(e -> {
+            GameClock.getInstance().setTotalTurns(
+                    GameClock.getInstance().getTotalTurns() + GameClock.TURNS_PER_HOUR / 2.0);
+            lighting.recomputeLightmapAll(gameMap);
+            mapRenderer.renderBattlemap();
+        });
+
+        Button plusHourBtn = new Button("+1h");
+        plusHourBtn.setOnAction(e -> {
+            GameClock.getInstance().setTotalTurns(
+                    GameClock.getInstance().getTotalTurns() + GameClock.TURNS_PER_HOUR);
+            lighting.recomputeLightmapAll(gameMap);
+            mapRenderer.renderBattlemap();
+        });
+
+        Button minusHalfBtn = new Button("-30min");
+        minusHalfBtn.setOnAction(e -> {
+            GameClock.getInstance().setTotalTurns(
+                    Math.max(0, GameClock.getInstance().getTotalTurns() - GameClock.TURNS_PER_HOUR / 2.0));
+            lighting.recomputeLightmapAll(gameMap);
+            mapRenderer.renderBattlemap();
+        });
+
+        Button minusHourBtn = new Button("-1h");
+        minusHourBtn.setOnAction(e -> {
+            GameClock.getInstance().setTotalTurns(
+                    Math.max(0, GameClock.getInstance().getTotalTurns() - GameClock.TURNS_PER_HOUR));
+            lighting.recomputeLightmapAll(gameMap);
+            mapRenderer.renderBattlemap();
+        });
+
+        HBox timeControls = new HBox(4, minusHourBtn, minusHalfBtn, plusHalfBtn, plusHourBtn);
+
+        // --- Tageslicht ---
+        Label daylightLabel = new Label("Tageslicht");
+
+        CheckBox daylightBox = new CheckBox("Tageslicht aktiv");
+        daylightBox.setSelected(GameClock.getInstance().getHour() == 16);
+        daylightBox.setOnAction(e -> {
+            int hour = daylightBox.isSelected() ? 16 : 0;
+            double turns = hour * GameClock.TURNS_PER_HOUR;
+            GameClock.getInstance().setTotalTurns(turns);
+            lighting.recomputeLightmapAll(gameMap);
+            mapRenderer.renderBattlemap();
+            logger.fine("Tageslicht: " + hour + " Uhr");
+        });
+
         // --- Prefabs ---
         Label prefabLabel = new Label("Prefabs");
         VBox prefabs = new VBox(4);
@@ -752,6 +903,9 @@ public class BattleMapModule implements EditorModule {
         );
 
         VBox panel = new VBox(8,
+                daylightLabel, daylightBox, timeLabel, timeControls,
+                new Separator(),
+                new Separator(),
                 prefabLabel, prefabs,
                 new Separator(),
                 placedLabel, lightListView, deleteBtn,
@@ -780,20 +934,6 @@ public class BattleMapModule implements EditorModule {
         mapRenderer.renderBattlemap();
         logger.fine("Licht gelöscht");
     }
-
-    private SoundPoint selectedSound = null;
-    private ListView<SoundPoint> soundListView;
-    private TextField soundNameField;
-    private Spinner<Integer> soundRadiusSpinner;
-    private Spinner<Double> soundVolumeSpinner;
-    private Spinner<Double> soundEasingSpinner;
-    private Spinner<Double> soundMinLightSpinner;
-    private CheckBox soundLoopBox;
-    private CheckBox soundConstrainBox;
-    private CheckBox soundLightBox;
-    private Label soundPathLabel;
-
-    private final ObservableList<SoundPoint> soundPoints = FXCollections.observableArrayList();
 
     private Node buildSoundPanel() {
         // --- Liste ---
@@ -981,10 +1121,14 @@ public class BattleMapModule implements EditorModule {
     }
 
     private void loadNpcs() {
+        npcBuildObservableList.clear();
         List<NpcBuild> loaded = EditorIO.load("Ingame/npcs.json",
                 new TypeReference<>() {
                 }, new ArrayList<>());
-        npcs.setAll(loaded);
+        for (NpcBuild npcBuild : loaded) {
+            npcs.put(npcBuild.name, npcBuild);
+        }
+        npcBuildObservableList.addAll(loaded);
         logger.info("NPCs geladen: " + npcs.size());
     }
 }

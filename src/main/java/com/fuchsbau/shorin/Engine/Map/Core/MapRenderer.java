@@ -1,7 +1,9 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
+import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -33,8 +35,9 @@ public class MapRenderer {
     private Image backgroundImage;
 
     // --- Map ---
-    private GameMap gameMap;
-    private LightingSystem lightingSystem;
+    private final GameMap gameMap;
+    private final LightingSystem lightingSystem;
+    private Token selectedToken;
 
     public boolean debug = false;
 
@@ -49,17 +52,22 @@ public class MapRenderer {
         return canvas;
     }
 
-    public void loadBackground() {
+    public String loadBackground() {
         FileChooser fc = new FileChooser();
         fc.setTitle("Choose background image");
         fc.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp")
         );
 
+        File initialDir = PathResolver.resolveWritable("images").toFile();
+        if (!initialDir.exists()) initialDir = PathResolver.resolveWritable("").toFile();
+        fc.setInitialDirectory(initialDir.exists() ? initialDir : new File("."));
+
         File f = fc.showOpenDialog(canvas.getScene().getWindow());
-        if (f == null) return;
+        if (f == null) return null;
 
         backgroundImage = new Image(f.toURI().toString(), false);
+        return f.getAbsolutePath();
     }
 
     // ---------------- Rendering ----------------
@@ -231,9 +239,21 @@ public class MapRenderer {
 
             double x = Math.floor((xWorld - camX) * zoom);
             double y = Math.floor((yWorld - camY) * zoom);
+            double size = BASE_TILE * zoom;
 
-            g.setFill(sceneBuilder.beigeRGB);
-            g.fillText(t.name, x + 4, y + 14);
+            if (t.npcBuild != null && t.npcBuild.tokenPath != null && !t.npcBuild.tokenPath.isBlank()) {
+                Image img = ImagePreLoader.getCached(t.npcBuild.tokenPath);
+
+                if (img != null && !img.isError()) {
+                    g.drawImage(img, x, y, size, size);
+                } else {
+                    g.setFill(Color.CORNFLOWERBLUE);
+                    g.fillOval(x, y, size, size);
+                }
+            } else {
+                g.setFill(sceneBuilder.beigeRGB);
+                g.fillOval(x, y, size, size);
+            }
         }
 
         for (LightSource ls : gameMap.getLights()) {
@@ -441,5 +461,9 @@ public class MapRenderer {
 
     public double getCamX() {
         return camX;
+    }
+
+    public void setSelectedToken(Token selectedToken) {
+        this.selectedToken = selectedToken;
     }
 }

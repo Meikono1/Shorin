@@ -92,7 +92,7 @@ public final class Tile {
     }
 
     public static Tile empty() {
-        return new Tile(0);
+        return new Tile(OUTSIDE);
     }
 
     public boolean hasDebugTerrain() {
