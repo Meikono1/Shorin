@@ -2,6 +2,8 @@ package com.fuchsbau.shorin.Engine.Map.Core.Lighting;
 
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.RPG.GameClock;
 
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
@@ -34,30 +36,35 @@ public class LightingSystem {
     // LightingSystem — applySunlight anpassen
     private void applySunlight(GameMap gameMap) {
         float degree = getSunDegree();
-        if (degree <= 0f) return; // kein Sonnenlicht
+        if (degree <= 0f) return;
 
         for (int r = 0; r < gameMap.getRows(); r++) {
             for (int c = 0; c < gameMap.getCols(); c++) {
                 Tile t = gameMap.getTile(r, c);
                 if (!t.has(Tile.OUTSIDE)) continue;
 
-                // Helligkeit abhängig vom Sonnenstand
+                // Indoor-Zone schirmt Tageslicht ab
+                if (gameMap.isIndoor(r, c, BASE_TILE)) continue;
+
                 Lightlevel lvl = degree >= 0.5f ? Lightlevel.BRIGHT_LIGHT : Lightlevel.DIM_LIGHT;
                 t.setLightlevel(lvl);
                 if (t.getBrightness() < degree) t.setBrightness(degree);
             }
         }
 
-        // Nachbarn zu OUTSIDE bekommen min DIM
+        // Nachbarn zu OUTSIDE bekommen min DIM — ebenfalls Indoor prüfen
         for (int r = 0; r < gameMap.getRows(); r++) {
             for (int c = 0; c < gameMap.getCols(); c++) {
                 if (!gameMap.getTile(r, c).has(Tile.OUTSIDE)) continue;
+                if (gameMap.isIndoor(r, c, BASE_TILE)) continue;
+
                 for (int i = 0; i < 4; i++) {
                     int rr = r + dr[i];
                     int cc = c + dc[i];
                     if (!gameMap.inBounds(rr, cc)) continue;
                     Tile n = gameMap.getTile(rr, cc);
                     if (n.has(Tile.OUTSIDE)) continue;
+                    if (gameMap.isIndoor(rr, cc, BASE_TILE)) continue;
                     if (n.getLightlevel() == Lightlevel.DARKNESS) {
                         n.setLightlevel(Lightlevel.DIM_LIGHT);
                         if (n.getBrightness() < 0.5f * degree) n.setBrightness(0.5f * degree);
@@ -90,6 +97,13 @@ public class LightingSystem {
 
     // Light
     private void applyLight(LightSource ls, GameMap gameMap) {
+        float effectiveIntensity = ls.intensity;
+        if (ls.sunlight) {
+            float sunDeg = getSunDegree();
+            if (sunDeg <= 0f) return; // Nacht — kein Sonnenlicht
+            effectiveIntensity = ls.intensity * sunDeg;
+        }
+
         int brTiles = ls.brightTiles;
         int dimTiles = ls.dimTiles;
         int rad = Math.max(1, dimTiles);
@@ -103,10 +117,6 @@ public class LightingSystem {
         int r1 = clamp((int) Math.ceil(ly + rad) + 1, 0, gameMap.getRows() - 1);
         int c0 = clamp((int) Math.floor(lx - rad) - 1, 0, gameMap.getCols() - 1);
         int c1 = clamp((int) Math.ceil(lx + rad) + 1, 0, gameMap.getCols() - 1);
-
-        // LOS start tile
-        int srcR = clamp((int) Math.floor(ly), 0, gameMap.getRows() - 1);
-        int srcC = clamp((int) Math.floor(lx), 0, gameMap.getCols() - 1);
 
         // Center check (tile fractions)
         boolean isCenter =
@@ -135,7 +145,7 @@ public class LightingSystem {
 
                 Lightlevel lvl = (distTiles <= brTiles) ? Lightlevel.BRIGHT_LIGHT : Lightlevel.DIM_LIGHT;
 
-                float b = brightnessAtDistanceTiles(distTiles, brTiles, dimTiles, ls.intensity);
+                float b = brightnessAtDistanceTiles(distTiles, brTiles, dimTiles, effectiveIntensity);
                 if (b <= 0f) continue;
 
                 Tile t = gameMap.getTile(r, c);
@@ -147,7 +157,9 @@ public class LightingSystem {
 
                 if (!improvesBrightness && !improvesLevel) continue;
 
-                if (!gameMap.hasLineOfSight(srcR, srcC, r, c)) continue;
+                double tileWorldX = (c + 0.5) * BASE_TILE;
+                double tileWorldY = (r + 0.5) * BASE_TILE;
+                if (!gameMap.hasLineOfSightWalls(ls.x, ls.y, tileWorldX, tileWorldY)) continue;
 
                 if (improvesBrightness) t.setBrightness(b);
 

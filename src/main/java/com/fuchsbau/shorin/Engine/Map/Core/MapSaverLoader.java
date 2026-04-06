@@ -1,6 +1,5 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
-import com.fuchsbau.shorin.Engine.Editor.Module.NpcModule;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
@@ -8,10 +7,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.System.NpcBuild;
-import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
-import javafx.scene.image.Image;
-import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -234,6 +230,7 @@ public class MapSaverLoader {
             out.writeInt(ls.brightTiles);
             out.writeInt(ls.dimTiles);
             out.writeFloat(ls.intensity);
+            out.writeBoolean(ls.sunlight);
         }
     }
 
@@ -275,7 +272,8 @@ public class MapSaverLoader {
             int brightTiles = in.readInt();
             int dimTiles = in.readInt();
             float intensity = in.readFloat();
-            list.add(new LightSource(x, y, brightTiles, dimTiles, intensity));
+            boolean sunlight = in.readBoolean();
+            list.add(new LightSource(x, y, brightTiles, dimTiles, intensity, sunlight));
         }
         return list;
     }

@@ -1,6 +1,7 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
@@ -24,9 +25,6 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
@@ -64,6 +62,10 @@ public class MapRenderer {
     private double wallPreviewStartX, wallPreviewStartY;
     private WallType wallPreviewType = WallType.WALL;
     private double highlightX = -1, highlightY = -1;
+
+    // Indoor Zones
+    private double zoneHighlightX = -1, zoneHighlightY = -1;
+    private IndoorZone zonePreview = null;
 
 
     public boolean debug = false;
@@ -130,10 +132,19 @@ public class MapRenderer {
 
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                Color c = reader.getColor(x, y);
-                // Luminanz-gewichtete Graustufe (menschliche Wahrnehmung)
-                double lum = c.getRed() * 0.2126 + c.getGreen() * 0.7152 + c.getBlue() * 0.0722;
-                writer.setColor(x, y, Color.color(lum, lum, lum, c.getOpacity()));
+                int argb = reader.getArgb(x, y);
+
+                int a = (argb >> 24) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = (argb) & 0xFF;
+
+                // Luminanz in sRGB-Raum (sieht natürlicher aus als lineare Korrektur)
+                int lum = (int) (r * 0.2126 + g * 0.7152 + b * 0.0722);
+                lum = Math.min(255, lum); // clamp
+
+                int grey = (a << 24) | (lum << 16) | (lum << 8) | lum;
+                writer.setArgb(x, y, grey);
             }
         }
 
@@ -154,7 +165,7 @@ public class MapRenderer {
         greyCanvas.setPickOnBounds(false);
 
 
-        StackPane pane = new StackPane(canvas, greyCanvas, lightCanvas, tokenCanvas);
+        StackPane pane = new StackPane(canvas, greyCanvas, tokenCanvas);
         pane.setStyle("-fx-background-color: rgb(10,10,16);");
 
         canvas.widthProperty().bind(pane.widthProperty());
@@ -187,9 +198,6 @@ public class MapRenderer {
 
         StackPane root = new StackPane();
         root.getChildren().addAll(canvasNode, mapNameField); // Reihenfolge: Canvas unten, TextField oben
-
-        // wenn du willst, dass das TextField nicht die Mouse-Events "frisst" außerhalb seines Bereichs:
-        // root.setPickOnBounds(false);
 
         return root;
     }
@@ -248,31 +256,17 @@ public class MapRenderer {
             double sw = worldW * zoom;
             double sh = worldH * zoom;
 
+            g.setImageSmoothing(false);
             g.drawImage(backgroundImage, sx, sy, sw, sh);
         }
 
-        GraphicsContext gg = greyCanvas.getGraphicsContext2D();
-
-        if (greyImage != null) {
-            double worldW = gameMap.getCols() * BASE_TILE;
-            double worldH = gameMap.getRows() * BASE_TILE;
-
-            double sx = (-camX) * zoom;
-            double sy = (-camY) * zoom;
-            double sw = worldW * zoom;
-            double sh = worldH * zoom;
-
-            gg.drawImage(greyImage, sx, sy, sw, sh);
-        }
-
-
         renderLightLayer();
+
+        renderStrategyMap();
 
         // Wände zeichnen
         renderWalls(g, camX, camY, zoom);
         if (wallPreviewX >= 0) renderWallPreview(g, camX, camY, zoom);
-
-        renderStrategyMap();
     }
 
 
@@ -375,6 +369,52 @@ public class MapRenderer {
             g.setFill(sceneBuilder.redRGB);
             g.fillOval(x - size * 0.5, y - size * 0.5, size, size);
         }
+
+        // --- Indoor Zonen ---
+
+        // Highlight
+        g.setLineDashes(0);
+        g.setGlobalAlpha(1.0);
+        if (zoneHighlightX >= 0) {
+            g.setFill(Color.YELLOW);
+            double hx = (zoneHighlightX - camX) * zoom;
+            double hy = (zoneHighlightY - camY) * zoom;
+            g.fillOval(hx - 6, hy - 6, 12, 12);
+            logger.finest("ZoneHighlight gerendert @ screen(" + (int) hx + "/" + (int) hy + ")");
+        }
+
+        // Preview
+        if (zonePreview != null) {
+            g.setStroke(Color.rgb(255, 220, 50));
+            g.setGlobalAlpha(0.8);
+            g.setLineDashes(8, 4);
+            double sx = (zonePreview.x - camX) * zoom;
+            double sy = (zonePreview.y - camY) * zoom;
+            double sw = zonePreview.width * zoom;
+            double sh = zonePreview.height * zoom;
+            g.strokeRect(sx, sy, sw, sh);
+        }
+
+        g.setLineDashes(8, 4);
+        g.setLineWidth(1.5);
+        for (IndoorZone z : gameMap.getIndoorZones()) {
+            g.setStroke(Color.rgb(100, 200, 255));
+            g.setGlobalAlpha(0.7);
+            double sx = (z.x - camX) * zoom;
+            double sy = (z.y - camY) * zoom;
+            double sw = z.width * zoom;
+            double sh = z.height * zoom;
+            g.strokeRect(sx, sy, sw, sh);
+
+            // Eckpunkte
+            g.setFill(Color.rgb(100, 200, 255));
+            g.setGlobalAlpha(0.9);
+            drawZonePoint(g, z.x, z.y);
+            drawZonePoint(g, z.x2, z.y2);
+        }
+
+        g.setLineDashes(0);
+        g.setGlobalAlpha(1.0);
 
         // --- HUD ---
         g.setFill(sceneBuilder.beigeRGB);
@@ -527,69 +567,100 @@ public class MapRenderer {
     }
 
     private void renderLightLayer() {
-        if (lightCanvas == null || greyImage == null) return;
+        if (greyCanvas == null || greyImage == null) return;
 
-        GraphicsContext g = lightCanvas.getGraphicsContext2D();
-        double w = lightCanvas.getWidth();
-        double h = lightCanvas.getHeight();
+        GraphicsContext g = greyCanvas.getGraphicsContext2D();
+        double w = greyCanvas.getWidth();
+        double h = greyCanvas.getHeight();
 
         g.clearRect(0, 0, w, h);
+        g.setImageSmoothing(false);
         g.setGlobalBlendMode(BlendMode.SRC_OVER);
-        g.setGlobalAlpha(1.0);
 
         float sunDeg = lightingSystem.getSunDegree();
-        // greyLevel: Nacht=0.0 (schwarz, alles weg), Mittag=1.0 (weiß, alles original)
-        double greyLevel = clamp(sunDeg, 0.0, 1.0);
 
-        logger.fine("renderLightLayer — sunDeg=" + String.format("%.2f", sunDeg)
-                + " greyLevel=" + String.format("%.2f", greyLevel));
+        double worldLeft = camX;
+        double worldTop = camY;
+        double worldRight = camX + w / zoom;
+        double worldBottom = camY + h / zoom;
 
-        // --- Basis: Fläche mit greyLevel füllen ---
-        // greyLevel=1.0 → weiß → MULTIPLY lässt Hintergrund durch (Tag)
-        // greyLevel=0.0 → schwarz → MULTIPLY macht alles schwarz (Nacht)
-        g.setFill(Color.color(greyLevel, greyLevel, greyLevel, 1.0));
-        g.fillRect(0, 0, w, h);
+        int colMin = clamp((int) Math.floor(worldLeft / BASE_TILE) - 1, 0, gameMap.getCols() - 1);
+        int colMax = clamp((int) Math.ceil(worldRight / BASE_TILE) + 1, 0, gameMap.getCols() - 1);
+        int rowMin = clamp((int) Math.floor(worldTop / BASE_TILE) - 1, 0, gameMap.getRows() - 1);
+        int rowMax = clamp((int) Math.ceil(worldBottom / BASE_TILE) + 1, 0, gameMap.getRows() - 1);
 
+        double step = BASE_TILE * zoom;
+        double startX = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
+        double startY = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
 
-        // --- Lichtquellen: lokal aufhellen (Richtung weiß) ---
-        for (LightSource ls : gameMap.getLights()) {
-            double lsx = (ls.x - camX) * zoom;
-            double lsy = (ls.y - camY) * zoom;
-            double brightR = ls.brightTiles * BASE_TILE * zoom;
-            double dimR = ls.dimTiles * BASE_TILE * zoom;
+        double imgW = greyImage.getWidth();
+        double imgH = greyImage.getHeight();
+        double worldW = gameMap.getCols() * BASE_TILE;
+        double worldH = gameMap.getRows() * BASE_TILE;
 
-            if (dimR <= 0) continue;
+        // Lichtquellen einmal cachen für den inneren Loop
+        var lights = gameMap.getLights();
 
-            if (lsx + dimR < 0 || lsx - dimR > w || lsy + dimR < 0 || lsy - dimR > h) {
-                logger.finest("LightSource außerhalb Viewport — skip (" + ls.label + ")");
-                continue;
+        for (int r = rowMin; r <= rowMax; r++) {
+            double ty = startY + (r - rowMin) * step;
+            // Tile-Center in World-Koordinaten
+            double tileWorldY = (r + 0.5) * BASE_TILE;
+
+            for (int c = colMin; c <= colMax; c++) {
+                double tx = startX + (c - colMin) * step;
+                double tileWorldX = (c + 0.5) * BASE_TILE;
+
+                boolean indoor = gameMap.isIndoor(r, c, BASE_TILE);
+
+                // --- Tageslicht-Basis ---
+                double tileLight = (!indoor) ? (double) sunDeg : 0.0;
+
+                // --- Lichtquellen: kontinuierlich, distanzbasiert ---
+                for (LightSource ls : lights) {
+                    // Sunlight-Quellen nachts überspringen
+                    if (ls.sunlight && sunDeg <= 0f) continue;
+                    float effectiveIntensity = ls.sunlight ? ls.intensity * sunDeg : ls.intensity;
+
+                    // LOS-Check gegen Wände
+                    if (!gameMap.hasLineOfSightWalls(ls.x, ls.y, tileWorldX, tileWorldY)) continue;
+
+                    // Distanz in World-px
+                    double dx = tileWorldX - ls.x;
+                    double dy = tileWorldY - ls.y;
+                    double dist = Math.sqrt(dx * dx + dy * dy);
+
+                    double brightPx = ls.brightTiles * BASE_TILE;
+                    double dimPx = ls.dimTiles * BASE_TILE;
+
+                    if (dist > dimPx) continue;
+
+                    double lightContrib;
+                    if (dist <= brightPx) {
+                        // BrightLight: volle Intensität
+                        lightContrib = effectiveIntensity;
+                    } else {
+                        // DimLight: linear abfallend
+                        lightContrib = effectiveIntensity * (1.0 - (dist - brightPx) / (dimPx - brightPx));
+                    }
+
+                    tileLight = Math.max(tileLight, lightContrib);
+                }
+
+                double greyAlpha = clamp(1.0 - tileLight, 0.0, 1.0);
+                if (greyAlpha < 0.01) continue;
+
+                double srcX = (c * BASE_TILE / worldW) * imgW;
+                double srcY = (r * BASE_TILE / worldH) * imgH;
+                double srcW = (BASE_TILE / worldW) * imgW;
+                double srcH = (BASE_TILE / worldH) * imgH;
+
+                g.setGlobalAlpha(greyAlpha);
+                g.drawImage(greyImage, srcX, srcY, srcW, srcH, tx, ty, step + 1, step + 1);
             }
-
-            double brightFraction = clamp(brightR / dimR, 0.0, 1.0);
-
-            // Gradient: Zentrum → weiß (1,1,1) = volle Farbe durch MULTIPLY
-            //           DimRand → greyLevel (nahtloser Übergang zur Basis)
-            RadialGradient light = new RadialGradient(
-                    0, 0,
-                    lsx, lsy,
-                    dimR,
-                    false,
-                    CycleMethod.NO_CYCLE,
-                    new Stop(0, Color.color(1, 1, 1, 1.0)),
-                    new Stop(brightFraction, Color.color(1, 1, 1, 1.0)),
-                    new Stop(1.0, Color.color(greyLevel, greyLevel, greyLevel, 1.0))
-            );
-
-            g.setFill(light);
-            g.fillOval(lsx - dimR, lsy - dimR, dimR * 2, dimR * 2);
-
-            logger.finest("Licht gemalt: " + ls.label
-                    + " @ screen(" + (int) lsx + "/" + (int) lsy + ")"
-                    + " bright=" + (int) brightR + "px dim=" + (int) dimR + "px");
         }
 
         g.setGlobalAlpha(1.0);
-        logger.fine("renderLightLayer fertig — " + gameMap.getLights().size() + " Lichtquellen");
+        logger.fine("renderLightLayer fertig — " + lights.size() + " Lichtquellen");
     }
 
     private void renderWallPreview(GraphicsContext g, double camX, double camY, double zoom) {
@@ -658,6 +729,12 @@ public class MapRenderer {
         g.fillOval(sx - 3, sy - 3, 6, 6);
     }
 
+    private void drawZonePoint(GraphicsContext g, double wx, double wy) {
+        double sx = (wx - camX) * zoom;
+        double sy = (wy - camY) * zoom;
+        g.fillOval(sx - 4, sy - 4, 8, 8);
+    }
+
     private Color wallColor(WallType type) {
         return switch (type) {
             case WALL -> Color.rgb(180, 180, 190);
@@ -721,5 +798,22 @@ public class MapRenderer {
 
     public void clearHighlight() {
         highlightX = -1;
+    }
+
+    public void setZonePreview(IndoorZone zone) {
+        this.zonePreview = zone;
+    }
+
+    public void clearZonePreview() {
+        this.zonePreview = null;
+    }
+
+    public void setZoneHighlight(double x, double y) {
+        zoneHighlightX = x;
+        zoneHighlightY = y;
+    }
+
+    public void clearZoneHighlight() {
+        zoneHighlightX = -1;
     }
 }

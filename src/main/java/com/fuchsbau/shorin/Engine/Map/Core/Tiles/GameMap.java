@@ -1,13 +1,16 @@
 package com.fuchsbau.shorin.Engine.Map.Core.Tiles;
 
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
+import static com.fuchsbau.shorin.Engine.Util.MathUtil.dist2;
 
 
 public class GameMap {
@@ -19,6 +22,7 @@ public class GameMap {
     private final List<Token> tokens = new ArrayList<>();
     private final List<LightSource> lights = new ArrayList<>();
     private final List<WallSegment> walls = new ArrayList<>();
+    private final List<IndoorZone> indoorZones = new ArrayList<>();
 
     public String backgroundPath = "";
 
@@ -99,12 +103,48 @@ public class GameMap {
         }
     }
 
+    // Prüft ob der Strahl von (x1,y1) nach (x2,y2) ein WallSegment schneidet
+    public boolean hasLineOfSightWalls(double x1, double y1, double x2, double y2) {
+        for (WallSegment wall : walls) {
+            // Offene Türen blockieren kein Licht
+            if (wall.type == WallType.DOOR && wall.open) continue;
+            // Unsichtbare/Ethereale Wände blockieren kein Licht
+            if (wall.type == WallType.INVISIBLE) continue;
+            if (wall.type == WallType.ETHEREAL) continue;
+
+            if (segmentsIntersect(x1, y1, x2, y2, wall.x1, wall.y1, wall.x2, wall.y2)) {
+                return false; // blockiert
+            }
+        }
+        return true;
+    }
+
+    // Segment-Intersection — parametrisch
+    private boolean segmentsIntersect(
+            double ax, double ay, double bx, double by,
+            double cx, double cy, double dx, double dy) {
+
+        double dx1 = bx - ax, dy1 = by - ay;
+        double dx2 = dx - cx, dy2 = dy - cy;
+
+        double denom = dx1 * dy2 - dy1 * dx2;
+        if (Math.abs(denom) < 1e-10) return false; // parallel
+
+        double t = ((cx - ax) * dy2 - (cy - ay) * dx2) / denom;
+        double u = ((cx - ax) * dy1 - (cy - ay) * dx1) / denom;
+
+        // Schnitt nur wenn beide Parameter im [0,1] Bereich
+        // t leicht eingeschränkt damit Lichtquelle selbst nicht blockiert wird
+        return t > 1e-6 && t < 1.0 && u > 0.0 && u < 1.0;
+    }
+
     // --- Light ---
     public void addOrReplaceLight(double worldX,
                                   double worldY,
                                   int brightTiles,
                                   int dimTiles,
-                                  float intensity) {
+                                  float intensity,
+                                  boolean sonne) {
 
         double[] snapped = snapWorldToCornersOrCenter(worldX, worldY);
         double snappedX = snapped[0];
@@ -117,7 +157,7 @@ public class GameMap {
                         Math.abs(l.y - snappedY) < eps
         );
 
-        lights.add(new LightSource(snappedX, snappedY, brightTiles, dimTiles, intensity));
+        lights.add(new LightSource(snappedX, snappedY, brightTiles, dimTiles, intensity, sonne));
     }
 
     private double[] snapWorldToCornersOrCenter(double worldX, double worldY) {
@@ -149,12 +189,6 @@ public class GameMap {
             }
         }
         return new double[]{bestX, bestY};
-    }
-
-    private double dist2(double ax, double ay, double bx, double by) {
-        double dx = ax - bx;
-        double dy = ay - by;
-        return dx * dx + dy * dy;
     }
 
     public boolean removeLightNear(double mouseScreenX, double mouseScreenY,
@@ -230,5 +264,24 @@ public class GameMap {
 
     public void removeWall(WallSegment wall) {
         walls.remove(wall);
+    }
+
+    public void addIndoorZone(IndoorZone zone) {
+        indoorZones.add(zone);
+    }
+
+    public void removeIndoorZone(IndoorZone zone) {
+        indoorZones.remove(zone);
+    }
+
+    public boolean isIndoor(int row, int col, double baseTile) {
+        for (IndoorZone z : indoorZones) {
+            if (z.containsTile(row, col, baseTile)) return true;
+        }
+        return false;
+    }
+
+    public List<IndoorZone> getIndoorZones() {
+        return indoorZones;
     }
 }

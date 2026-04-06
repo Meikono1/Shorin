@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Map.Core.*;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Sound.SoundPoint;
@@ -41,6 +42,7 @@ import java.util.logging.Logger;
 
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
+import static com.fuchsbau.shorin.Engine.Util.MathUtil.dist2;
 
 public class BattleMapModule implements EditorModule {
 
@@ -76,6 +78,15 @@ public class BattleMapModule implements EditorModule {
     private boolean placingWall = false;
     private WallType activeWallType = WallType.WALL;
     private WallSegment highlightedSeg = null;
+
+    // Indoor Zones
+    private IndoorZone zoneInProgress = null;  // wird gerade aufgezogen
+    private double zoneStartX, zoneStartY;
+    private final ObservableList<IndoorZone> zoneItems = FXCollections.observableArrayList();
+    private final ListView<IndoorZone> zoneListView = new ListView<>(zoneItems);
+    private boolean placingZone = false;
+    private IndoorZone selectedZone = null;
+    private boolean draggingZoneStart = false;
 
     // Wand-Punkt-Selektion
     private WallSegment selectedWallSeg = null;
@@ -127,20 +138,6 @@ public class BattleMapModule implements EditorModule {
                     return;
                 }
 
-                if (e.isShiftDown()) {
-                    // Shift + Rechtsklick = Licht entfernen
-                    boolean removed = gameMap.removeLightNear(
-                            e.getX(), e.getY(),
-                            mapRenderer.getCamX(), mapRenderer.getCamY(),
-                            mapRenderer.getZoom(), 10.0);
-                    if (removed) {
-                        lighting.recomputeLightmapAll(gameMap);
-                        mapRenderer.renderBattlemap();
-                    }
-                    e.consume();
-                    return;
-                }
-
                 panning = true;
                 lastMouseX = e.getX();
                 lastMouseY = e.getY();
@@ -164,6 +161,31 @@ public class BattleMapModule implements EditorModule {
                 LightSource lightHit = pickLight(e.getX(), e.getY());
                 if (lightHit != null) {
                     selectedLight = lightHit;
+                    e.consume();
+                    return;
+                }
+
+                // --- Zone-Punkt verschieben ---
+                if (!placingZone) {
+                    ZoneHit zoneHit = pickZonePoint(e.getX(), e.getY());
+                    if (zoneHit != null) {
+                        selectedZone = zoneHit.zone();
+                        draggingZoneStart = zoneHit.isStart();
+                        logger.fine("Zone-Punkt gegriffen: isStart=" + draggingZoneStart);
+                        e.consume();
+                        return;
+                    }
+                }
+
+                // --- Indoor Zone starten ---
+                if (placingZone && e.getButton() == MouseButton.PRIMARY) {
+                    double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                    double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                    double[] snapped = snapToGrid(wx, wy);
+                    zoneStartX = snapped[0];
+                    zoneStartY = snapped[1];
+                    zoneInProgress = new IndoorZone(snapped[0], snapped[1], 0, 0);
+                    logger.fine("IndoorZone Start: " + snapped[0] + "/" + snapped[1]);
                     e.consume();
                     return;
                 }
@@ -210,6 +232,31 @@ public class BattleMapModule implements EditorModule {
             }
 
             if (e.getButton() == MouseButton.PRIMARY) {
+                if (placingZone && zoneInProgress != null) {
+                    if (zoneInProgress.width > 1 && zoneInProgress.height > 1) {
+                        gameMap.addIndoorZone(zoneInProgress);
+                        zoneItems.setAll(gameMap.getIndoorZones());
+
+                        lighting.recomputeLightmapAll(gameMap);
+                        logger.info("IndoorZone gespeichert: "
+                                + String.format("%.0f×%.0f", zoneInProgress.width, zoneInProgress.height));
+                    }
+                    zoneInProgress = null;
+                    placingZone = false;
+                    mapRenderer.clearZonePreview();
+                    mapRenderer.renderBattlemap();
+                    e.consume();
+                    return;
+                }
+
+                if (selectedZone != null) {
+                    logger.fine("Zone-Punkt losgelassen: "
+                            + String.format("%.0f×%.0f", selectedZone.width, selectedZone.height));
+                    selectedZone = null;
+                    e.consume();
+                    return;
+                }
+
                 if (placingWall) {
                     double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
                     double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
@@ -301,6 +348,48 @@ public class BattleMapModule implements EditorModule {
                 return;
             }
 
+            // --- Zone-Punkt ziehen ---
+            if (selectedZone != null && e.isPrimaryButtonDown()) {
+                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double[] snapped = snapToGrid(wx, wy);
+
+                if (draggingZoneStart) {
+                    // Start-Ecke (x/y) verschieben — x2/y2 bleibt fest
+                    selectedZone.x = Math.min(snapped[0], selectedZone.x2 - 1);
+                    selectedZone.y = Math.min(snapped[1], selectedZone.y2 - 1);
+                } else {
+                    // End-Ecke (x2/y2) verschieben — x/y bleibt fest
+                    selectedZone.x2 = Math.max(snapped[0], selectedZone.x + 1);
+                    selectedZone.y2 = Math.max(snapped[1], selectedZone.y + 1);
+                }
+
+                selectedZone.width = selectedZone.x2 - selectedZone.x;
+                selectedZone.height = selectedZone.y2 - selectedZone.y;
+
+                lighting.recomputeLightmapAll(gameMap);
+                mapRenderer.renderBattlemap();
+                e.consume();
+                return;
+            }
+
+            if (placingZone && zoneInProgress != null && e.isPrimaryButtonDown()) {
+                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double[] snapped = snapToGrid(wx, wy);
+
+                zoneInProgress.x = Math.min(zoneStartX, snapped[0]);
+                zoneInProgress.y = Math.min(zoneStartY, snapped[1]);
+                zoneInProgress.width = Math.abs(snapped[0] - zoneStartX);
+                zoneInProgress.height = Math.abs(snapped[1] - zoneStartY);
+                zoneInProgress.recalcBounds();
+
+                mapRenderer.setZonePreview(zoneInProgress);
+                mapRenderer.renderBattlemap();
+                e.consume();
+                return;
+            }
+
             if (isWallTool(currentTool) && selectedWallSeg != null && e.isPrimaryButtonDown()) {
                 double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
                 double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
@@ -380,7 +469,7 @@ public class BattleMapModule implements EditorModule {
 
                 } else if (s.startsWith("LIGHT:")) {
                     String[] parts = s.split(":");
-                    if (parts.length == 5) {
+                    if (parts.length == 6) {
                         int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
                         if (rc != null) {
                             double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
@@ -388,7 +477,8 @@ public class BattleMapModule implements EditorModule {
                             int bright = Integer.parseInt(parts[2]);
                             int dim = Integer.parseInt(parts[3]);
                             float intens = Float.parseFloat(parts[4]);
-                            gameMap.addOrReplaceLight(wx, wy, bright, dim, intens);
+                            boolean sonne = Boolean.parseBoolean(parts[5]);
+                            gameMap.addOrReplaceLight(wx, wy, bright, dim, intens, sonne);
                             lighting.recomputeLightmapAll(gameMap);
                             mapRenderer.renderBattlemap();
                             // ListView aktualisieren wenn Light-Panel aktiv
@@ -405,18 +495,29 @@ public class BattleMapModule implements EditorModule {
 
         // --- MouseMovement
         canvas.setOnMouseMoved(e -> {
-            if (!isWallTool(currentTool)) return;
-            WallHit hit = pickWallPoint(e.getX(), e.getY());
-            if (hit != null) {
-                highlightedSeg = hit.seg();
-                double px = hit.isStart() ? hit.seg().x1 : hit.seg().x2;
-                double py = hit.isStart() ? hit.seg().y1 : hit.seg().y2;
-                mapRenderer.setHighlightPoint(px, py);
-            } else {
-                highlightedSeg = null;
-                mapRenderer.clearHighlight();
+            if (isWallTool(currentTool)) {
+                WallHit hit = pickWallPoint(e.getX(), e.getY());
+                if (hit != null) {
+                    highlightedSeg = hit.seg();
+                    double px = hit.isStart() ? hit.seg().x1 : hit.seg().x2;
+                    double py = hit.isStart() ? hit.seg().y1 : hit.seg().y2;
+                    mapRenderer.setHighlightPoint(px, py);
+                } else {
+                    highlightedSeg = null;
+                    mapRenderer.clearHighlight();
+                }
+
+                ZoneHit zHit = pickZonePoint(e.getX(), e.getY());
+                if (zHit != null) {
+                    IndoorZone z = zHit.zone();
+                    double px = zHit.isStart() ? z.x : z.x2;
+                    double py = zHit.isStart() ? z.y : z.y2;
+                    mapRenderer.setZoneHighlight(px, py);
+                } else {
+                    mapRenderer.clearZoneHighlight();
+                }
+                mapRenderer.renderBattlemap();
             }
-            mapRenderer.renderBattlemap();
         });
 
         // Pfeiltasten auf Canvas
@@ -431,6 +532,18 @@ public class BattleMapModule implements EditorModule {
                     lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                     logger.fine("Wand gelöscht");
+                    e.consume();
+                    return;
+                }
+
+                if (isWallTool(currentTool) && selectedZone != null) {
+                    gameMap.removeIndoorZone(selectedZone);
+                    zoneItems.setAll(gameMap.getIndoorZones());
+                    selectedZone = null;
+                    mapRenderer.clearHighlight();
+                    lighting.recomputeLightmapAll(gameMap);
+                    mapRenderer.renderBattlemap();
+                    logger.fine("InsideWall gelöscht");
                     e.consume();
                     return;
                 }
@@ -876,6 +989,50 @@ public class BattleMapModule implements EditorModule {
     }
 
     private Node buildDrawPanel() {
+        // --- Indoor Zonen ---
+        Label zoneLabel = new Label("Indoor Zonen");
+
+        zoneListView.setMinHeight(150);
+        zoneListView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(IndoorZone z, boolean empty) {
+                super.updateItem(z, empty);
+                if (empty || z == null) {
+                    setText(null);
+                    return;
+                }
+                setText(z.label.isBlank()
+                        ? String.format("Zone %.0f×%.0f", z.width, z.height)
+                        : z.label);
+            }
+        });
+
+        zoneItems.setAll(gameMap.getIndoorZones());
+        if (zoneListView.getItems() != zoneItems) {
+            zoneListView.setItems(zoneItems);
+        }
+
+        Button zoneBtn = new Button("Indoor Box zeichnen");
+        zoneBtn.setMaxWidth(Double.MAX_VALUE);
+        zoneBtn.setOnAction(e -> {
+            placingZone = true;
+            drawingActive = false;
+            toolLabel.setText("Tool: Indoor Zone");
+            logger.fine("Indoor Zone Modus aktiv");
+        });
+
+        Button removeZoneBtn = new Button("Zone entfernen");
+        removeZoneBtn.setMaxWidth(Double.MAX_VALUE);
+        removeZoneBtn.setOnAction(e -> {
+            IndoorZone selected = zoneListView.getSelectionModel().getSelectedItem();
+            if (selected == null) return;
+            gameMap.removeIndoorZone(selected);
+            zoneItems.setAll(gameMap.getIndoorZones());
+            lighting.recomputeLightmapAll(gameMap);
+            mapRenderer.renderBattlemap();
+            logger.fine("IndoorZone entfernt");
+        });
+
         toolLabel = new Label("Tool: " + currentTool);
 
         Label wallLabel = new Label("Wände");
@@ -968,6 +1125,8 @@ public class BattleMapModule implements EditorModule {
         );
 
         VBox panel = new VBox(8,
+                zoneLabel, zoneBtn, zoneListView, removeZoneBtn,
+                new Separator(),
                 toolLabel,
                 new Separator(),
                 wallLabel, wallTools,
@@ -1064,7 +1223,8 @@ public class BattleMapModule implements EditorModule {
                 cc.putString("LIGHT:" + preset.name()
                         + ":" + preset.brightTiles()
                         + ":" + preset.dimTiles()
-                        + ":" + preset.intensity);
+                        + ":" + preset.intensity
+                        + ":" + preset.sonnenLicht);
                 db.setContent(cc);
                 e.consume();
             });
@@ -1421,10 +1581,51 @@ public class BattleMapModule implements EditorModule {
         return null;
     }
 
+    private record ZoneHit(IndoorZone zone, boolean isStart) {
+    }
+
+    private ZoneHit pickZonePoint(double sx, double sy) {
+        double wx = mapRenderer.screenToWorldX(sx, mapRenderer.getZoom());
+        double wy = mapRenderer.screenToWorldY(sy, mapRenderer.getZoom());
+        double tol = SNAP_TOLERANCE * 2;
+
+        for (IndoorZone z : gameMap.getIndoorZones()) {
+            if (dist2(wx, wy, z.x, z.y) < tol * tol) {
+                logger.finest("ZoneHit Start: " + z.x + "/" + z.y);
+                return new ZoneHit(z, true);
+            }
+            if (dist2(wx, wy, z.x2, z.y2) < tol * tol) {
+                logger.finest("ZoneHit End: " + z.x2 + "/" + z.y2);
+                return new ZoneHit(z, false);
+            }
+        }
+        return null;
+    }
+
     private double[] snapToGrid(double wx, double wy) {
-        double snap = BASE_TILE / 8.0; // 8 Positionen pro Tile
-        double snapX = Math.round(wx / snap) * snap;
-        double snapY = Math.round(wy / snap) * snap;
+        double gridSnap = BASE_TILE / 8.0;
+        double snapX = Math.round(wx / gridSnap) * gridSnap;
+        double snapY = Math.round(wy / gridSnap) * gridSnap;
+        double bestDist2 = (gridSnap * gridSnap); // Radius innerhalb dessen Wall-Punkte gewinnen
+
+        // Wall-Punkte als Snap-Kandidaten prüfen
+        for (WallSegment seg : gameMap.getWalls()) {
+            double d1 = dist2(wx, wy, seg.x1, seg.y1);
+            if (d1 < bestDist2) {
+                bestDist2 = d1;
+                snapX = seg.x1;
+                snapY = seg.y1;
+                logger.finest("Snap auf Wall-Start: " + seg.x1 + "/" + seg.y1);
+            }
+            double d2 = dist2(wx, wy, seg.x2, seg.y2);
+            if (d2 < bestDist2) {
+                bestDist2 = d2;
+                snapX = seg.x2;
+                snapY = seg.y2;
+                logger.finest("Snap auf Wall-End: " + seg.x2 + "/" + seg.y2);
+            }
+        }
+
         return new double[]{snapX, snapY};
     }
 }
