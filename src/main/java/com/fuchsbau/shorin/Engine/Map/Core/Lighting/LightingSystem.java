@@ -33,7 +33,7 @@ public class LightingSystem {
 
     // LightingSystem — applySunlight anpassen
     private void applySunlight(GameMap gameMap) {
-        float degree = sunDegree();
+        float degree = getSunDegree();
         if (degree <= 0f) return; // kein Sonnenlicht
 
         for (int r = 0; r < gameMap.getRows(); r++) {
@@ -69,7 +69,7 @@ public class LightingSystem {
 
     // Sonnenstand als 0.0 - 1.0
     // 0.0 = Nacht, 1.0 = Mittag
-    private float sunDegree() {
+    public float getSunDegree() {
         int hour = GameClock.getInstance().getHour();
         int minute = GameClock.getInstance().getMinute();
         float timeOfDay = hour + minute / 60f;

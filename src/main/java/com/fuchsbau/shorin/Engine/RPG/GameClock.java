@@ -279,6 +279,10 @@ public class GameClock {
         return DayPhase.NIGHT;
     }
 
+    public boolean isDaylight() {
+        return getDayPhase() != DayPhase.EVENING;
+    }
+
     public enum DayPhase {DAWN, MORNING, AFTERNOON, DUSK, EVENING, NIGHT}
 
     // Properties
