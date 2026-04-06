@@ -10,6 +10,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
+import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -23,12 +24,15 @@ import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.logging.Logger;
 
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
 
 public class MapRenderer {
     private final SceneBuilder sceneBuilder = SceneBuilder.getSceneBuilder();
+    private final Logger logger = FileLogger.getLogger();
 
     // --- View / camera ---
     private double camX = 0;
@@ -78,7 +82,19 @@ public class MapRenderer {
         if (f == null) return null;
 
         backgroundImage = new Image(f.toURI().toString(), false);
-        return f.getAbsolutePath();
+
+        Path base = PathResolver.resolveWritable("");
+        return base.relativize(f.toPath().toAbsolutePath())
+                .toString().replace("\\", "/");
+    }
+
+    public void loadBackground(String relativePath) {
+        String url = PathResolver.resolveString(relativePath);
+        if (url == null) {
+            logger.warning("Hintergrundbild nicht gefunden: " + relativePath);
+            return;
+        }
+        backgroundImage = new Image(url, false);
     }
 
     // ---------------- Rendering ----------------
@@ -255,6 +271,14 @@ public class MapRenderer {
             double x = Math.floor((xWorld - camX) * zoom);
             double y = Math.floor((yWorld - camY) * zoom);
             double size = BASE_TILE * zoom;
+
+            // Hervorhebung wenn ausgewählt
+            boolean selected = t == selectedToken;
+            if (selected) {
+                g.setStroke(Color.YELLOW);
+                g.setLineWidth(2.5);
+                g.strokeOval(x - 2, y - 2, size + 4, size + 4);
+            }
 
             if (t.npcBuild != null && t.npcBuild.tokenPath != null && !t.npcBuild.tokenPath.isBlank()) {
                 Image img = ImagePreLoader.getCached(t.npcBuild.tokenPath);

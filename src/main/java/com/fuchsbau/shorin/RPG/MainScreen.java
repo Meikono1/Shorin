@@ -3,7 +3,6 @@ package com.fuchsbau.shorin.RPG;
 import com.fuchsbau.shorin.Engine.Editor.GameEditor;
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
-import com.fuchsbau.shorin.Engine.Map.MapEditor;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
@@ -62,17 +61,6 @@ public class MainScreen implements Saveble {
 
         Button load = sceneBuilder.createMenuButton("Load Game");
 
-
-        Button encounter = sceneBuilder.createMenuButton("Encounter Builder");
-        encounter.setOnAction(event -> {
-            //Main.getStage().setScene(new EncounterScreen().getScene());
-        });
-
-        Button mapEditor = sceneBuilder.createMenuButton("Battlemap Editor");
-        mapEditor.setOnAction(event -> {
-            Main.getStage().setScene(new MapEditor().getScene(0));
-        });
-
         Button worldmapEditor = sceneBuilder.createMenuButton("Game Editor");
         worldmapEditor.setOnAction(event -> {
             Main.getStage().setScene(new GameEditor().buildScene());
@@ -93,7 +81,7 @@ public class MainScreen implements Saveble {
 
         logger.info("Erstelle Links");
         // Sektionen links
-        VBox gameSection = new VBox(5, sceneBuilder.makeWhiteLabel("Game"), start, load, encounter, mapEditor, worldmapEditor);
+        VBox gameSection = new VBox(5, sceneBuilder.makeWhiteLabel("Game"), start, load, worldmapEditor);
         gameSection.setFillWidth(true);
         VBox settingsSection = new VBox(5, sceneBuilder.makeWhiteLabel("Settings"), settings, rulebook);
         settingsSection.setFillWidth(true);

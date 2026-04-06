@@ -65,13 +65,11 @@ public class BattleMapModule implements EditorModule {
     private boolean drawingActive = false;
     private boolean tokensActive = false;
     private Token selectedToken = null;
-    private double dragOldX, dragOldY;
 
     // Maps
     private static final File MAPS_DIR = PathResolver.resolveWritable("maps/battle").toFile();
     private final ObservableList<String> mapFiles = FXCollections.observableArrayList();
     private ListView<String> mapListView;
-    private String backgroundImage;
 
     // Walls
     private double wallStartX = -1, wallStartY = -1;
@@ -108,7 +106,6 @@ public class BattleMapModule implements EditorModule {
 
     private final ObservableList<SoundPoint> soundPoints = FXCollections.observableArrayList();
 
-
     @Override
     public String getTitle() {
         return "BattleMap";
@@ -143,6 +140,7 @@ public class BattleMapModule implements EditorModule {
                     e.consume();
                     return;
                 }
+
                 panning = true;
                 lastMouseX = e.getX();
                 lastMouseY = e.getY();
@@ -157,6 +155,17 @@ public class BattleMapModule implements EditorModule {
                     mapRenderer.renderBattlemap();
                     e.consume();
                     return;
+                } else {
+                    selectedToken = null;
+                    mapRenderer.setSelectedToken(null);
+                    mapRenderer.renderBattlemap();
+                }
+
+                LightSource lightHit = pickLight(e.getX(), e.getY());
+                if (lightHit != null) {
+                    selectedLight = lightHit;
+                    e.consume();
+                    return;
                 }
 
                 if (isWallTool(currentTool)) {
@@ -165,9 +174,7 @@ public class BattleMapModule implements EditorModule {
                     if (wallHit != null) {
                         selectedWallSeg = wallHit.seg();
                         draggingStart = wallHit.isStart();
-                        // Exakte Position merken
-                        dragOldX = draggingStart ? selectedWallSeg.x1 : selectedWallSeg.x2;
-                        dragOldY = draggingStart ? selectedWallSeg.y1 : selectedWallSeg.y2;
+
                         placingWall = false;
                         mapRenderer.renderBattlemap();
                         e.consume();
@@ -229,6 +236,13 @@ public class BattleMapModule implements EditorModule {
                     return;
                 }
 
+                if (selectedLight != null) {
+                    selectedLight = null;
+                    logger.fine("Licht verschoben");
+                    e.consume();
+                    return;
+                }
+
                 if (selectedWallSeg != null) {
                     selectedWallSeg = null;
                     logger.fine("Wand-Punkt verschoben");
@@ -272,6 +286,17 @@ public class BattleMapModule implements EditorModule {
                     selectedToken.col = rc[1];
                     mapRenderer.renderBattlemap();
                 }
+                e.consume();
+                return;
+            }
+
+            if (selectedLight != null && e.isPrimaryButtonDown()) {
+                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
+                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                selectedLight.x = wx;
+                selectedLight.y = wy;
+                lighting.recomputeLightmapAll(gameMap);
+                mapRenderer.renderBattlemap();
                 e.consume();
                 return;
             }
@@ -398,17 +423,37 @@ public class BattleMapModule implements EditorModule {
         mapRenderer.getCanvas().setFocusTraversable(true);
 
         mapRenderer.getCanvas().setOnKeyPressed(e -> {
-            // Wand löschen — unabhängig von Token
-            if (e.getCode() == KeyCode.DELETE && isWallTool(currentTool)) {
-                if (highlightedSeg != null) {
+            if (e.getCode() == KeyCode.DELETE) {
+                if (isWallTool(currentTool) && highlightedSeg != null) {
                     gameMap.removeWall(highlightedSeg);
                     highlightedSeg = null;
                     mapRenderer.clearHighlight();
+                    lighting.recomputeLightmapAll(gameMap);
                     mapRenderer.renderBattlemap();
                     logger.fine("Wand gelöscht");
+                    e.consume();
+                    return;
                 }
-                e.consume();
-                return;
+
+                if (selectedLight != null) {
+                    gameMap.getLights().remove(selectedLight);
+                    selectedLight = null;
+                    lighting.recomputeLightmapAll(gameMap);
+                    mapRenderer.renderBattlemap();
+                    logger.fine("Licht gelöscht");
+                    e.consume();
+                    return;
+                }
+
+                if (selectedToken != null) {
+                    gameMap.getTokens().remove(selectedToken);
+                    selectedToken = null;
+                    mapRenderer.setSelectedToken(null);
+                    mapRenderer.renderBattlemap();
+                    logger.fine("Token gelöscht");
+                    e.consume();
+                    return;
+                }
             }
 
             // Token bewegen
@@ -544,7 +589,7 @@ public class BattleMapModule implements EditorModule {
         loadBgBtn.setOnAction(e -> {
             String path = mapRenderer.loadBackground();
             if (path == null) return;
-            backgroundImage = path;
+            gameMap.backgroundPath = path;
 
             mapRenderer.renderBattlemap();
         });
@@ -602,9 +647,17 @@ public class BattleMapModule implements EditorModule {
                 for (int c = 0; c < result.map.getCols(); c++)
                     gameMap.getTile(r, c).flags = result.map.getTile(r, c).flags;
             gameMap.getTokens().clear();
+            gameMap.getTokens().addAll(result.tokens);
+            gameMap.getLights().clear();
+            gameMap.getLights().addAll(result.lights);
+            gameMap.backgroundPath = result.map.backgroundPath;
+            mapRenderer.loadBackground(gameMap.backgroundPath);
+
             lighting.recomputeLightmapAll(gameMap);
             mapRenderer.renderBattlemap();
             mapNameField.setText(fileName.replace(".shorin", ""));
+            gameMap.clearWalls();
+            gameMap.getWalls().addAll(result.walls);
             logger.info("Karte geladen: " + fileName);
         } catch (Exception ex) {
             logger.severe("Fehler beim Laden: " + ex.getMessage());
@@ -630,7 +683,7 @@ public class BattleMapModule implements EditorModule {
             File dir = PathResolver.resolveWritable("maps/battle").toFile();
             if (!dir.exists()) dir.mkdirs();
             File out = new File(dir, name);
-            new MapSaverLoader().saveMap(out, gameMap, lighting);
+            new MapSaverLoader().saveBattleMap(out, gameMap, gameMap.getLights());
             logger.info("BattleMap gespeichert: " + out.getAbsolutePath());
         } catch (Exception ex) {
             logger.severe("Fehler beim Speichern: " + ex.getMessage());
@@ -800,6 +853,18 @@ public class BattleMapModule implements EditorModule {
 
         for (Token t : gameMap.getTokens()) {
             if (t.row == rc[0] && t.col == rc[1]) return t;
+        }
+        return null;
+    }
+
+    private LightSource pickLight(double sx, double sy) {
+        double tolerance = 12.0;
+        for (LightSource ls : gameMap.getLights()) {
+            double lsx = (ls.x - mapRenderer.getCamX()) * mapRenderer.getZoom();
+            double lsy = (ls.y - mapRenderer.getCamY()) * mapRenderer.getZoom();
+            double dx = sx - lsx;
+            double dy = sy - lsy;
+            if (dx * dx + dy * dy <= tolerance * tolerance) return ls;
         }
         return null;
     }
@@ -1297,6 +1362,8 @@ public class BattleMapModule implements EditorModule {
     @Override
     public void onActivate() {
         loadNpcs();
+        double turns = 16 * GameClock.TURNS_PER_HOUR;
+        GameClock.getInstance().setTotalTurns(turns);
         mapRenderer.renderBattlemap();
         logger.info("BattleMapModule aktiviert");
     }

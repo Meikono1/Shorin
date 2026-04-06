@@ -1,14 +1,25 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
+import com.fuchsbau.shorin.Engine.Editor.Module.NpcModule;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
-import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
+import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
+import com.fuchsbau.shorin.Engine.Map.Token;
+import com.fuchsbau.shorin.Engine.System.NpcBuild;
+import com.fuchsbau.shorin.Engine.Util.PathResolver;
+import com.fuchsbau.shorin.Logger.FileLogger;
+import javafx.scene.image.Image;
+import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+
+import static com.fuchsbau.shorin.Engine.Editor.Module.NpcModule.loadNpcsfromDisk;
 
 /**
  * MapSaverLoader – Binärformat (.shorin) für alle Map-Typen.
@@ -44,6 +55,8 @@ import java.util.List;
  */
 public class MapSaverLoader {
 
+    private static final Logger logger = FileLogger.getLogger();
+
     private static final byte[] MAGIC = {'S', 'H', 'O', 'R'};
     private static final byte VERSION = 1;
 
@@ -74,6 +87,7 @@ public class MapSaverLoader {
     }
 
     // SAVE
+
     /**
      * Speichert eine WorldMap mit optionalen Location-Markern.
      */
@@ -104,40 +118,21 @@ public class MapSaverLoader {
         try (DataOutputStream out = openForWrite(file)) {
             writeHeader(out, TYPE_BATTLE, map.getRows(), map.getCols());
             writeTiles(out, map);
+            writeBackground(out, map.backgroundPath);
             writeLights(out, lights);
+            writeWalls(out, map.getWalls());
+            writeTokens(out, map.getTokens());
         }
     }
 
-    // Rückwärtskompatibilität mit altem Code
-
-    /**
-     * @deprecated Nutze saveWorldMap(file, map, locations)
-     */
-    @Deprecated
-    public void saveWorldMap(File file, MutableGameMap map,
-                             LightingSystem lightingSystem) throws IOException {
-        saveWorldMap(file, map, new ArrayList<>());
-    }
-
-    /**
-     * @deprecated Nutze saveBattleMap(file, map, lights)
-     */
-    @Deprecated
-    public void saveMap(File file, GameMap map,
-                        LightingSystem lightingSystem) throws IOException {
-        saveBattleMap(file, map, map.getLights());
-    }
-
-
     // LOAD
-    /**
-     * Ergebnis eines Ladevorgangs.
-     */
     public static class LoadResult {
         public byte mapType;
         public MutableGameMap map;
-        public List<LocationMarker> locations = new ArrayList<>(); // WorldMap
-        public List<LightSource> lights = new ArrayList<>();  // Battlemap
+        public List<LocationMarker> locations = new ArrayList<>();
+        public List<LightSource> lights = new ArrayList<>();
+        public List<WallSegment> walls = new ArrayList<>();
+        public List<Token> tokens = new ArrayList<>();
     }
 
     /**
@@ -169,8 +164,12 @@ public class MapSaverLoader {
 
             switch (result.mapType) {
                 case TYPE_WORLD -> result.locations = readLocations(in);
-                case TYPE_BATTLE -> result.lights = readLights(in);
-                // TYPE_LOCAL: nichts extra
+                case TYPE_BATTLE -> {
+                    result.map.backgroundPath = readBackgroundpath(in);
+                    result.lights = readLights(in);
+                    result.walls = readWalls(in);
+                    result.tokens = readTokens(in);
+                }
             }
 
             return result;
@@ -200,6 +199,10 @@ public class MapSaverLoader {
                 out.writeInt(map.getTile(r, c).flags);
             }
         }
+    }
+
+    private void writeBackground(DataOutputStream out, String backgroundPath) throws IOException {
+        out.writeUTF(backgroundPath != null ? backgroundPath : "");
     }
 
     private void writeLocations(DataOutputStream out,
@@ -273,6 +276,74 @@ public class MapSaverLoader {
             int dimTiles = in.readInt();
             float intensity = in.readFloat();
             list.add(new LightSource(x, y, brightTiles, dimTiles, intensity));
+        }
+        return list;
+    }
+
+    private void writeWalls(DataOutputStream out, List<WallSegment> walls) throws IOException {
+        if (walls == null) {
+            out.writeInt(0);
+            return;
+        }
+        out.writeInt(walls.size());
+        for (WallSegment w : walls) {
+            out.writeDouble(w.x1);
+            out.writeDouble(w.y1);
+            out.writeDouble(w.x2);
+            out.writeDouble(w.y2);
+            out.writeUTF(w.type.name());
+            out.writeBoolean(w.open);
+        }
+    }
+
+    private List<WallSegment> readWalls(DataInputStream in) throws IOException {
+        int count = in.readInt();
+        List<WallSegment> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            double x1 = in.readDouble();
+            double y1 = in.readDouble();
+            double x2 = in.readDouble();
+            double y2 = in.readDouble();
+            WallType type = WallType.valueOf(in.readUTF());
+            boolean open = in.readBoolean();
+            WallSegment seg = new WallSegment(x1, y1, x2, y2, type);
+            seg.open = open;
+            list.add(seg);
+        }
+        return list;
+    }
+
+    private String readBackgroundpath(DataInputStream in) throws IOException {
+        return in.readUTF();
+    }
+
+    private void writeTokens(DataOutputStream out, List<Token> tokens) throws IOException {
+        if (tokens == null) {
+            out.writeInt(0);
+            return;
+        }
+        out.writeInt(tokens.size());
+        for (Token t : tokens) {
+            out.writeInt(t.row);
+            out.writeInt(t.col);
+            out.writeUTF(t.name != null ? t.name : "");
+        }
+    }
+
+    private List<Token> readTokens(DataInputStream in) throws IOException {
+        int count = in.readInt();
+        List<Token> list = new ArrayList<>(count);
+        List<NpcBuild> npcModules = loadNpcsfromDisk();
+        for (int i = 0; i < count; i++) {
+            int row = in.readInt();
+            int col = in.readInt();
+            String name = in.readUTF();
+            for (NpcBuild build : npcModules) {
+                if (name.equals(build.name)) {
+                    list.add(new Token(row, col, build));
+                    break;
+                }
+            }
         }
         return list;
     }

@@ -18,8 +18,9 @@ public class GameMap {
     protected Tile[][] grid = new Tile[rows][cols];
     private final List<Token> tokens = new ArrayList<>();
     private final List<LightSource> lights = new ArrayList<>();
-
     private final List<WallSegment> walls = new ArrayList<>();
+
+    public String backgroundPath = "";
 
     public GameMap(int rows, int cols) {
         this.rows = rows;

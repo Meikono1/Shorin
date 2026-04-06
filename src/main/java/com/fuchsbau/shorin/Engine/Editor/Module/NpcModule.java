@@ -750,6 +750,12 @@ public class NpcModule implements EditorModule {
         }
     }
 
+    public static List<NpcBuild> loadNpcsfromDisk(){
+        return EditorIO.load(FILE,
+                new TypeReference<>() {
+                }, new ArrayList<>());
+    }
+
     private void loadFromDisk() {
         List<NpcBuild> loaded = EditorIO.load(FILE,
                 new TypeReference<>() {
