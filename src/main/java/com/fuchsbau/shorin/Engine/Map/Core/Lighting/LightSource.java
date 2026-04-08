@@ -25,7 +25,6 @@ public class LightSource {
         this.dimTiles = dimTiles;
         this.intensity = intensity;
         this.sunlight = sunlight;
-        setColor(1.0, 0.55, 0.1);
     }
 
 
@@ -34,7 +33,4 @@ public class LightSource {
         this.colorG = g;
         this.colorB = b;
     }
-
-
-    public static final double[] COLOR_TORCH   = {1.0, 0.55, 0.1};  // Orange
 }

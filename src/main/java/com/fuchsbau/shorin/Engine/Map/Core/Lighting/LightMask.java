@@ -4,8 +4,10 @@ import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
+import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -13,39 +15,60 @@ import javafx.scene.paint.Stop;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.fuchsbau.shorin.Engine.Options.GameOptions.BASE_TILE;
 import static com.fuchsbau.shorin.Engine.Util.MathUtil.clamp;
 
 public class LightMask {
 
-    private final Canvas canvas;
-    private final GraphicsContext gc;
+    private Logger logger = FileLogger.getLogger();
+
+    // --- Licht ---
+    private final Canvas lightCanvas;
+    // --- Farben ---
+    private Canvas tintCanvas;
 
     public LightMask(double w, double h) {
-        canvas = new Canvas(w, h);
-        gc = canvas.getGraphicsContext2D();
+        lightCanvas = new Canvas(w, h);
+
+        tintCanvas = new Canvas(w, h);
+        tintCanvas.setMouseTransparent(true);
+        tintCanvas.setPickOnBounds(false);
+        tintCanvas.setBlendMode(BlendMode.MULTIPLY);
     }
 
-    public Canvas getCanvas() {
-        return canvas;
+    public Canvas getLightCanvas() {
+        return lightCanvas;
     }
 
     public void resize(double w, double h) {
-        canvas.setWidth(w);
-        canvas.setHeight(h);
+        lightCanvas.setWidth(w);
+        lightCanvas.setHeight(h);
+
+        tintCanvas.setHeight(h);
+        tintCanvas.setWidth(w);
+    }
+
+    private record LightPolygonData(LightSource light, double[] polygon,
+                                    double sx, double sy, double dimR,
+                                    double brightR, float effectiveIntensity) {
     }
 
     public void update(List<LightSource> lights, GameMap gameMap,
                        float sunDeg, double camX, double camY, double zoom,
                        List<WallSegment> walls) {
-        double w = canvas.getWidth();
-        double h = canvas.getHeight();
+        double w = lightCanvas.getWidth();
+        double h = lightCanvas.getHeight();
 
-        // Alles transparent → colorView komplett unsichtbar (nur grayView sichtbar)
-        gc.clearRect(0, 0, w, h);
+        GraphicsContext lightContext = lightCanvas.getGraphicsContext2D();
+        lightContext.clearRect(0, 0, w, h);
 
-        // --- Tageslicht: OUTSIDE-Tiles aufhellen ---
+        GraphicsContext tintContext = tintCanvas.getGraphicsContext2D();
+        tintContext.clearRect(0, 0, w, h);
+
+        // --- Tageslicht bleibt unverändert ---
+
         if (sunDeg > 0f) {
             double worldLeft = camX;
             double worldTop = camY;
@@ -70,13 +93,15 @@ public class LightMask {
                     if (!tile.has(Tile.OUTSIDE)) continue;
                     if (gameMap.isIndoor(r, c, BASE_TILE)) continue;
 
-                    gc.setFill(Color.color(1, 1, 1, clamp(sunDeg, 0.0, 1.0)));
-                    gc.fillRect(tx, ty, step + 1, step + 1);
+                    lightContext.setFill(Color.color(1, 1, 1, clamp(sunDeg, 0.0, 1.0)));
+                    lightContext.fillRect(tx, ty, step + 1, step + 1);
                 }
             }
         }
 
-        // --- Lichtquellen ---
+        // --- Polygone einmal berechnen ---
+        List<LightPolygonData> computed = new ArrayList<>();
+
         for (LightSource ls : lights) {
             if (ls.sunlight && sunDeg <= 0f) continue;
             float effectiveIntensity = ls.sunlight ? ls.intensity * sunDeg : ls.intensity;
@@ -84,64 +109,87 @@ public class LightMask {
             double sx = (ls.x - camX) * zoom;
             double sy = (ls.y - camY) * zoom;
             double dimR = ls.dimTiles * BASE_TILE * zoom;
+            double brightR = ls.brightTiles * BASE_TILE * zoom;
 
             if (dimR <= 0) continue;
             if (sx + dimR < 0 || sx - dimR > w || sy + dimR < 0 || sy - dimR > h) continue;
 
-            double brightR = ls.brightTiles * BASE_TILE * zoom;
-            double brightFraction = clamp(brightR / dimR, 0.0, 1.0);
-
-            // Sichtbarkeits-Polygon berechnen
             double[] polygon = buildVisibilityPolygon(
                     ls.x, ls.y, ls.dimTiles * BASE_TILE,
                     walls, camX, camY, zoom);
 
-            if (polygon.length < 6) {
-                // Fallback: kein Wandeinfluss → einfacher Kreis
+            computed.add(new LightPolygonData(ls, polygon, sx, sy, dimR, brightR, effectiveIntensity));
+            logger.finest("Polygon berechnet: " + ls.label + " — " + (polygon.length / 2) + " Punkte");
+        }
 
-                double dimStart = clamp(brightFraction + 0.001, 0.0, 1.0);
+        logger.fine("Polygone berechnet: " + computed.size() + " Lichtquellen");
 
-                RadialGradient light = new RadialGradient(
-                        0, 0, sx, sy, dimR, false, CycleMethod.NO_CYCLE,
-                        new Stop(0, Color.color(1, 1, 1, effectiveIntensity * 1.0)),
-                        new Stop(brightFraction, Color.color(1, 1, 1, effectiveIntensity * 0.8)),
-                        new Stop(dimStart, Color.color(1, 1, 1, effectiveIntensity * 0.8)),
-                        new Stop(1.0, Color.color(1, 1, 1, effectiveIntensity * 0.2))
-                );
-                gc.setFill(light);
-                gc.fillOval(sx - dimR, sy - dimR, dimR * 2, dimR * 2);
-                continue;
-            }
+        // --- Light-Layer zeichnen ---
+        renderLightLayer(lightContext, computed);
 
-            // Polygon als Clip setzen, dann Gradient drüber
-            gc.save();
+        // --- Tint-Layer zeichnen ---
+        renderTintLayer(tintContext, computed);
+    }
 
-            gc.beginPath();
-            gc.moveTo(polygon[0], polygon[1]);
-            for (int i = 2; i < polygon.length; i += 2) {
-                gc.lineTo(polygon[i], polygon[i + 1]);
-            }
-            gc.closePath();
-            gc.clip();
-
-
+    private void renderLightLayer(GraphicsContext g, java.util.List<LightPolygonData> computed) {
+        for (LightPolygonData data : computed) {
+            double brightFraction = clamp(data.brightR() / data.dimR(), 0.0, 1.0);
             double dimStart = clamp(brightFraction + 0.001, 0.0, 1.0);
 
             RadialGradient light = new RadialGradient(
-                    0, 0, sx, sy, dimR, false, CycleMethod.NO_CYCLE,
-                    new Stop(0, Color.color(1, 1, 1, effectiveIntensity * 1.0)),
-                    new Stop(brightFraction, Color.color(1, 1, 1, effectiveIntensity * 0.8)),
-                    new Stop(dimStart, Color.color(1, 1, 1, effectiveIntensity * 0.8)),
-                    new Stop(1.0, Color.color(1, 1, 1, effectiveIntensity * 0.2))
+                    0, 0, data.sx(), data.sy(), data.dimR(), false, CycleMethod.NO_CYCLE,
+                    new Stop(0, Color.color(1, 1, 1, data.effectiveIntensity() * 1.0)),
+                    new Stop(brightFraction, Color.color(1, 1, 1, data.effectiveIntensity() * 0.8)),
+                    new Stop(dimStart, Color.color(1, 1, 1, data.effectiveIntensity() * 0.8)),
+                    new Stop(1.0, Color.color(1, 1, 1, data.effectiveIntensity() * 0.2))
             );
-            gc.setFill(light);
-            gc.fillOval(sx - dimR, sy - dimR, dimR * 2, dimR * 2);
 
-            gc.restore();
+            g.save();
+            applyPolygonClip(g, data.polygon());
+            g.setFill(light);
+            g.fillOval(data.sx() - data.dimR(), data.sy() - data.dimR(),
+                    data.dimR() * 2, data.dimR() * 2);
+            g.restore();
         }
     }
 
-    private double[] buildVisibilityPolygon(
+    private void renderTintLayer(GraphicsContext g, java.util.List<LightPolygonData> computed) {
+        for (LightPolygonData data : computed) {
+            LightSource ls = data.light();
+            if (ls.colorR >= 0.99 && ls.colorG >= 0.99 && ls.colorB >= 0.99) continue;
+
+            double brightFraction = clamp(data.brightR() / data.dimR(), 0.0, 1.0);
+            double dimStart = clamp(brightFraction + 0.001, 0.0, 1.0);
+
+            RadialGradient tint = new RadialGradient(
+                    0, 0, data.sx(), data.sy(), data.dimR(), false, CycleMethod.NO_CYCLE,
+                    new Stop(0, Color.color(ls.colorR, ls.colorG, ls.colorB, data.effectiveIntensity())),
+                    new Stop(brightFraction, Color.color(ls.colorR, ls.colorG, ls.colorB, data.effectiveIntensity())),
+                    new Stop(dimStart, Color.color(ls.colorR, ls.colorG, ls.colorB, data.effectiveIntensity())),
+                    new Stop(1.0, Color.color(ls.colorR, ls.colorG, ls.colorB, 0.0))
+            );
+
+            g.save();
+            applyPolygonClip(g, data.polygon());
+            g.setFill(tint);
+            g.fillOval(data.sx() - data.dimR(), data.sy() - data.dimR(),
+                    data.dimR() * 2, data.dimR() * 2);
+            g.restore();
+        }
+    }
+
+    private void applyPolygonClip(GraphicsContext g, double[] polygon) {
+        if (polygon == null || polygon.length < 6) return;
+        g.beginPath();
+        g.moveTo(polygon[0], polygon[1]);
+        for (int i = 2; i < polygon.length; i += 2) {
+            g.lineTo(polygon[i], polygon[i + 1]);
+        }
+        g.closePath();
+        g.clip();
+    }
+
+    public double[] buildVisibilityPolygon(
             double lx, double ly, double radiusPx,
             List<WallSegment> walls,
             double camX, double camY, double zoom) {
@@ -241,5 +289,9 @@ public class LightMask {
             return t;
         }
         return null;
+    }
+
+    public Canvas getTintCanvas() {
+        return tintCanvas;
     }
 }

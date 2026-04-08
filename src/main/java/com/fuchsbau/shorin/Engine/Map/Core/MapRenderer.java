@@ -74,6 +74,7 @@ public class MapRenderer {
         this.lightingSystem = lightingSystem;
         canvas = new Canvas(1200, 800);
         tokenCanvas = new Canvas(1200, 800);
+        lightMask = new LightMask(1200, 800);
     }
 
     public Canvas getCanvas() {
@@ -133,10 +134,10 @@ public class MapRenderer {
         colorView.setPreserveRatio(false);
         colorView.setMouseTransparent(true);
 
-        lightMask = new LightMask(1200, 800);
-        colorView.setClip(lightMask.getCanvas());
+        colorView.setClip(lightMask.getLightCanvas());
 
-        StackPane pane = new StackPane(grayView, colorView, canvas, tokenCanvas);
+        StackPane pane = new StackPane(grayView, colorView, lightMask.getTintCanvas(), canvas, tokenCanvas);
+
         pane.setStyle("-fx-background-color: rgb(10,10,16);");
 
         // canvas für Input + Wände
@@ -152,10 +153,12 @@ public class MapRenderer {
         colorView.fitHeightProperty().bind(pane.heightProperty());
 
         // LightMask bei Resize anpassen
-        pane.widthProperty().addListener((obs, o, n) ->
-                lightMask.resize(n.doubleValue(), pane.getHeight()));
-        pane.heightProperty().addListener((obs, o, n) ->
-                lightMask.resize(pane.getWidth(), n.doubleValue()));
+        pane.widthProperty().addListener((obs, o, n) -> {
+            lightMask.resize(n.doubleValue(), pane.getHeight());
+        });
+        pane.heightProperty().addListener((obs, o, n) -> {
+            lightMask.resize(pane.getWidth(), n.doubleValue());
+        });
 
         logger.fine("CanvasPane gebaut — grayView + colorView + lightMask");
         return pane;
