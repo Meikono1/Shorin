@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Engine.Map.Core;
 
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightMask;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
@@ -14,15 +15,13 @@ import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextField;
-import javafx.scene.effect.BlendMode;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.image.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -44,13 +43,13 @@ public class MapRenderer {
     private double camY = 0;
     private double zoom = 1.0;
 
-    // --- Convas / Drawing ---
+    // --- Canvas / Drawing ---
     private Canvas canvas;
-    private Canvas lightCanvas;
-    private Canvas greyCanvas;
     private Canvas tokenCanvas;
+    private ImageView colorView;   // Original-BG
+    private ImageView grayView;    // Desaturiert
+    private LightMask lightMask;   // Licht-Clip
     private Image backgroundImage;
-    private Image greyImage;
 
     // --- Map ---
     private final GameMap gameMap;
@@ -75,8 +74,6 @@ public class MapRenderer {
         this.lightingSystem = lightingSystem;
         canvas = new Canvas(1200, 800);
         tokenCanvas = new Canvas(1200, 800);
-        greyCanvas = new Canvas(1200, 800);
-        lightCanvas = new Canvas(1200, 800);
     }
 
     public Canvas getCanvas() {
@@ -98,8 +95,8 @@ public class MapRenderer {
         if (f == null) return null;
 
         backgroundImage = new Image(f.toURI().toString(), false);
-        bakeGreyImage(backgroundImage);
-        logger.info("Hintergrundbild geladen + gebaked: " + f.getName());
+        grayView.setImage(backgroundImage);
+        colorView.setImage(backgroundImage);
 
         Path base = PathResolver.resolveWritable("");
         return base.relativize(f.toPath().toAbsolutePath())
@@ -113,74 +110,54 @@ public class MapRenderer {
             return;
         }
         backgroundImage = new Image(url, false);
-        bakeGreyImage(backgroundImage);
+        grayView.setImage(backgroundImage);
+        colorView.setImage(backgroundImage);
         logger.info("Hintergrundbild geladen + gebaked: " + relativePath);
-    }
-
-    private void bakeGreyImage(Image source) {
-        int w = (int) source.getWidth();
-        int h = (int) source.getHeight();
-
-        if (w <= 0 || h <= 0) {
-            logger.warning("bakeGreyImage: Bildgröße ungültig (" + w + "x" + h + ")");
-            return;
-        }
-
-        WritableImage result = new WritableImage(w, h);
-        PixelReader reader = source.getPixelReader();
-        PixelWriter writer = result.getPixelWriter();
-
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                int argb = reader.getArgb(x, y);
-
-                int a = (argb >> 24) & 0xFF;
-                int r = (argb >> 16) & 0xFF;
-                int g = (argb >> 8) & 0xFF;
-                int b = (argb) & 0xFF;
-
-                // Luminanz in sRGB-Raum (sieht natürlicher aus als lineare Korrektur)
-                int lum = (int) (r * 0.2126 + g * 0.7152 + b * 0.0722);
-                lum = Math.min(255, lum); // clamp
-
-                int grey = (a << 24) | (lum << 16) | (lum << 8) | lum;
-                writer.setArgb(x, y, grey);
-            }
-        }
-
-        greyImage = result;
-        logger.info("bakeGreyImage: " + w + "x" + h + " Pixel verarbeitet");
     }
 
     // ---------------- Rendering ----------------
     private Node buildCanvasPane() {
-        lightCanvas.setMouseTransparent(true);
-        lightCanvas.setPickOnBounds(false);
-        lightCanvas.setBlendMode(BlendMode.MULTIPLY);
-
         tokenCanvas.setMouseTransparent(true);
         tokenCanvas.setPickOnBounds(false);
 
-        greyCanvas.setMouseTransparent(true);
-        greyCanvas.setPickOnBounds(false);
+        // Grau-Layer: ColorAdjust desaturiert
+        ColorAdjust gray = new ColorAdjust();
+        gray.setSaturation(-1.0);
+        grayView = new ImageView();
+        grayView.setEffect(gray);
+        grayView.setPreserveRatio(false);
+        grayView.setMouseTransparent(true);
 
+        // Farb-Layer: Original, mit LightMask als Clip
+        colorView = new ImageView();
+        colorView.setPreserveRatio(false);
+        colorView.setMouseTransparent(true);
 
-        StackPane pane = new StackPane(canvas, greyCanvas, tokenCanvas);
+        lightMask = new LightMask(1200, 800);
+        colorView.setClip(lightMask.getCanvas());
+
+        StackPane pane = new StackPane(grayView, colorView, canvas, tokenCanvas);
         pane.setStyle("-fx-background-color: rgb(10,10,16);");
 
+        // canvas für Input + Wände
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
-
-        greyCanvas.widthProperty().bind(pane.widthProperty());
-        greyCanvas.heightProperty().bind(pane.heightProperty());
-
-        lightCanvas.widthProperty().bind(pane.widthProperty());
-        lightCanvas.heightProperty().bind(pane.heightProperty());
-
         tokenCanvas.widthProperty().bind(pane.widthProperty());
         tokenCanvas.heightProperty().bind(pane.heightProperty());
 
-        logger.fine("CanvasPane gebaut — light + token overlay registriert");
+        // ImageViews auf Pane-Größe binden
+        grayView.fitWidthProperty().bind(pane.widthProperty());
+        grayView.fitHeightProperty().bind(pane.heightProperty());
+        colorView.fitWidthProperty().bind(pane.widthProperty());
+        colorView.fitHeightProperty().bind(pane.heightProperty());
+
+        // LightMask bei Resize anpassen
+        pane.widthProperty().addListener((obs, o, n) ->
+                lightMask.resize(n.doubleValue(), pane.getHeight()));
+        pane.heightProperty().addListener((obs, o, n) ->
+                lightMask.resize(pane.getWidth(), n.doubleValue()));
+
+        logger.fine("CanvasPane gebaut — grayView + colorView + lightMask");
         return pane;
     }
 
@@ -244,27 +221,26 @@ public class MapRenderer {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
 
-        g.setFill(sceneBuilder.blackRGB);
-        g.fillRect(0, 0, w, h);
+        g.clearRect(0, 0, w, h);
 
+        // Viewport statt drawImage
         if (backgroundImage != null) {
             double worldW = gameMap.getCols() * BASE_TILE;
             double worldH = gameMap.getRows() * BASE_TILE;
 
-            double sx = (-camX) * zoom;
-            double sy = (-camY) * zoom;
-            double sw = worldW * zoom;
-            double sh = worldH * zoom;
+            double vpX = (camX / worldW) * backgroundImage.getWidth();
+            double vpY = (camY / worldH) * backgroundImage.getHeight();
+            double vpW = (w / zoom / worldW) * backgroundImage.getWidth();
+            double vpH = (h / zoom / worldH) * backgroundImage.getHeight();
 
-            g.setImageSmoothing(false);
-            g.drawImage(backgroundImage, sx, sy, sw, sh);
+            Rectangle2D viewport = new Rectangle2D(vpX, vpY, vpW, vpH);
+            grayView.setViewport(viewport);
+            colorView.setViewport(viewport);
         }
 
         renderLightLayer();
-
         renderStrategyMap();
 
-        // Wände zeichnen
         renderWalls(g, camX, camY, zoom);
         if (wallPreviewX >= 0) renderWallPreview(g, camX, camY, zoom);
     }
@@ -567,100 +543,14 @@ public class MapRenderer {
     }
 
     private void renderLightLayer() {
-        if (greyCanvas == null || greyImage == null) return;
-
-        GraphicsContext g = greyCanvas.getGraphicsContext2D();
-        double w = greyCanvas.getWidth();
-        double h = greyCanvas.getHeight();
-
-        g.clearRect(0, 0, w, h);
-        g.setImageSmoothing(false);
-        g.setGlobalBlendMode(BlendMode.SRC_OVER);
-
-        float sunDeg = lightingSystem.getSunDegree();
-
-        double worldLeft = camX;
-        double worldTop = camY;
-        double worldRight = camX + w / zoom;
-        double worldBottom = camY + h / zoom;
-
-        int colMin = clamp((int) Math.floor(worldLeft / BASE_TILE) - 1, 0, gameMap.getCols() - 1);
-        int colMax = clamp((int) Math.ceil(worldRight / BASE_TILE) + 1, 0, gameMap.getCols() - 1);
-        int rowMin = clamp((int) Math.floor(worldTop / BASE_TILE) - 1, 0, gameMap.getRows() - 1);
-        int rowMax = clamp((int) Math.ceil(worldBottom / BASE_TILE) + 1, 0, gameMap.getRows() - 1);
-
-        double step = BASE_TILE * zoom;
-        double startX = Math.floor(((colMin * BASE_TILE) - camX) * zoom);
-        double startY = Math.floor(((rowMin * BASE_TILE) - camY) * zoom);
-
-        double imgW = greyImage.getWidth();
-        double imgH = greyImage.getHeight();
-        double worldW = gameMap.getCols() * BASE_TILE;
-        double worldH = gameMap.getRows() * BASE_TILE;
-
-        // Lichtquellen einmal cachen für den inneren Loop
-        var lights = gameMap.getLights();
-
-        for (int r = rowMin; r <= rowMax; r++) {
-            double ty = startY + (r - rowMin) * step;
-            // Tile-Center in World-Koordinaten
-            double tileWorldY = (r + 0.5) * BASE_TILE;
-
-            for (int c = colMin; c <= colMax; c++) {
-                double tx = startX + (c - colMin) * step;
-                double tileWorldX = (c + 0.5) * BASE_TILE;
-
-                boolean indoor = gameMap.isIndoor(r, c, BASE_TILE);
-
-                // --- Tageslicht-Basis ---
-                double tileLight = (!indoor) ? (double) sunDeg : 0.0;
-
-                // --- Lichtquellen: kontinuierlich, distanzbasiert ---
-                for (LightSource ls : lights) {
-                    // Sunlight-Quellen nachts überspringen
-                    if (ls.sunlight && sunDeg <= 0f) continue;
-                    float effectiveIntensity = ls.sunlight ? ls.intensity * sunDeg : ls.intensity;
-
-                    // LOS-Check gegen Wände
-                    if (!gameMap.hasLineOfSightWalls(ls.x, ls.y, tileWorldX, tileWorldY)) continue;
-
-                    // Distanz in World-px
-                    double dx = tileWorldX - ls.x;
-                    double dy = tileWorldY - ls.y;
-                    double dist = Math.sqrt(dx * dx + dy * dy);
-
-                    double brightPx = ls.brightTiles * BASE_TILE;
-                    double dimPx = ls.dimTiles * BASE_TILE;
-
-                    if (dist > dimPx) continue;
-
-                    double lightContrib;
-                    if (dist <= brightPx) {
-                        // BrightLight: volle Intensität
-                        lightContrib = effectiveIntensity;
-                    } else {
-                        // DimLight: linear abfallend
-                        lightContrib = effectiveIntensity * (1.0 - (dist - brightPx) / (dimPx - brightPx));
-                    }
-
-                    tileLight = Math.max(tileLight, lightContrib);
-                }
-
-                double greyAlpha = clamp(1.0 - tileLight, 0.0, 1.0);
-                if (greyAlpha < 0.01) continue;
-
-                double srcX = (c * BASE_TILE / worldW) * imgW;
-                double srcY = (r * BASE_TILE / worldH) * imgH;
-                double srcW = (BASE_TILE / worldW) * imgW;
-                double srcH = (BASE_TILE / worldH) * imgH;
-
-                g.setGlobalAlpha(greyAlpha);
-                g.drawImage(greyImage, srcX, srcY, srcW, srcH, tx, ty, step + 1, step + 1);
-            }
-        }
-
-        g.setGlobalAlpha(1.0);
-        logger.fine("renderLightLayer fertig — " + lights.size() + " Lichtquellen");
+        if (lightMask == null) return;
+        lightMask.update(
+                gameMap.getLights(),
+                gameMap,
+                lightingSystem.getSunDegree(),
+                camX, camY, zoom,
+                gameMap.getWalls()
+        );
     }
 
     private void renderWallPreview(GraphicsContext g, double camX, double camY, double zoom) {

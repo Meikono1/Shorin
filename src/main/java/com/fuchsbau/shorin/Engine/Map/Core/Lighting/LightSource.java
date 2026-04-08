@@ -4,8 +4,14 @@ public class LightSource {
     public double x, y;
     public int brightTiles;
     public int dimTiles;
-    public float intensity;
     public String label = "";
+
+
+    // Lichtfarbe — weiß
+    public float intensity;
+    public double colorR = 1.0;
+    public double colorG = 1.0;
+    public double colorB = 1.0;
 
     public boolean sunlight = false;
 
@@ -19,5 +25,16 @@ public class LightSource {
         this.dimTiles = dimTiles;
         this.intensity = intensity;
         this.sunlight = sunlight;
+        setColor(1.0, 0.55, 0.1);
     }
+
+
+    public void setColor(double r, double g, double b) {
+        this.colorR = r;
+        this.colorG = g;
+        this.colorB = b;
+    }
+
+
+    public static final double[] COLOR_TORCH   = {1.0, 0.55, 0.1};  // Orange
 }

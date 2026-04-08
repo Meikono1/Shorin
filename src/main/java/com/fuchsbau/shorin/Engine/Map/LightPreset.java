@@ -4,7 +4,7 @@ public enum LightPreset {
     CANDLE("Candle", 5, 15, 1.0f),
     TORCH("Torch", 20, 40, 1.0f),
     LANTERN("Lantern", 30, 60, 1.0f),
-    SUNLIGHT("Sonnen-Tuerlicht", 5, 15, 1.0f, true);
+    SUNLIGHT("Sonnen-Tuerlicht", 5, 25, 1.0f, true);
 
     public final String label;
     public final int brightFt;

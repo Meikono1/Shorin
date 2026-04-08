@@ -7,7 +7,7 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 
-public class LightMask {
+public class TestLightMask {
 
     private double lastCx, lastCy;
 
@@ -15,7 +15,7 @@ public class LightMask {
     private final GraphicsContext gc;
     private static final double RADIUS = 250.0;
 
-    public LightMask(double w, double h) {
+    public TestLightMask(double w, double h) {
         canvas = new Canvas(w, h);
         gc = canvas.getGraphicsContext2D();
     }

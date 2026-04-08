@@ -25,7 +25,7 @@ public class LightSressTest extends Application {
 
         ImageView colorLayer = new ImageView(new Image(url));
 
-        LightMask mask = new LightMask(W, H);
+        TestLightMask mask = new TestLightMask(W, H);
         colorLayer.setClip(mask.getCanvas());
 
         Pane root = new Pane(grayLayer, colorLayer);
