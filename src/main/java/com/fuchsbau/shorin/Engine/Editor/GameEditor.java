@@ -3,6 +3,12 @@ package com.fuchsbau.shorin.Engine.Editor;
 import com.fuchsbau.shorin.Engine.Editor.Module.*;
 import com.fuchsbau.shorin.Engine.Editor.Module.Actions.ActionModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.BattleMap.BattleMapModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Classes.ClassModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Classes.FeatModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Classes.SpellModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Races.AncestryModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Races.HeritageModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Races.LanguageModule;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.MainScreen;
@@ -39,7 +45,6 @@ public class GameEditor {
     private final ToolBar moduleToolbar = new ToolBar();
     private final ScrollPane moduleSidePane = new ScrollPane();
 
-    // ────────────────────────────────────────────────────────────
     public Scene buildScene() {
         // --- Feste Menüleiste ---
         buildFileMenu();
@@ -54,8 +59,7 @@ public class GameEditor {
                 new ModuleGroup("Welt", List.of(
                         new WorldMapModule(),
                         new BattleMapModule(),
-                        new ShopModule(),
-                        new ScenarioModule(),
+                        new EncounterModule(),
                         new CharacterModule()
                 )),
                 new ModuleGroup("System", List.of(
@@ -65,19 +69,23 @@ public class GameEditor {
                         new SpellModule(),
                         new ArchetypeModule(),
                         new AncestryModule(),
+                        new HeritageModule(),
                         new BackgroundModule(),
                         new ConditionModule(),
-                        new TraitModule()
+                        new TraitModule(),
+                        new LanguageModule()
                 )),
                 new ModuleGroup("Items", List.of(
                         new ItemModule(),
-                        new CraftingModule()
+                        new CraftingModule(),
+                        new ShopModule()
                 )),
                 new ModuleGroup("Inhalte", List.of(
                         new NpcModule(),
                         new DialogModule(),
                         new QuestModule(),
                         new EventModule(),
+                        new ScenarioModule(),
                         new SceneModule()
                 ))
         ));

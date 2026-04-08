@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
-import com.fuchsbau.shorin.Engine.System.Trait;
+import com.fuchsbau.shorin.Engine.System.Misc.Trait;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,7 +31,6 @@ public class TraitModule implements EditorModule {
     private TextField nameField;
     private TextArea descField;
 
-    // ────────────────────────────────────────────────────────────
     @Override
     public String getTitle() {
         return "Traits";
@@ -39,43 +38,7 @@ public class TraitModule implements EditorModule {
 
     @Override
     public Node buildContent() {
-        // Linke Liste
-        Node list = buildListPanel();
-        // Rechtes Formular
-        Node form = buildFormPanel();
-
-        SplitPane split = new SplitPane(list, form);
-        split.setDividerPositions(0.30);
-        return split;
-    }
-
-    // --- Liste links ---
-    private Node buildListPanel() {
-        // Suchfeld
-        TextField search = new TextField();
-        search.setPromptText("Suchen...");
-
-        FilteredList<Trait> filtered = new FilteredList<>(traits, t -> true);
-        search.textProperty().addListener((obs, ov, nv) ->
-                filtered.setPredicate(t ->
-                        nv == null || nv.isBlank() ||
-                                t.getName().toLowerCase().contains(nv.toLowerCase())));
-
-        ListView<Trait> listView = new ListView<>(filtered);
-        listView.setOnMouseClicked(e -> {
-            Trait t = listView.getSelectionModel().getSelectedItem();
-            if (t != null) loadIntoForm(t);
-        });
-
-        // Neu-Button
-        Button newBtn = new Button("+ Neu");
-        newBtn.setMaxWidth(Double.MAX_VALUE);
-        newBtn.setOnAction(e -> createNew(listView));
-
-        VBox box = new VBox(6, search, listView, newBtn);
-        box.setPadding(new Insets(8));
-        VBox.setVgrow(listView, Priority.ALWAYS);
-        return box;
+        return buildFormPanel();
     }
 
     // --- Formular rechts ---
@@ -197,7 +160,29 @@ public class TraitModule implements EditorModule {
 
     @Override
     public Node buildSidePanel() {
-        return null;
+        TextField search = new TextField();
+        search.setPromptText("Suchen...");
+
+        FilteredList<Trait> filtered = new FilteredList<>(traits, t -> true);
+        search.textProperty().addListener((obs, ov, nv) ->
+                filtered.setPredicate(t ->
+                        nv == null || nv.isBlank() ||
+                                t.getName().toLowerCase().contains(nv.toLowerCase())));
+
+        ListView<Trait> listView = new ListView<>(filtered);
+        listView.setOnMouseClicked(e -> {
+            Trait t = listView.getSelectionModel().getSelectedItem();
+            if (t != null) loadIntoForm(t);
+        });
+
+        Button newBtn = new Button("+ Neu");
+        newBtn.setMaxWidth(Double.MAX_VALUE);
+        newBtn.setOnAction(e -> createNew(listView));
+
+        VBox box = new VBox(6, search, listView, newBtn);
+        box.setPadding(new Insets(8));
+        VBox.setVgrow(listView, Priority.ALWAYS);
+        return box;
     }
 
     @Override

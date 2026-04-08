@@ -13,7 +13,6 @@ public class PathResolver {
 
     private static final Logger logger = FileLogger.getLogger();
 
-
     private static final Path INSTALL_DIR = resolveInstallDir();
 
     private PathResolver() {}

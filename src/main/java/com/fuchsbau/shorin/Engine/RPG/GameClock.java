@@ -136,7 +136,7 @@ public class GameClock {
     private final List<ClockListener> clockListeners = new ArrayList<>();
     private final List<TravelListener> travelListeners = new ArrayList<>();
 
-    // ── AnimationTimer ─────────────────────────────────────────────────────────
+    // AnimationTimer
     private long lastNanoTime = -1;
     private int lastNotifiedMin = -1;
 
@@ -165,12 +165,12 @@ public class GameClock {
         }
     };
 
-    // ── Konstruktor ────────────────────────────────────────────────────────────
+    // Konstruktor
     private GameClock() {
         updateTimeProperties();
     }
 
-    // ── Public API ─────────────────────────────────────────────────────────────
+    // Public API
 
     /**
      * Startet den AnimationTimer. Einmal beim Spielstart aufrufen.
@@ -323,7 +323,7 @@ public class GameClock {
         travelListeners.remove(l);
     }
 
-    // ── Statische Utilities ────────────────────────────────────────────────────
+    // Statische Utilities
 
     /**
      * Turns → lesbarer String z.B. "3h 20min" oder "45min"
@@ -343,8 +343,7 @@ public class GameClock {
         return (double) day * TURNS_PER_DAY + (double) hour * TURNS_PER_HOUR + (double) min * TURNS_PER_MINUTE;
     }
 
-    // ── Interne Update-Logik ───────────────────────────────────────────────────
-
+    // Interne Update-Logik
     private void updateTimeProperties() {
         long total = (long) totalTurns;
 

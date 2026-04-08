@@ -75,7 +75,7 @@ public class WorldMapEditor implements Saveble {
     private TextField triggerParam1Field, triggerParam2Field, triggerParam3Field;
     private Label param1Label, param2Label, param3Label;
 
-    // Konstruktor ────────────────────────────────────────────────────────────
+    // Konstruktor
     public WorldMapEditor() {
         this.gameMap = new MutableGameMap();
         this.lightingSystem = new LightingSystem();

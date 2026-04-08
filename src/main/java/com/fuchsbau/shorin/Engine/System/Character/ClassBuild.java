@@ -1,4 +1,8 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Character;
+
+import com.fuchsbau.shorin.Engine.System.Combat.ArmorCategory;
+import com.fuchsbau.shorin.Engine.System.Misc.Expertise;
+import com.fuchsbau.shorin.Engine.System.Combat.SavingThrows;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

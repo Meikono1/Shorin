@@ -1,0 +1,27 @@
+{
+  "name" : "Dwarf",
+  "health" : 10,
+  "size" : "MEDIUM",
+  "speedFt" : 20,
+  "abilityBoosts" : [ {
+    "score" : "CON",
+    "value" : 1
+  }, {
+    "score" : "WIS",
+    "value" : 1
+  }, {
+    "score" : "CHA",
+    "value" : -1
+  } ],
+  "freeBoosts" : 1,
+  "languages" : [ {
+    "name" : "Dwarven",
+    "description" : "Language of Dwarves",
+    "decryptionTemplate" : ""
+  }, {
+    "name" : "Common",
+    "description" : "The Common Language",
+    "decryptionTemplate" : ""
+  } ],
+  "traits" : [ "Dwarf", "Humanoid" ]
+}

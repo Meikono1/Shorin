@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Combat;
 
 public enum DCType {
     FIXED,

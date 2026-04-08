@@ -1,0 +1,14 @@
+{
+  "name" : "Human",
+  "health" : 8,
+  "size" : "MEDIUM",
+  "speedFt" : 25,
+  "abilityBoosts" : [ ],
+  "freeBoosts" : 2,
+  "languages" : [ {
+    "name" : "Common",
+    "description" : "The Common Language",
+    "decryptionTemplate" : ""
+  } ],
+  "traits" : [ "Human", "Humanoid" ]
+}

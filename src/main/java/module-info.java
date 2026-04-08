@@ -34,4 +34,7 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Engine.Map.Core.Tiles;
     exports com.fuchsbau.shorin.Engine.Map.Core.Sound;
     exports com.fuchsbau.shorin.Engine.Map.Core.Walls;
+    exports com.fuchsbau.shorin.Engine.System.Character to com.fasterxml.jackson.databind;
+    exports com.fuchsbau.shorin.Engine.System.Combat to com.fasterxml.jackson.databind;
+    exports com.fuchsbau.shorin.Engine.System.Misc to com.fasterxml.jackson.databind;
 }

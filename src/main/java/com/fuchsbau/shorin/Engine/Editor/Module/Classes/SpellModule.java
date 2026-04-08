@@ -1,14 +1,15 @@
-package com.fuchsbau.shorin.Engine.Editor.Module;
+package com.fuchsbau.shorin.Engine.Editor.Module.Classes;
 
+import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
 
 import java.util.List;
 
-public class AncestryModule implements EditorModule{
+public class SpellModule implements EditorModule {
     @Override
     public String getTitle() {
-        return "Ancestrys";
+        return "Spells";
     }
 
     @Override

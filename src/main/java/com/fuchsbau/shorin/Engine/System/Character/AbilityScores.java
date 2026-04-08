@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Character;
 
 public enum AbilityScores {
     STR, DEX, CON, INT, WIS, CHA;

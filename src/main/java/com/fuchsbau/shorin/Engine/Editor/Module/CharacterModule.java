@@ -1,19 +1,26 @@
 package com.fuchsbau.shorin.Engine.Editor.Module;
 
-import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
-import com.fuchsbau.shorin.Engine.System.Proficiency;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
+import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
+import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 import com.fuchsbau.shorin.Engine.System.SlotType;
+import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +35,10 @@ public class CharacterModule implements EditorModule {
     private TextField nameField, levelField;
     private ComboBox<String> classDropdown, ancestryDropdown;
     private Label activeLevelLabel;
-    private VBox featPanel;       // rechts unten — dynamisch
-    private VBox tabContextPanel; // rechts mitte — dynamisch
+    private VBox featPanel;
+    private VBox tabContextPanel;
 
+    private final ObservableList<String> charNames = FXCollections.observableArrayList();
 
     private PlayerCharacter character = new PlayerCharacter();
 
@@ -43,7 +51,6 @@ public class CharacterModule implements EditorModule {
     private final IntegerProperty chaMod = new SimpleIntegerProperty(0);
 
 
-    // ────────────────────────────────────────────────────────────
     @Override
     public String getTitle() {
         return "Charakter";
@@ -423,13 +430,6 @@ public class CharacterModule implements EditorModule {
         return l;
     }
 
-    // --- Lifecycle ---
-    @Override
-    public void onActivate() { /* laden */ }
-
-    @Override
-    public void onDeactivate() { /* speichern */ }
-
     @Override
     public Node buildToolbar() {
         return null;
@@ -437,11 +437,117 @@ public class CharacterModule implements EditorModule {
 
     @Override
     public Node buildSidePanel() {
-        return null;
+        TextField search = new TextField();
+        search.setPromptText("Charakter suchen...");
+
+        FilteredList<String> filtered = new FilteredList<>(charNames, s -> true);
+        search.textProperty().addListener((obs, ov, nv) ->
+                filtered.setPredicate(s ->
+                        nv == null || nv.isBlank() ||
+                                s.toLowerCase().contains(nv.toLowerCase())));
+
+        ListView<String> listView = new ListView<>(filtered);
+        listView.setPrefHeight(200);
+        listView.setOnMouseClicked(e -> {
+            String selected = listView.getSelectionModel().getSelectedItem();
+            if (selected != null) loadCharacter(selected);
+        });
+
+        Button newBtn = new Button("+ Neu");
+        newBtn.setMaxWidth(Double.MAX_VALUE);
+        newBtn.setOnAction(e -> createNewCharacter(listView));
+
+        Button deleteBtn = new Button("✕ Löschen");
+        deleteBtn.setMaxWidth(Double.MAX_VALUE);
+        deleteBtn.setOnAction(e -> {
+            String selected = listView.getSelectionModel().getSelectedItem();
+            if (selected == null) return;
+            deleteCharacter(selected);
+        });
+
+        VBox box = new VBox(6, search, listView, newBtn, deleteBtn);
+        box.setPadding(new Insets(8));
+        VBox.setVgrow(listView, Priority.ALWAYS);
+        return box;
+    }
+
+    private void loadCharNames() {
+        charNames.clear();
+        File dir = PathResolver.resolveWritable("User/Charakters").toFile();
+        if (!dir.exists()) {
+            dir.mkdirs();
+            logger.info("Charakterverzeichnis erstellt: " + dir.getAbsolutePath());
+            return;
+        }
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
+        if (files == null) return;
+        for (File f : files) {
+            // Dateiname ohne .json
+            charNames.add(f.getName().replace(".json", ""));
+        }
+        charNames.sort(String::compareToIgnoreCase);
+        logger.info("Charaktere geladen: " + charNames.size());
+    }
+
+    private void loadCharacter(String name) {
+        character = EditorIO.load(
+                "User/Charakters/" + name + ".json",
+                new TypeReference<>() {
+                },
+                new PlayerCharacter());
+        character.name = name;
+        // Formular befüllen
+        nameField.setText(character.name);
+        logger.info("Charakter geladen: " + name);
+    }
+
+    private void createNewCharacter(ListView<String> listView) {
+        character = new PlayerCharacter();
+        character.name = "Neuer Charakter";
+        nameField.setText(character.name);
+        saveCharacter();
+        charNames.add(character.name);
+        charNames.sort(String::compareToIgnoreCase);
+        listView.getSelectionModel().select(character.name);
+        logger.fine("Neuer Charakter erstellt");
+    }
+
+    private void saveCharacter() {
+        if (character == null || character.name == null || character.name.isBlank()) return;
+        try {
+            EditorIO.save("User/Charakters/" + character.name + ".json", character);
+        } catch (Exception e) {
+            logger.severe("SaveCharacter Failed im CharacterModule");
+            logger.severe(e.getMessage());
+        }
+        logger.info("Charakter gespeichert: " + character.name);
+    }
+
+    private void deleteCharacter(String name) {
+        File f = PathResolver.resolveWritable("User/Charakters/" + name + ".json").toFile();
+        if (f.exists() && f.delete()) {
+            charNames.remove(name);
+            character = new PlayerCharacter();
+            nameField.clear();
+            logger.info("Charakter gelöscht: " + name);
+        } else {
+            logger.warning("Charakter konnte nicht gelöscht werden: " + name);
+        }
     }
 
     @Override
     public List<Menu> getMenus() {
         return List.of();
+    }
+
+    // --- Lifecycle ---
+    @Override
+    public void onActivate() {
+        loadCharNames();
+    }
+
+    @Override
+    public void onDeactivate() {
+        saveCharacter();
     }
 }

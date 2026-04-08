@@ -31,7 +31,6 @@ public class LightMask {
 
     public LightMask(double w, double h) {
         lightCanvas = new Canvas(w, h);
-
         tintCanvas = new Canvas(w, h);
         tintCanvas.setMouseTransparent(true);
         tintCanvas.setPickOnBounds(false);
@@ -67,8 +66,7 @@ public class LightMask {
         GraphicsContext tintContext = tintCanvas.getGraphicsContext2D();
         tintContext.clearRect(0, 0, w, h);
 
-        // --- Tageslicht bleibt unverändert ---
-
+        // --- Tageslicht ---
         if (sunDeg > 0f) {
             double worldLeft = camX;
             double worldTop = camY;
@@ -104,7 +102,9 @@ public class LightMask {
 
         for (LightSource ls : lights) {
             if (ls.sunlight && sunDeg <= 0f) continue;
-            float effectiveIntensity = ls.sunlight ? ls.intensity * sunDeg : ls.intensity;
+            float effectiveIntensity = ls.sunlight
+                    ? Math.min(ls.intensity, sunDeg)
+                    : ls.intensity;
 
             double sx = (ls.x - camX) * zoom;
             double sy = (ls.y - camY) * zoom;

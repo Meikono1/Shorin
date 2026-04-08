@@ -51,6 +51,9 @@ public class MapRenderer {
     private LightMask lightMask;   // Licht-Clip
     private Image backgroundImage;
 
+    // --- Light ---
+    private LightSource selectedLight = null;
+
     // --- Map ---
     private final GameMap gameMap;
     private final LightingSystem lightingSystem;
@@ -75,6 +78,9 @@ public class MapRenderer {
         canvas = new Canvas(1200, 800);
         tokenCanvas = new Canvas(1200, 800);
         lightMask = new LightMask(1200, 800);
+
+        colorView = new ImageView();
+        colorView.setClip(lightMask.getLightCanvas());
     }
 
     public Canvas getCanvas() {
@@ -130,11 +136,9 @@ public class MapRenderer {
         grayView.setMouseTransparent(true);
 
         // Farb-Layer: Original, mit LightMask als Clip
-        colorView = new ImageView();
         colorView.setPreserveRatio(false);
         colorView.setMouseTransparent(true);
 
-        colorView.setClip(lightMask.getLightCanvas());
 
         StackPane pane = new StackPane(grayView, colorView, lightMask.getTintCanvas(), canvas, tokenCanvas);
 
@@ -345,7 +349,13 @@ public class MapRenderer {
             double y = (ls.y - camY) * zoom;
             double size = BASE_TILE * zoom * 0.35;
 
-            g.setFill(sceneBuilder.redRGB);
+            // Ausgewähltes Licht gelb markieren — Renderer braucht selectedLight
+            if (ls == selectedLight) {
+                g.setFill(Color.YELLOW);
+                g.fillOval(x - size * 0.7, y - size * 0.7, size * 1.4, size * 1.4);
+            }
+
+            g.setFill(Color.color(ls.colorR, ls.colorG, ls.colorB));
             g.fillOval(x - size * 0.5, y - size * 0.5, size, size);
         }
 
@@ -614,6 +624,13 @@ public class MapRenderer {
         g.setLineDashes(0);
     }
 
+    public void refreshViews() {
+        if (backgroundImage == null) return;
+        if (grayView != null) grayView.setImage(backgroundImage);
+        if (colorView != null) colorView.setImage(backgroundImage);
+        logger.fine("Views nach Tab-Wechsel neu gesetzt");
+    }
+
     private void drawWallPoint(GraphicsContext g, double wx, double wy,
                                double camX, double camY, double zoom, Color color) {
         double sx = (wx - camX) * zoom;
@@ -708,5 +725,9 @@ public class MapRenderer {
 
     public void clearZoneHighlight() {
         zoneHighlightX = -1;
+    }
+
+    public void setSelectedLight(LightSource ls) {
+        this.selectedLight = ls;
     }
 }

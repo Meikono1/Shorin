@@ -1,4 +1,7 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Character;
+
+import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
+import com.fuchsbau.shorin.Engine.System.SlotEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +46,6 @@ public class PlayerCharacter {
     // Key = Level (0-20), Value = Liste gewählter Feats/Features
     public List<LevelEntry> levelEntries = new ArrayList<>();
 
-    // ────────────────────────────────────────────────────────────
 
     public static class SkillEntry {
         public String name = "";

@@ -1,4 +1,6 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Combat;
+
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
 
 public enum SavingThrows {
     FORTITUDE(AbilityScores.CON), REFLEX(AbilityScores.DEX), WILL(AbilityScores.WIS);

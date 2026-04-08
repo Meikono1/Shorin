@@ -24,23 +24,6 @@ public class ImagePreLoader {
         return new Image(url, true);
     }
 
-    private static Image createImage(ImagePaths path, String url) {
-        ImageConfig c = path.getConfig();
-
-        if (c != null && (c.fixedWidth() > 0 || c.fixedHeight() > 0)) {
-            return new Image(
-                    url,
-                    c.fixedWidth() > 0 ? c.fixedWidth() : 0,
-                    c.fixedHeight() > 0 ? c.fixedHeight() : 0,
-                    true,
-                    true,
-                    true
-            );
-        }
-
-        return new Image(url, true);
-    }
-
     public static void warmUpAll() {
         if (running) return;
 
@@ -71,7 +54,7 @@ public class ImagePreLoader {
                     return;
                 }
 
-                CacheEntry e = CACHE.get(next);
+                CacheEntry e = CACHE.get(next.relative());
                 if (e != null) return;
 
                 String url = next.resolveUrlOrNull();
@@ -86,7 +69,7 @@ public class ImagePreLoader {
     }
 
     public static Image getCached(ImagePaths path) {
-        CacheEntry cached = CACHE.get(path);
+        CacheEntry cached = CACHE.get(path.relative());
         if (cached != null) {
             return cached.missing ? null : cached.image;
         }
@@ -130,7 +113,7 @@ public class ImagePreLoader {
     }
 
     private static Image fallBackImage() {
-        CacheEntry entry = CACHE.get(ImagePaths.MISSING);
+        CacheEntry entry = CACHE.get(ImagePaths.MISSING.relative());
 
         if (entry.missing) {
             logger.severe("Keine Bilder? Infrasturktor oder User Error?");
@@ -141,7 +124,7 @@ public class ImagePreLoader {
     }
 
     public static boolean isLoaded(ImagePaths key) {
-        CacheEntry entry = CACHE.get(key);
+        CacheEntry entry = CACHE.get(key.relative());
         // nie angefragt
         if (entry == null) return false;
         // fehlend/kaputt

@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Character;
 
 public class SenseEntry {
     public Sense sense = Sense.DARKVISION;

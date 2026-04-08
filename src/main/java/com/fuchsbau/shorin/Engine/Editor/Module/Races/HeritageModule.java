@@ -1,14 +1,15 @@
-package com.fuchsbau.shorin.Engine.Editor.Module;
+package com.fuchsbau.shorin.Engine.Editor.Module.Races;
 
+import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
 
 import java.util.List;
 
-public class FeatModule implements EditorModule {
+public class HeritageModule implements EditorModule {
     @Override
     public String getTitle() {
-        return "Feats";
+        return "Heritages";
     }
 
     @Override

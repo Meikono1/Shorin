@@ -1,6 +1,8 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Combat;
 
 import com.fuchsbau.shorin.Engine.Editor.Module.Actions.ActionCategory;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Misc.EffectType;
 
 import java.util.ArrayList;
 import java.util.List;

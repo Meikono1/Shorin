@@ -1,5 +1,12 @@
 package com.fuchsbau.shorin.Engine.System;
 
+import com.fuchsbau.shorin.Engine.System.Character.SenseEntry;
+import com.fuchsbau.shorin.Engine.System.Character.Skills;
+import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
+import com.fuchsbau.shorin.Engine.System.Combat.DamageModifier;
+import com.fuchsbau.shorin.Engine.System.Combat.DamageType;
+import com.fuchsbau.shorin.Engine.System.Misc.RecallKnowledge;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -49,8 +56,6 @@ public class NpcBuild {
 
     // -- Recall Knowledge --
     public List<RecallKnowledge> recallKnowledge = new ArrayList<>();
-
-    // ────────────────────────────────────────────────────────────
 
     public NpcBuild() {
     }

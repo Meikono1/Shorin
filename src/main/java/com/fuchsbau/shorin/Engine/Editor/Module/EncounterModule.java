@@ -5,10 +5,10 @@ import javafx.scene.control.Menu;
 
 import java.util.List;
 
-public class SpellModule implements EditorModule {
+public class EncounterModule implements EditorModule{
     @Override
     public String getTitle() {
-        return "Spells";
+        return "Encounter";
     }
 
     @Override

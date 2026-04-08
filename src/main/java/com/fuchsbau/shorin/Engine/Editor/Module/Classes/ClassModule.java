@@ -1,8 +1,14 @@
-package com.fuchsbau.shorin.Engine.Editor.Module;
+package com.fuchsbau.shorin.Engine.Editor.Module.Classes;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
-import com.fuchsbau.shorin.Engine.System.*;
+import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.ClassBuild;
+import com.fuchsbau.shorin.Engine.System.Character.WeaponCategory;
+import com.fuchsbau.shorin.Engine.System.Combat.SavingThrows;
+import com.fuchsbau.shorin.Engine.System.Misc.Expertise;
+import com.fuchsbau.shorin.Engine.System.Combat.ArmorCategory;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

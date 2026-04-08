@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.System;
+package com.fuchsbau.shorin.Engine.System.Combat;
 
 public class DamageModifier {
     public DamageType type = DamageType.PHYSICAL;

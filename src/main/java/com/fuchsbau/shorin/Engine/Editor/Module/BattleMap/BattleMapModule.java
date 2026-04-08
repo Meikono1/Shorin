@@ -30,6 +30,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -100,6 +101,7 @@ public class BattleMapModule implements EditorModule {
     private Spinner<Double> lightIntSpinner;
     private LightSource selectedLight = null;
     private ListView<LightSource> lightListView;
+    private ColorPicker lightColorPicker;
 
     private TextField mapNameField = new TextField("neue_karte");
 
@@ -632,6 +634,8 @@ public class BattleMapModule implements EditorModule {
     public Node buildContent() {
         Node canvas = mapRenderer.buildBattleMapPane(null);
         setupInputHandlers();
+        mapRenderer.refreshViews();
+        mapRenderer.renderBattlemap();
         logger.info("BattleMapModule Content gebaut");
         return canvas;
     }
@@ -1124,6 +1128,10 @@ public class BattleMapModule implements EditorModule {
                 })
         );
 
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
         VBox panel = new VBox(8,
                 zoneLabel, zoneBtn, zoneListView, removeZoneBtn,
                 new Separator(),
@@ -1138,7 +1146,9 @@ public class BattleMapModule implements EditorModule {
         );
 
         panel.setPadding(new Insets(8));
-        return panel;
+
+        scrollPane.setContent(panel);
+        return scrollPane;
     }
 
     private Button makeGridBtn(String label, Runnable action) {
@@ -1231,6 +1241,11 @@ public class BattleMapModule implements EditorModule {
             prefabs.getChildren().add(btn);
         }
 
+        // --- Licht Farbe ---
+        Label colorLabel = new Label("Lichtfarbe");
+        lightColorPicker = new ColorPicker(Color.WHITE);
+        lightColorPicker.setMaxWidth(Double.MAX_VALUE);
+
         // --- Platzierte Lichter ---
         Label placedLabel = new Label("Platziert");
 
@@ -1247,6 +1262,13 @@ public class BattleMapModule implements EditorModule {
                 setText(ls.label.isBlank()
                         ? ls.brightTiles + "/" + ls.dimTiles + "t"
                         : ls.label + " (" + ls.brightTiles + "/" + ls.dimTiles + "t)");
+
+                // Ausgewähltes Licht hervorheben
+                if (ls == selectedLight) {
+                    setStyle("-fx-background-color: rgba(209,203,171,0.25);");
+                } else {
+                    setStyle("");
+                }
             }
         });
         lightListView.getItems().setAll(gameMap.getLights());
@@ -1288,10 +1310,18 @@ public class BattleMapModule implements EditorModule {
             selectedLight.brightTiles = brightSpinner.getValue();
             selectedLight.dimTiles = dimSpinner.getValue();
             selectedLight.intensity = intensitySpinner.getValue().floatValue();
+
+            Color c = lightColorPicker.getValue();
+            selectedLight.colorR = c.getRed();
+            selectedLight.colorG = c.getGreen();
+            selectedLight.colorB = c.getBlue();
+
+
             lighting.recomputeLightmapAll(gameMap);
             mapRenderer.renderBattlemap();
             lightListView.refresh();
-            logger.fine("Licht angepasst: " + selectedLight.label);
+            logger.fine("Licht angepasst: " + selectedLight.label
+                    + " rgb(" + selectedLight.colorR + "/" + selectedLight.colorG + "/" + selectedLight.colorB + ")");
         });
 
         this.lightNameField = nameField;
@@ -1305,8 +1335,13 @@ public class BattleMapModule implements EditorModule {
                 brightLabel, brightSpinner,
                 dimLabel, dimSpinner,
                 intensityLabel, intensitySpinner,
+                colorLabel, lightColorPicker,
                 applyBtn
         );
+
+        ScrollPane scroll = new ScrollPane();
+        scroll.setFitToWidth(true);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         VBox panel = new VBox(8,
                 daylightLabel, daylightBox, timeLabel, timeControls,
@@ -1319,7 +1354,9 @@ public class BattleMapModule implements EditorModule {
                 paramSection
         );
         panel.setPadding(new Insets(8));
-        return panel;
+
+        scroll.setContent(panel);
+        return scroll;
     }
 
     private void loadLightIntoForm(LightSource ls) {
@@ -1329,6 +1366,9 @@ public class BattleMapModule implements EditorModule {
         lightBrightSpinner.getValueFactory().setValue(ls.brightTiles);
         lightDimSpinner.getValueFactory().setValue(ls.dimTiles);
         lightIntSpinner.getValueFactory().setValue((double) ls.intensity);
+        lightColorPicker.setValue(Color.color(ls.colorR, ls.colorG, ls.colorB));
+        mapRenderer.setSelectedLight(ls);
+        mapRenderer.renderBattlemap();
     }
 
     private void deleteSelectedLight() {

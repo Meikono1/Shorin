@@ -1,0 +1,9 @@
+[ {
+  "name" : "Common",
+  "description" : "The Common Language",
+  "decryptionTemplate" : ""
+}, {
+  "name" : "Dwarven",
+  "description" : "Language of Dwarves",
+  "decryptionTemplate" : ""
+} ]
