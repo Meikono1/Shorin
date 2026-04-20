@@ -3,10 +3,12 @@ package com.fuchsbau.shorin.Engine.Editor.Module.Actions;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
 import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
 import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
 import com.fuchsbau.shorin.Engine.System.Combat.DCType;
 import com.fuchsbau.shorin.Engine.System.Combat.GameAction;
+import com.fuchsbau.shorin.Engine.System.Misc.Trait;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,11 +37,14 @@ public class ActionModule implements EditorModule {
     private ComboBox<ActionCost> costBox = new ComboBox<>();
 
     private TextArea descriptionArea = new TextArea();
-    private TextField traitInput = new TextField();
+
+    // Traits
+    private final ObservableList<String> availableTraits = FXCollections.observableArrayList();
     private FlowPane traitPane = new FlowPane();
 
     private TextField triggerField = new TextField();
     private TextField requirementsField = new TextField();
+    private ListView<String> traitListView;
 
     private CheckBox hasDCBox = new CheckBox();
     private ComboBox<DCType> dcTypeBox = new ComboBox<>();
@@ -142,19 +147,45 @@ public class ActionModule implements EditorModule {
     }
 
     private Node buildTraitsSection() {
-        traitPane = new FlowPane(4, 4);
+        TextField traitSearch = new TextField();
+        traitSearch.setPromptText("Trait suchen...");
+        FilteredList<String> filteredTraits = new FilteredList<>(availableTraits, t -> true);
+        traitSearch.textProperty().addListener((obs, ov, nv) ->
+                filteredTraits.setPredicate(t ->
+                        nv == null || nv.isBlank() ||
+                                t.toLowerCase().contains(nv.toLowerCase())));
 
-        traitInput = new TextField();
-        traitInput.setPromptText("Trait hinzufügen...");
-        traitInput.setOnAction(e -> addTrait(traitInput.getText().trim()));
 
-        Button addBtn = new Button("+ Hinzufügen");
-        addBtn.setOnAction(e -> addTrait(traitInput.getText().trim()));
+        ListView<String> traitPickerList = new ListView<>(filteredTraits);
+        traitPickerList.setPrefHeight(90);
+        traitPickerList.setOnMouseClicked(e -> {
+            if (e.getClickCount() != 2 || selectedAction == null) return;
+            String t = traitPickerList.getSelectionModel().getSelectedItem();
+            if (t == null || selectedAction.traits.contains(t)) return;
+            selectedAction.traits.add(t);
+            traitListView.getItems().setAll(selectedAction.traits);
+            logger.fine("Trait hinzugefügt: " + t);
+        });
 
-        HBox inputRow = new HBox(4, traitInput, addBtn);
-        HBox.setHgrow(traitInput, Priority.ALWAYS);
+        traitListView = new ListView<>();
+        traitListView.setPrefHeight(70);
+        traitListView.setOnMouseClicked(e -> {
+            if (e.getClickCount() != 2 || selectedAction == null) return;
+            String hit = traitListView.getSelectionModel().getSelectedItem();
+            if (hit == null) return;
+            selectedAction.traits.remove(hit);
+            traitListView.getItems().setAll(selectedAction.traits);
+            logger.fine("Trait entfernt: " + hit);
+        });
 
-        return buildSection("Traits", traitPane, inputRow);
+
+        return buildSection("Traits",
+                new Label("Zugewiesen (Doppelklick zum Entfernen)"),
+                traitListView,
+                new Separator(),
+                new Label("Verfügbar (Doppelklick zum Hinzufügen)"),
+                traitSearch, traitPickerList
+        );
     }
 
     private Node buildTriggerSection() {
@@ -361,6 +392,9 @@ public class ActionModule implements EditorModule {
         dcStatBox.setValue(a.dcStat);
         updateDCVisibility();
         refreshTraitPane();
+        loadAvailableTraits();
+        traitListView.getItems().clear();
+        traitListView.getItems().addAll(a.traits);
         critSuccessArea.setText(a.criticalSuccess);
         successArea.setText(a.success);
         failureArea.setText(a.failure);
@@ -368,14 +402,11 @@ public class ActionModule implements EditorModule {
         logger.fine("Action geladen: " + a.name);
     }
 
-    private void addTrait(String trait) {
-        if (trait.isBlank() || selectedAction == null) return;
-        if (selectedAction.traits.contains(trait)) return;
-
-        selectedAction.traits.add(trait);
-        traitInput.clear();
-        refreshTraitPane();
-        logger.fine("Trait hinzugefügt: " + trait);
+    private void loadAvailableTraits() {
+        List<Trait> loaded = TraitModule.loadAvailableTraits();
+        availableTraits.clear();
+        for (Trait t : loaded) availableTraits.add(t.getName());
+        logger.fine("Traits geladen: " + availableTraits.size());
     }
 
     private void refreshTraitPane() {

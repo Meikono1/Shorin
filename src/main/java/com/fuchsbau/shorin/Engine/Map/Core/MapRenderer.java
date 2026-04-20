@@ -22,6 +22,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -39,6 +42,8 @@ public class MapRenderer {
     private final Logger logger = FileLogger.getLogger();
 
     // --- View / camera ---
+    private double lastMouseX, lastMouseY;
+    private boolean panning = false;
     private double camX = 0;
     private double camY = 0;
     private double zoom = 1.0;
@@ -344,19 +349,21 @@ public class MapRenderer {
         }
 
         // --- LightSource-Dots ---
-        for (LightSource ls : gameMap.getLights()) {
-            double x = (ls.x - camX) * zoom;
-            double y = (ls.y - camY) * zoom;
-            double size = BASE_TILE * zoom * 0.35;
+        if (debug) {
+            for (LightSource ls : gameMap.getLights()) {
+                double x = (ls.x - camX) * zoom;
+                double y = (ls.y - camY) * zoom;
+                double size = BASE_TILE * zoom * 0.2;
 
-            // Ausgewähltes Licht gelb markieren — Renderer braucht selectedLight
-            if (ls == selectedLight) {
+                // Ausgewähltes Licht gelb markieren — Renderer braucht selectedLight
+                if (ls == selectedLight) {
+                    g.setFill(Color.color(ls.colorR, ls.colorG, ls.colorB));
+                    g.fillOval(x - size * 0.7, y - size * 0.7, size * 1.4, size * 1.4);
+                }
+
                 g.setFill(Color.YELLOW);
-                g.fillOval(x - size * 0.7, y - size * 0.7, size * 1.4, size * 1.4);
+                g.fillOval(x - size * 0.5, y - size * 0.5, size, size);
             }
-
-            g.setFill(Color.color(ls.colorR, ls.colorG, ls.colorB));
-            g.fillOval(x - size * 0.5, y - size * 0.5, size, size);
         }
 
         // --- Indoor Zonen ---
@@ -406,10 +413,12 @@ public class MapRenderer {
         g.setGlobalAlpha(1.0);
 
         // --- HUD ---
-        g.setFill(sceneBuilder.beigeRGB);
-        g.setFont(Font.font(14));
-        g.fillText("Mapeditor | Zoom=" + String.format("%.2f", zoom)
-                + " | Grid=" + gameMap.getRows() + "x" + gameMap.getCols(), 12, 20);
+        if (debug) {
+            g.setFill(sceneBuilder.beigeRGB);
+            g.setFont(Font.font(14));
+            g.fillText("Mapeditor | Zoom=" + String.format("%.2f", zoom)
+                    + " | Grid=" + gameMap.getRows() + "x" + gameMap.getCols(), 12, 20);
+        }
 
         logger.finest("tokenCanvas gerendert — Tokens=" + gameMap.getTokens().size()
                 + " Lights=" + gameMap.getLights().size());
@@ -729,5 +738,51 @@ public class MapRenderer {
 
     public void setSelectedLight(LightSource ls) {
         this.selectedLight = ls;
+    }
+
+    public void setupCanvasHandlers() {
+        canvas.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
+            if (e.isSecondaryButtonDown()) {
+                panning = true;
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+            }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_RELEASED, e -> {
+            if (e.getButton() == MouseButton.SECONDARY) {
+                panning = false;
+            }
+        });
+
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
+            if (panning && e.isSecondaryButtonDown()) {
+                double dx = e.getX() - lastMouseX;
+                double dy = e.getY() - lastMouseY;
+                lastMouseX = e.getX();
+                lastMouseY = e.getY();
+                setCamX(getCamX() - dx / getZoom());
+                setCamY(getCamY() - dy / getZoom());
+                renderBattlemap();
+            }
+        });
+
+        canvas.addEventFilter(ScrollEvent.SCROLL, e -> {
+            double oldZoom = getZoom();
+            double factor = Math.pow(1.0015, e.getDeltaY());
+            setZoom(clamp(getZoom() * factor, 0.2, 6.0));
+
+            double wx = screenToWorldX(e.getX(), oldZoom);
+            double wy = screenToWorldY(e.getY(), oldZoom);
+            double wxA = screenToWorldX(e.getX(), getZoom());
+            double wyA = screenToWorldY(e.getY(), getZoom());
+
+            setCamX(getCamX() + (wx - wxA));
+            setCamY(getCamY() + (wy - wyA));
+            renderBattlemap();
+            e.consume();
+        });
+
+        logger.fine("Kamera-Handler registriert");
     }
 }

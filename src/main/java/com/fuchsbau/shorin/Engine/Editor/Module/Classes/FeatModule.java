@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.Engine.Editor.Module.Classes;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
 import com.fuchsbau.shorin.Engine.System.Character.Skills;
 import com.fuchsbau.shorin.Engine.System.Feat;
 import com.fuchsbau.shorin.Engine.System.Misc.Trait;
@@ -491,10 +492,9 @@ public class FeatModule implements EditorModule {
     }
 
     private void loadAvailableTraits() {
-        List<Trait> loaded = EditorIO.load("Engine/traits.json",
-                new TypeReference<>() {
-                }, new ArrayList<>());
-        availableTraits.setAll(loaded.stream().map(Trait::getName).toList());
+        List<Trait> loaded = TraitModule.loadAvailableTraits();
+        availableTraits.clear();
+        for (Trait t : loaded) availableTraits.add(t.getName());
         logger.fine("Traits geladen: " + availableTraits.size());
     }
 

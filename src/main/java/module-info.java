@@ -21,6 +21,7 @@ module com.fuchsbau.shorin {
     opens com.fuchsbau.shorin.Engine.RPG to com.fasterxml.jackson.databind;
 
     exports com.fuchsbau.shorin.Engine.Editor.Module.Actions;
+    exports com.fuchsbau.shorin.Engine.Util;
 
     exports com.fuchsbau.shorin.test;
     exports com.fuchsbau.shorin.Engine.Race;
@@ -37,4 +38,6 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Engine.System.Character to com.fasterxml.jackson.databind;
     exports com.fuchsbau.shorin.Engine.System.Combat to com.fasterxml.jackson.databind;
     exports com.fuchsbau.shorin.Engine.System.Misc to com.fasterxml.jackson.databind;
+    exports com.fuchsbau.shorin.Engine.Encounter;
+    exports com.fuchsbau.shorin.Engine.Dice;
 }

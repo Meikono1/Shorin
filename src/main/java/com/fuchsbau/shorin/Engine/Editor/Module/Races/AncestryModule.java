@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
 import com.fuchsbau.shorin.Engine.Race.Ancestries;
 import com.fuchsbau.shorin.Engine.Race.Size;
 import com.fuchsbau.shorin.Engine.RPG.Language;
@@ -377,14 +378,10 @@ public class AncestryModule implements EditorModule {
     }
 
     private void loadAvailableTraits() {
-        List<Trait> traits = EditorIO.load(
-                "Engine/traits.json",
-                new TypeReference<>() {
-                },
-                new ArrayList<>());
+        List<Trait> loaded = TraitModule.loadAvailableTraits();
         availableTraits.clear();
-        for (Trait t : traits) availableTraits.add(t.getName());
-        logger.fine("Verfügbare Traits geladen: " + availableTraits.size());
+        for (Trait t : loaded) availableTraits.add(t.getName());
+        logger.fine("Traits geladen: " + availableTraits.size());
     }
 
 

@@ -185,6 +185,14 @@ public class TraitModule implements EditorModule {
         return box;
     }
 
+    public static List<Trait> loadAvailableTraits() {
+        return EditorIO.load(
+                "Engine/traits.json",
+                new TypeReference<>() {
+                },
+                new ArrayList<>());
+    }
+
     @Override
     public List<Menu> getMenus() {
         return List.of();

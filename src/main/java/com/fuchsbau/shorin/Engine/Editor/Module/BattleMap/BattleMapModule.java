@@ -54,8 +54,6 @@ public class BattleMapModule implements EditorModule {
     private final MapRenderer mapRenderer = new MapRenderer(gameMap, lighting);
 
     // Camera
-    private double lastMouseX, lastMouseY;
-    private boolean panning = false;
     private boolean painting = false;
 
     // Tool
@@ -139,13 +137,8 @@ public class BattleMapModule implements EditorModule {
                     e.consume();
                     return;
                 }
-
-                panning = true;
-                lastMouseX = e.getX();
-                lastMouseY = e.getY();
-                e.consume();
-                return;
             }
+
             if (e.getButton() == MouseButton.PRIMARY) {
                 Token hit = pickToken(e.getX(), e.getY());
                 if (hit != null) {
@@ -227,12 +220,6 @@ public class BattleMapModule implements EditorModule {
 
         // --- Mouse Released ---
         canvas.setOnMouseReleased(e -> {
-            if (e.getButton() == MouseButton.SECONDARY) {
-                panning = false;
-                e.consume();
-                return;
-            }
-
             if (e.getButton() == MouseButton.PRIMARY) {
                 if (placingZone && zoneInProgress != null) {
                     if (zoneInProgress.width > 1 && zoneInProgress.height > 1) {
@@ -305,18 +292,6 @@ public class BattleMapModule implements EditorModule {
 
         // --- Mouse Dragged ---
         canvas.setOnMouseDragged(e -> {
-            if (panning && e.isSecondaryButtonDown()) {
-                double dx = e.getX() - lastMouseX;
-                double dy = e.getY() - lastMouseY;
-                lastMouseX = e.getX();
-                lastMouseY = e.getY();
-                mapRenderer.setCamX(mapRenderer.getCamX() - dx / mapRenderer.getZoom());
-                mapRenderer.setCamY(mapRenderer.getCamY() - dy / mapRenderer.getZoom());
-                mapRenderer.renderBattlemap();
-                e.consume();
-                return;
-            }
-
             if (placingWall && e.isPrimaryButtonDown()) {
                 double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
                 double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
@@ -632,8 +607,10 @@ public class BattleMapModule implements EditorModule {
 
     @Override
     public Node buildContent() {
+        mapRenderer.debug = true;
         Node canvas = mapRenderer.buildBattleMapPane(null);
         setupInputHandlers();
+        mapRenderer.setupCanvasHandlers();
         mapRenderer.refreshViews();
         mapRenderer.renderBattlemap();
         logger.info("BattleMapModule Content gebaut");
