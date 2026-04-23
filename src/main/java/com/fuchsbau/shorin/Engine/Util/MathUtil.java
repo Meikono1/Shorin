@@ -15,4 +15,8 @@ public class MathUtil {
         double dy = ay - by;
         return dx * dx + dy * dy;
     }
+
+    public static double clamp(double v) {
+        return Math.max(0.0, Math.min(1.0, v));
+    }
 }

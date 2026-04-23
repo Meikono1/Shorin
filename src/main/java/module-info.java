@@ -4,9 +4,10 @@ module com.fuchsbau.shorin {
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
-    requires com.almasb.fxgl.all;
+    //requires com.almasb.fxgl.all;
     requires java.logging;
     requires com.fasterxml.jackson.databind;
+    requires jdk.jshell;
 
 
     exports com.fuchsbau.shorin.Races;
@@ -40,4 +41,5 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Engine.System.Misc to com.fasterxml.jackson.databind;
     exports com.fuchsbau.shorin.Engine.Encounter;
     exports com.fuchsbau.shorin.Engine.Dice;
+    exports com.fuchsbau.shorin.test.Dicetray;
 }

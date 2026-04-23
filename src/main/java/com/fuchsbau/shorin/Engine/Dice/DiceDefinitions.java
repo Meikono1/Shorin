@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.Dice;
 
-import com.fuchsbau.shorin.Engine.CustomMesh.Vec3;
+import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public final class DiceDefinitions {
+
+    public static Map<DiceType, DiceDefinition> diceMap = createAll();
 
     private DiceDefinitions() {
     }
@@ -252,10 +254,10 @@ public final class DiceDefinitions {
             Vec3 c = icoVerts.get(face[2]);
 
             Vec3 center = new Vec3(
-                    (a.x() + b.x() + c.x()) / 3.0,
-                    (a.y() + b.y() + c.y()) / 3.0,
-                    (a.z() + b.z() + c.z()) / 3.0
-            ).normalize();
+                    (a.x + b.x + c.x) / 3.0,
+                    (a.y + b.y + c.y) / 3.0,
+                    (a.z + b.z + c.z) / 3.0
+            );
 
             vertices.add(center);
         }
@@ -267,10 +269,10 @@ public final class DiceDefinitions {
             Vec3 c = icoVerts.get(face[2]);
 
             Vec3 center = new Vec3(
-                    (a.x() + b.x() + c.x()) / 3.0,
-                    (a.y() + b.y() + c.y()) / 3.0,
-                    (a.z() + b.z() + c.z()) / 3.0
-            ).normalize();
+                    (a.x + b.x + c.x) / 3.0,
+                    (a.y + b.y + c.y) / 3.0,
+                    (a.z + b.z + c.z) / 3.0
+            );
 
             dodecaVerts.add(center);
         }
@@ -289,9 +291,9 @@ public final class DiceDefinitions {
 
         List<int[]> dodecaFaces = new ArrayList<>();
         for (int vi = 0; vi < icoVerts.size(); vi++) {
-            Vec3 axis = icoVerts.get(vi).normalize();
-            Vec3 ref = perpendicular(axis).normalize();
-            Vec3 ref2 = axis.cross(ref).normalize();
+            Vec3 axis = icoVerts.get(vi);
+            Vec3 ref = perpendicular(axis);
+            Vec3 ref2 = axis.cross(ref);
 
             List<Integer> around = facesPerIcoVertex.get(vi);
             around.sort((a, b) -> {
@@ -391,12 +393,12 @@ public final class DiceDefinitions {
     }
 
     private static double angleOnPlane(Vec3 p, Vec3 axis, Vec3 ref, Vec3 ref2) {
-        Vec3 proj = p.sub(axis.scale(p.dot(axis))).normalize();
+        Vec3 proj = p.sub(axis.scale(p.dot(axis)));
         return Math.atan2(proj.dot(ref2), proj.dot(ref));
     }
 
     private static Vec3 perpendicular(Vec3 v) {
-        if (Math.abs(v.x()) < 0.9) {
+        if (Math.abs(v.x) < 0.9) {
             return new Vec3(1, 0, 0).cross(v);
         }
         return new Vec3(0, 1, 0).cross(v);
@@ -418,7 +420,7 @@ public final class DiceDefinitions {
             Vec3 ab = b.sub(a);
             Vec3 ac = c.sub(a);
 
-            normals.add(ab.cross(ac).normalize());
+            normals.add(ab.cross(ac));
         }
 
         return List.copyOf(normals);

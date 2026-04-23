@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.Dice;
 
-import com.fuchsbau.shorin.Engine.CustomMesh.Vec3;
+import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
 
 import java.util.List;
 

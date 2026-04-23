@@ -1,420 +1,361 @@
 package com.fuchsbau.shorin.test;
 
-import com.fuchsbau.shorin.Engine.CustomMesh.Vec3;
-import com.fuchsbau.shorin.Engine.Dice.*;
-import com.fuchsbau.shorin.Engine.Util.FloorContact;
+import com.fuchsbau.shorin.Engine.Dice.DiceOptions;
+import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
+import com.fuchsbau.shorin.test.Dice.*;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ComboBox;
-import javafx.scene.input.MouseButton;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.*;
 
 public class DicePhysicsTestPane {
 
     private final Canvas canvas = new Canvas(1200, 800);
-    private final List<DiceObject> diceObjects = new ArrayList<>();
+    private final DicePhysics dicePhysics = new DicePhysics();
 
-    private final Map<DiceType, DiceDefinition> definitions;
+    // Simulationsergebnis – wird nach simulateThrow gesetzt
+    private SimulationResult simResult = null;
+    // Aktueller Playback-Frame
+    private int playFrame = 0;
+    // Läuft die Animation?
+    private boolean playing = false;
 
-    private DiceTray tray = new DiceTray(250, 140, 700, 500);
+    private double trayX, trayY, trayW, trayH;
+    private int diceIdCounter = 0;
 
-    private static final double GRAVITY = 900.0;
-    private static final double DEFAULT_WALL_BOUNCE = 0.72;
-    private static final double DEFAULT_FLOOR_BOUNCE = 0.38;
+    // Radius der Würfel in Physics-Units
+    private static final double DICE_RADIUS = 35.0;
 
-    private DiceType selectedType = DiceType.D6;
+    public DicePhysicsTestPane() {
+        updateTray();
+        initPhysics();
+    }
 
-    public DicePhysicsTestPane(java.util.Map<DiceType, DiceDefinition> definitions) {
-        this.definitions = definitions;
-
-        setupInput();
-        startLoop();
+    private void initPhysics() {
+        Margin margin = new Margin(10, 10, 10, 10);
+        dicePhysics.init(trayH / 2.0, trayW / 2.0, margin, false);
+        dicePhysics.createShape("d6", DICE_RADIUS);
     }
 
     public Node build() {
+        Button throwBtn = new Button("Würfeln (D6)");
+        throwBtn.setOnAction(e -> doThrow());
 
-        ComboBox<DiceType> box = new ComboBox<>();
-        box.getItems().addAll(DiceType.values());
-        box.setValue(DiceType.D6);
+        Label hint = new Label("Klick zum Würfeln");
+        hint.setTextFill(Color.LIGHTGRAY);
 
-        box.valueProperty().addListener((obs, o, n) -> selectedType = n);
+        HBox controls = new HBox(12, throwBtn, hint);
+        controls.setAlignment(Pos.CENTER_LEFT);
+        controls.setStyle("-fx-padding: 8 16 8 16;");
 
-        StackPane pane = new StackPane(canvas, box);
-        StackPane.setAlignment(box, Pos.TOP_LEFT);
-
+        StackPane pane = new StackPane(canvas, controls);
+        StackPane.setAlignment(controls, Pos.TOP_LEFT);
         pane.setStyle("-fx-background-color: rgb(18,18,24);");
 
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
 
-        canvas.widthProperty().addListener((obs, oldV, newV) -> updateTray());
-        canvas.heightProperty().addListener((obs, oldV, newV) -> updateTray());
+        canvas.widthProperty().addListener((o, ov, nv) -> onResize());
+        canvas.heightProperty().addListener((o, ov, nv) -> onResize());
 
-        updateTray();
+        canvas.setOnMouseClicked(e -> doThrow());
+
+        startLoop();
         return pane;
     }
 
+    private void onResize() {
+        updateTray();
+        Margin margin = new Margin(10, 10, 10, 10);
+        dicePhysics.updateBarriers(trayH / 2.0, trayW / 2.0, margin);
+    }
+
     private void updateTray() {
-        double w = canvas.getWidth();
-        double h = canvas.getHeight();
+        double w = Math.max(400, canvas.getWidth());
+        double h = Math.max(300, canvas.getHeight());
+        trayW = Math.max(400, w * 0.7);
+        trayH = Math.max(260, h * 0.65);
+        trayX = (w - trayW) / 2.0;
+        trayY = (h - trayH) / 2.0;
+    }
 
-        double trayW = Math.max(400, w * 0.55);
-        double trayH = Math.max(260, h * 0.52);
+    // ── Würfelwurf ───────────────────────────────────────────────────────────
 
-        tray = new DiceTray(
-                (w - trayW) / 2.0,
-                (h - trayH) / 2.0,
-                trayW,
-                trayH
+    private void doThrow() {
+        playing = false;
+        simResult = null;
+        playFrame = 0;
+
+        // Alle alten Würfel entfernen
+        dicePhysics.clearDice();
+        //dicePhysics.diceList.clear();
+
+        diceIdCounter = 0;
+
+        // 2 D6 hinzufügen
+        for (int i = 0; i < 2; i++) {
+            spawnDie(i);
+        }
+
+        // Physik simulieren (synchron, wie im Original)
+        simResult = dicePhysics.simulateThrow(10, 15, 1.0 / 200.0, false);
+
+        // Ergebnis loggen
+        for (int id : simResult.ids) {
+            Integer val = dicePhysics.getDiceValue(id);
+            System.out.println("Würfel " + id + " → " + val);
+        }
+
+        // Animation starten
+        playFrame = 0;
+        playing = true;
+    }
+
+    private void spawnDie(int id) {
+        // Zufällige Startposition innerhalb des Trays
+        double px = (Math.random() - 0.5) * (trayW * 0.6);
+        double py = (Math.random() - 0.5) * (trayH * 0.6);
+        double pz = 200 + Math.random() * 100;
+
+        VectorData vd = new VectorData();
+        vd.pos = new Vec3(px, py, pz);
+        vd.velocity = new Vec3(
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 30,
+                -100 - Math.random() * 10
         );
+        vd.angle = new Vec3(
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15,
+                (Math.random() - 0.5) * 15
+        );
+        vd.axis = new AxisData();
+        vd.axis.x = Math.random();
+        vd.axis.y = Math.random();
+        vd.axis.z = Math.random();
+        vd.axis.a = Math.random();
+        vd.type = "d6";
+
+        DiceOptions opts = new DiceOptions();
+        opts.secret = false;
+
+        dicePhysics.createDice(id, "d6", "default", vd, 1, 0, opts);
+        dicePhysics.addDice(id);
     }
 
-    private void setupInput() {
-        canvas.setOnMouseClicked(e -> {
-            if (e.getButton() != MouseButton.PRIMARY) {
-                return;
-            }
-
-            spawnDie();
-        });
-    }
-
-    private void spawnDie() {
-        double spawnX = tray.x() + tray.width() * 0.5 + random(-80, 80);
-        double spawnY = tray.y() + tray.height() * 0.3 + random(-50, 50);
-
-        DiceDefinition def = getDefinition(selectedType);
-
-        DiceObject die = new DiceObject(selectedType, def, spawnX, spawnY, 180);
-
-        die.setScale(1.0);
-        die.setRadius(26);
-
-        die.setAngleX(random(0, 360));
-        die.setAngleY(random(0, 360));
-        die.setAngleZ(random(0, 360));
-
-        die.setVelocityX(random(-650, 650));
-        die.setVelocityY(random(-500, 500));
-        die.setVelocityZ(random(-40, 40));
-
-        die.setAngularVelocityX(random(-540, 540));
-        die.setAngularVelocityY(random(-540, 540));
-        die.setAngularVelocityZ(random(-540, 540));
-
-        die.setRolling(true);
-        die.setSleeping(false);
-
-        die.setCurrentFaceValue(1);
-        die.setLastStableFaceValue(1);
-
-        diceObjects.add(die);
-    }
+    // ── Animation ────────────────────────────────────────────────────────────
 
     private void startLoop() {
         new AnimationTimer() {
-            private long lastNow = -1;
+            private long last = -1;
+            private int frameDelay = 0;
 
             @Override
             public void handle(long now) {
-                if (lastNow < 0) {
-                    lastNow = now;
-                    render();
+                if (last < 0) {
+                    last = now;
                     return;
                 }
+                last = now;
 
-                double dt = (now - lastNow) / 1_000_000_000.0;
-                lastNow = now;
+                // Playback: einen Frame pro Render-Tick vorrücken
+                if (playing && simResult != null) {
+                    frameDelay++;
+                    if (frameDelay >= 1) { // Geschwindigkeit: 1 = normal, 2 = halb
+                        frameDelay = 0;
+                        playFrame++;
+                        if (playFrame >= simResult.iterationsNeeded) {
+                            playing = false;
+                        }
+                    }
+                }
 
-                update(dt);
                 render();
             }
         }.start();
     }
 
-    private void update(double dt) {
-        for (DiceObject die : diceObjects) {
-            if (die.isSleeping()) {
-                continue;
-            }
-
-            double linearFriction = getLinearFriction(die);
-            double angularFriction = getAngularFriction(die);
-            double wallBounce = getWallBounce(die);
-            double floorBounce = getFloorBounce(die);
-
-            // Gravity auf Z
-            die.setVelocityZ(die.getVelocityZ() - GRAVITY * dt);
-
-            // Position
-            die.setCenterX(die.getCenterX() + die.getVelocityX() * dt);
-            die.setCenterY(die.getCenterY() + die.getVelocityY() * dt);
-            die.setCenterZ(die.getCenterZ() + die.getVelocityZ() * dt);
-
-            // Rotation
-            die.setAngleX(die.getAngleX() + die.getAngularVelocityX() * dt);
-            die.setAngleY(die.getAngleY() + die.getAngularVelocityY() * dt);
-            die.setAngleZ(die.getAngleZ() + die.getAngularVelocityZ() * dt);
-
-            // Traywände in X/Y
-            if (die.getCenterX() - die.getRadius() < tray.minX()) {
-                die.setCenterX(tray.minX() + die.getRadius());
-                die.setVelocityX(-die.getVelocityX() * wallBounce);
-            } else if (die.getCenterX() + die.getRadius() > tray.maxX()) {
-                die.setCenterX(tray.maxX() - die.getRadius());
-                die.setVelocityX(-die.getVelocityX() * wallBounce);
-            }
-
-            if (die.getCenterY() - die.getRadius() < tray.minY()) {
-                die.setCenterY(tray.minY() + die.getRadius());
-                die.setVelocityY(-die.getVelocityY() * wallBounce);
-            } else if (die.getCenterY() + die.getRadius() > tray.maxY()) {
-                die.setCenterY(tray.maxY() - die.getRadius());
-                die.setVelocityY(-die.getVelocityY() * wallBounce);
-            }
-
-            FloorContact floorContact = DicePhysics.resolveFloorCollision(die, dt, linearFriction, angularFriction, floorBounce);
-
-            if (!floorContact.colliding()) {
-                // in der Luft schwächere Dämpfung
-                die.setVelocityX(applyDecay(die.getVelocityX(), 0.15, dt));
-                die.setVelocityY(applyDecay(die.getVelocityY(), 0.15, dt));
-
-                die.setAngularVelocityX(applyDecay(die.getAngularVelocityX(), 0.10, dt));
-                die.setAngularVelocityY(applyDecay(die.getAngularVelocityY(), 0.10, dt));
-                die.setAngularVelocityZ(applyDecay(die.getAngularVelocityZ(), 0.10, dt));
-            }
-
-            clampSmallValues(die);
-
-            boolean grounded = DicePhysics.isGroundedByVertices(die);
-            boolean motionStopped =
-                    grounded &&
-                            die.getVelocityX() == 0.0 &&
-                            die.getVelocityY() == 0.0 &&
-                            die.getVelocityZ() == 0.0 &&
-                            die.getAngularVelocityX() == 0.0 &&
-                            die.getAngularVelocityY() == 0.0 &&
-                            die.getAngularVelocityZ() == 0.0;
-
-            if (motionStopped) {
-                die.setRolling(false);
-                die.setSleeping(true);
-
-                int rolled;
-                if (die.getType() == DiceType.D2) {
-                    rolled = DicePhysics.determineD2Value(die);
-                } else {
-                    rolled = DicePhysics.determineTopFaceValue(die);
-                }
-
-                die.setCurrentFaceValue(rolled);
-                die.setLastStableFaceValue(rolled);
-            }
-        }
-    }
-
-    private void clampSmallValues(DiceObject die) {
-        if (Math.abs(die.getVelocityX()) < 2.5) die.setVelocityX(0);
-        if (Math.abs(die.getVelocityY()) < 2.5) die.setVelocityY(0);
-        if (Math.abs(die.getVelocityZ()) < 6.0) die.setVelocityZ(0);
-
-        if (Math.abs(die.getAngularVelocityX()) < 4.0) die.setAngularVelocityX(0);
-        if (Math.abs(die.getAngularVelocityY()) < 4.0) die.setAngularVelocityY(0);
-        if (Math.abs(die.getAngularVelocityZ()) < 4.0) die.setAngularVelocityZ(0);
-    }
-
-    /**
-     * frictionPerSecond:
-     * 0.0  = keine Reibung
-     * 1.0  = sehr starke Reibung
-     */
-    private double applyDecay(double value, double frictionPerSecond, double dt) {
-        double decay = Math.max(0.0, 1.0 - frictionPerSecond * dt);
-        return value * decay;
-    }
-
-    private double getLinearFriction(DiceObject die) {
-        return 1.2;
-    }
-
-    private double getAngularFriction(DiceObject die) {
-        return 1.8;
-    }
-
-    private double getWallBounce(DiceObject die) {
-        // später aus DiceDefinition holen
-        return DEFAULT_WALL_BOUNCE;
-    }
-
-    private double getFloorBounce(DiceObject die) {
-        // später aus DiceDefinition holen
-        return DEFAULT_FLOOR_BOUNCE;
-    }
+    // ── Rendering ────────────────────────────────────────────────────────────
 
     private void render() {
         GraphicsContext g = canvas.getGraphicsContext2D();
         double w = canvas.getWidth();
         double h = canvas.getHeight();
 
+        // Hintergrund
         g.setFill(Color.rgb(18, 18, 24));
         g.fillRect(0, 0, w, h);
 
         drawTray(g);
 
-        for (DiceObject die : diceObjects) {
-            drawDie(g, die);
+        if (simResult != null) {
+            drawDice(g);
         }
 
-        g.setFill(Color.LIGHTGRAY);
-        g.fillText("Linksklick: D6 in den Tray werfen", 20, 30);
-        g.fillText("Würfel: " + diceObjects.size(), 20, 50);
+        drawHUD(g);
     }
 
     private void drawTray(GraphicsContext g) {
-        double x = tray.x();
-        double y = tray.y();
-        double w = tray.width();
-        double h = tray.height();
-
         g.setFill(Color.rgb(55, 44, 32));
-        g.fillRoundRect(x, y, w, h, 24, 24);
+        g.fillRoundRect(trayX, trayY, trayW, trayH, 24, 24);
 
         g.setFill(Color.rgb(35, 85, 45));
-        g.fillRoundRect(x + 16, y + 16, w - 32, h - 32, 16, 16);
+        g.fillRoundRect(trayX + 16, trayY + 16, trayW - 32, trayH - 32, 16, 16);
 
         g.setStroke(Color.rgb(110, 90, 60));
         g.setLineWidth(4);
-        g.strokeRoundRect(x, y, w, h, 24, 24);
+        g.strokeRoundRect(trayX, trayY, trayW, trayH, 24, 24);
     }
 
-    private void drawDie(GraphicsContext g, DiceObject die) {
-        double screenX = die.getCenterX();
-        double screenY = die.getCenterY() - die.getCenterZ() * 0.35;
+    private void drawDice(GraphicsContext g) {
+        int frame = Math.min(playFrame, simResult.iterationsNeeded - 1);
 
-        // Schatten
-        double shadowRadius = die.getRadius() * die.getScale();
-        g.setFill(Color.rgb(0, 0, 0, 0.16));
-        g.fillOval(
-                die.getCenterX() - shadowRadius,
-                die.getCenterY() - shadowRadius * 0.55,
-                shadowRadius * 2,
-                shadowRadius * 1.1
-        );
+        for (int i = 0; i < simResult.ids.size(); i++) {
+            float[] pos = simResult.positions.get(i);
+            if (pos == null) continue;
 
-        drawMesh(g, die);
+            int pi = frame * 3;
+            if (pi + 2 >= pos.length) continue;
 
-        g.setFill(Color.WHITE);
-        g.fillText(die.getType().name(), screenX - 12, screenY - die.getRadius() - 10);
+            double px = pos[pi];
+            double py = pos[pi + 1];
+            double pz = pos[pi + 2];
 
-        String state = die.isSleeping() ? "STOP" : "ROLL";
-        g.fillText(state + " " + die.getLastStableFaceValue(), screenX - 20, screenY + 4);
+            // Physics-Koordinaten → Bildschirm:
+            // Physics: Y = oben/unten, X = links/rechts, Z = höhe
+            // Screen:  Mitte = Tray-Mitte
+            double screenX = trayX + trayW / 2.0 + px;
+            double screenY = trayY + trayH / 2.0 + py - pz * 0.25;
+
+            double r = DICE_RADIUS * 0.8;
+
+            // Schatten
+            g.setFill(Color.rgb(0, 0, 0, 0.3));
+            g.fillOval(trayX + trayW / 2.0 + px - r,
+                    trayY + trayH / 2.0 + py - r * 0.4,
+                    r * 2, r * 0.8);
+
+            // Würfel-Körper
+            float[] quat = simResult.quaternions.get(i);
+            if (quat == null) continue;
+
+            int qi = frame * 4;
+            if (qi + 3 >= quat.length) continue;
+
+            double qx = quat[qi];
+            double qy = quat[qi + 1];
+            double qz = quat[qi + 2];
+            double qw = quat[qi + 3];
+
+            drawCube3D(g, screenX, screenY, r, qx, qy, qz, qw);
+        }
     }
 
-    private double random(double min, double max) {
-        return ThreadLocalRandom.current().nextDouble(min, max);
-    }
+    private void drawCube3D(GraphicsContext g,
+                            double cx, double cy, double size,
+                            double qx, double qy, double qz, double qw) {
 
-    private int randomInt(int min, int max) {
-        return ThreadLocalRandom.current().nextInt(min, max + 1);
-    }
+        // Würfelpunkte (lokal)
+        double s = size;
+        Vec3[] verts = new Vec3[] {
+                new Vec3(-s, -s, -s),
+                new Vec3( s, -s, -s),
+                new Vec3( s,  s, -s),
+                new Vec3(-s,  s, -s),
+                new Vec3(-s, -s,  s),
+                new Vec3( s, -s,  s),
+                new Vec3( s,  s,  s),
+                new Vec3(-s,  s,  s)
+        };
 
-    private void drawMesh(GraphicsContext g, DiceObject die) {
-        List<int[]> faces = die.getDefinition().faces();
-        List<Vec3> world = DicePhysics.getWorldVertices(die);
-
-        List<ProjectedVertex> projected = new ArrayList<>(world.size());
-        for (Vec3 v : world) {
-            projected.add(project(v));
+        // Rotation anwenden
+        for (Vec3 v : verts) {
+            rotateByQuaternion(v, qx, qy, qz, qw);
         }
 
-        List<int[]> sortedFaces = new ArrayList<>(faces);
-        sortedFaces.sort((a, b) -> Double.compare(avgDepth(b, world), avgDepth(a, world)));
+        // Projektion
+        double[][] proj = new double[8][2];
+        double dist = 400;
 
-        for (int[] face : sortedFaces) {
-            if (face.length < 3) {
-                continue;
+        for (int i = 0; i < 8; i++) {
+            double z = verts[i].z + dist;
+            proj[i][0] = cx + verts[i].x * dist / z;
+            proj[i][1] = cy + verts[i].y * dist / z;
+        }
+
+        // Faces (Back → Front sortiert)
+        int[][] faces = {
+                {0,1,2,3}, // back
+                {4,5,6,7}, // front
+                {0,1,5,4},
+                {2,3,7,6},
+                {1,2,6,5},
+                {0,3,7,4}
+        };
+
+        // einfache Painter’s Algorithm Sortierung
+        Arrays.sort(faces, Comparator.comparingDouble(f ->
+                avgZ(verts, f)));
+
+        for (int[] f : faces) {
+            g.setFill(Color.rgb(240, 230, 200, 0.95));
+            g.setStroke(Color.rgb(80, 70, 50));
+
+            g.beginPath();
+            g.moveTo(proj[f[0]][0], proj[f[0]][1]);
+            for (int k = 1; k < f.length; k++) {
+                g.lineTo(proj[f[k]][0], proj[f[k]][1]);
             }
+            g.closePath();
+            g.fill();
+            g.stroke();
+        }
+    }
 
-            Vec3 normal = computeFaceNormal(face, world);
+    private void rotateByQuaternion(Vec3 v, double x, double y, double z, double w) {
+        double ix =  w*v.x + y*v.z - z*v.y;
+        double iy =  w*v.y + z*v.x - x*v.z;
+        double iz =  w*v.z + x*v.y - y*v.x;
+        double iw = -x*v.x - y*v.y - z*v.z;
 
-            // Nur sichtbare Faces zeichnen
-            /*if (normal.z() >= 0) {
-                continue;
-            }*/
+        v.x = ix*w + iw*(-x) + iy*(-z) - iz*(-y);
+        v.y = iy*w + iw*(-y) + iz*(-x) - ix*(-z);
+        v.z = iz*w + iw*(-z) + ix*(-y) - iy*(-x);
+    }
 
-            double[] xs = new double[face.length];
-            double[] ys = new double[face.length];
+    private double avgZ(Vec3[] verts, int[] face) {
+        double z = 0;
+        for (int i : face) z += verts[i].z;
+        return z / face.length;
+    }
 
-            for (int i = 0; i < face.length; i++) {
-                ProjectedVertex p = projected.get(face[i]);
-                xs[i] = p.x();
-                ys[i] = p.y();
+    private void drawHUD(GraphicsContext g) {
+        g.setFill(Color.LIGHTGRAY);
+        g.setFont(javafx.scene.text.Font.font(14));
+        g.fillText("Klick: Würfeln  |  Würfel: " +
+                        (simResult != null ? simResult.ids.size() : 0) +
+                        "  |  Frame: " + playFrame +
+                        (simResult != null ? "/" + simResult.iterationsNeeded : ""),
+                20, 30);
+
+        if (simResult != null && !playing) {
+            StringBuilder sb = new StringBuilder("Ergebnis: ");
+            for (int id : simResult.ids) {
+                Integer val = dicePhysics.getDiceValue(id);
+                sb.append(val != null ? val : "?").append("  ");
             }
-
-            double shade = Math.max(0.35, Math.min(1.0, -normal.z()));
-            Color base = die.isSleeping() ? Color.DARKSEAGREEN : Color.STEELBLUE;
-            Color fill = new Color(
-                    clamp(base.getRed() * shade),
-                    clamp(base.getGreen() * shade),
-                    clamp(base.getBlue() * shade),
-                    1.0
-            );
-
-            g.setFill(fill);
-            g.fillPolygon(xs, ys, face.length);
-
-            g.setStroke(Color.BLACK);
-            g.strokePolygon(xs, ys, face.length);
+            g.setFill(Color.GOLD);
+            g.setFont(javafx.scene.text.Font.font("Georgia",
+                    javafx.scene.text.FontWeight.BOLD, 22));
+            g.fillText(sb.toString(), trayX + trayW / 2.0 - 80, trayY - 12);
         }
-    }
-
-    private DiceDefinition getDefinition(DiceType type) {
-        DiceDefinition definition = definitions.get(type);
-        if (definition == null) {
-            throw new IllegalStateException("Keine DiceDefinition für Typ vorhanden: " + type);
-        }
-        return definition;
-    }
-
-    private ProjectedVertex project(Vec3 v) {
-        double screenX = v.x();
-        double screenY = v.y() - v.z() * 0.35;
-        return new ProjectedVertex(screenX, screenY);
-    }
-
-    private double avgDepth(int[] face, List<Vec3> world) {
-        double sum = 0.0;
-        for (int index : face) {
-            sum += world.get(index).z();
-        }
-        return sum / face.length;
-    }
-
-    private Vec3 computeFaceNormal(int[] face, List<Vec3> world) {
-        Vec3 a = world.get(face[0]);
-        Vec3 b = world.get(face[1]);
-        Vec3 c = world.get(face[2]);
-
-        Vec3 ab = b.sub(a);
-        Vec3 ac = c.sub(a);
-
-        return ab.cross(ac).normalize();
-    }
-
-    private double clamp(double value) {
-        return Math.max(0.0, Math.min(1.0, value));
-    }
-
-    private record ProjectedVertex(double x, double y) {
     }
 }
