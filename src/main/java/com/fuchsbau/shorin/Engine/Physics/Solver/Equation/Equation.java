@@ -38,8 +38,8 @@ public abstract class Equation {
         this.id = Equation.idCounter++;
         this.bi = bi;
         this.bj = bj;
-        this.minForce = minForce == 0 ? minForce : Double.MIN_VALUE;
-        this.maxForce = maxForce == 0 ? minForce : Double.MAX_VALUE;
+        this.minForce = minForce == 0 ? minForce : -1e6;
+        this.maxForce = maxForce == 0 ? maxForce : 1e6;
         this.a = 0.0;
         this.b = 0.0;
         this.eps = 0.0;

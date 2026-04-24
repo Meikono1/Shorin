@@ -81,6 +81,10 @@ public class World {
 
     public Map<Integer, PhysicsBody> idToBodyMap = new HashMap<>();
 
+    // --- Debug / Profiling ---
+    // Zum Deaktivieren: probe = null setzen ODER probe.enabled = false
+    public PhysicsDebugProbe probe = null;
+
     public World() {
         this.gravity = new Vec3();
         this.solver = new GaussSeidelSolver();
@@ -302,6 +306,21 @@ public class World {
             }
         }
 
+        // [PROBE] vor Gravity
+        if (probe != null) probe.snapshot(PhysicsDebugProbe.PHASE_START, bodies, gz);
+
+        // Schwerkraft auf alle dynamischen Bodies anwenden
+        for (PhysicsBody bi : bodies) {
+            if (bi.type == BodyType.DYNAMIC) {
+                bi.force.x += bi.mass * gx;
+                bi.force.y += bi.mass * gy;
+                bi.force.z += bi.mass * gz;
+            }
+        }
+
+        // [PROBE] nach Gravity
+        if (probe != null) probe.snapshot(PhysicsDebugProbe.PHASE_AFTER_GRAV, bodies, gz);
+
         // Subsysteme updaten
         for (Object subsystem : subsystems) {
             // subsystem.update();
@@ -311,6 +330,9 @@ public class World {
         World_step_p1.clear();
         World_step_p2.clear();
         broadphase.collisionPairs(this, World_step_p1, World_step_p2);
+
+        // [PROBE] Broadphase-Ergebnis
+        if (probe != null) probe.recordBroadphasePairs(World_step_p1.size());
 
         // Constraints mit collideConnected=false aus Paaren entfernen
         for (int i = constraints.size() - 1; i >= 0; i--) {
@@ -410,8 +432,16 @@ public class World {
             }
         }
 
+
+        // [PROBE] Kontaktzahlen vor Solver
+        if (probe != null) probe.recordContactCount(contacts.size(), frictionEquations.size());
+
         // Solver
         solver.solve(dt, bodies);
+
+        // [PROBE] nach Solver (Velocities sind jetzt korrigiert)
+        if (probe != null) probe.snapshot(PhysicsDebugProbe.PHASE_AFTER_SOLVE, bodies, gz);
+
         solver.removeAllEquations();
 
         // Dämpfung anwenden
@@ -424,12 +454,21 @@ public class World {
             }
         }
 
+        // [PROBE] nach Damping
+        if (probe != null) probe.snapshot(PhysicsDebugProbe.PHASE_AFTER_DAMP, bodies, gz);
+
         // Integration – Leap Frog
         boolean quatNormalize = stepnumber % (quatNormalizeSkip + 1) == 0;
         boolean quatNormalizeFast = this.quatNormalizeFast;
 
         for (PhysicsBody body : bodies) {
             body.integrate(dt, quatNormalize, quatNormalizeFast);
+        }
+
+        // [PROBE] nach Integration + Step abschließen
+        if (probe != null) {
+            probe.snapshot(PhysicsDebugProbe.PHASE_AFTER_INTEG, bodies, gz);
+            probe.endStep();
         }
 
         clearForces();

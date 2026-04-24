@@ -220,6 +220,10 @@ public class RealtimeDicePhysics {
         return world != null && world.bodies != null ? world.bodies.size() : 0;
     }
 
+    public World getWorld(){
+        return world;
+    }
+
     public Integer getDiceValue(int id) {
         PhysicsBody dice = diceList.get(id);
         if (dice == null) return null;

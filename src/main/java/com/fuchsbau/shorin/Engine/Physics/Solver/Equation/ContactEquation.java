@@ -57,6 +57,12 @@ public class ContactEquation extends Equation {
 
         double g = ni.dot(penetrationVec);
 
+        // [PROBE] Penetration melden – negativer g = Penetration
+        if (bi.world != null && bi.world.probe != null && g < 0) {
+            bi.world.probe.recordPenetration(-g);
+            bi.world.probe.recordContactNormal(ni.x, ni.y, ni.z, -g);
+        }
+
         double ePlusOne = restitution + 1;
         double GW = ePlusOne * bj.velocity.dot(ni)
                 - ePlusOne * bi.velocity.dot(ni)

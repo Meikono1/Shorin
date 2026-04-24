@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Engine.Physics.Solver;
 
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
 import com.fuchsbau.shorin.Engine.Physics.Solver.Equation.Equation;
+import com.fuchsbau.shorin.Engine.Physics.World.PhysicsDebugProbe;
 
 import java.util.List;
 
@@ -11,7 +12,9 @@ public class GaussSeidelSolver extends Solver {
     public int iterations = 10;
 
     // Konvergenz-Schwellwert
-    public double tolerance = 1e-7;
+    public double tolerance = 1e-7;// --- Debug ---
+
+    public PhysicsDebugProbe debugProbe = new PhysicsDebugProbe();
 
     public GaussSeidelSolver() {
         super();
@@ -71,6 +74,9 @@ public class GaussSeidelSolver extends Solver {
                 deltalambdaTot += Math.abs(deltalambda);
 
                 c.addToWlambda(deltalambda);
+
+                // [PROBE] größten Normal-Impuls pro Step festhalten
+                if (debugProbe != null) debugProbe.recordImpulse(lambda[j]);
             }
 
             if (deltalambdaTot * deltalambdaTot < tolSquared) {

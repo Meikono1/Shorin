@@ -335,5 +335,6 @@ public class Quaternion {
         this.x = orientation.x;
         this.y = orientation.y;
         this.z = orientation.z;
+        this.w = orientation.w;
     }
 }

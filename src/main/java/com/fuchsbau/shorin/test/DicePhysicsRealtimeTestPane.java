@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.test;
 import com.fuchsbau.shorin.Engine.Dice.DiceOptions;
 import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
+import com.fuchsbau.shorin.Engine.Physics.World.PhysicsDebugProbe;
 import com.fuchsbau.shorin.test.Dice.*;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Pos;
@@ -29,7 +30,7 @@ public class DicePhysicsRealtimeTestPane {
     private double trayX, trayY, trayW, trayH;
 
     private static final double DICE_RADIUS = 35.0;
-    private static final double STEP_DT = 1.0 / 200.0;
+    private static final double STEP_DT = 1.0 / 60.0;
 
     private boolean running = false;
     private int frameCounter = 0;
@@ -43,11 +44,25 @@ public class DicePhysicsRealtimeTestPane {
         Margin margin = new Margin(10, 10, 10, 10);
         dicePhysics.init(trayH / 2.0, trayW / 2.0, margin);
         dicePhysics.createShape("d6", DICE_RADIUS);
+
+        // --- Debug Probe einhängen ---
+        PhysicsDebugProbe probe = new PhysicsDebugProbe();
+        probe.enabled = true;
+        probe.logEveryN = 40;         // ~5 log-lines/sec bei 200Hz physics
+        dicePhysics.getWorld().probe = probe;
+
+        // Solver auch verkabeln, damit maxJn gemessen wird
+        dicePhysics.getWorld().solver.getClass();
+        if (dicePhysics.getWorld().solver
+                instanceof com.fuchsbau.shorin.Engine.Physics.Solver.GaussSeidelSolver gs) {
+            gs.debugProbe = probe;
+        }
     }
 
     public Node build() {
         Button throwBtn = new Button("Realtime Würfeln (2x D6)");
-        throwBtn.setOnAction(e -> doThrow());
+        //throwBtn.setOnAction(e -> doThrow());
+        throwBtn.setOnAction(e -> doStackTest());
 
         HBox controls = new HBox(12, throwBtn);
         controls.setAlignment(Pos.CENTER_LEFT);
@@ -82,6 +97,40 @@ public class DicePhysicsRealtimeTestPane {
         trayH = Math.max(260, h * 0.65);
         trayX = (w - trayW) / 2.0;
         trayY = (h - trayH) / 2.0;
+    }
+
+    private void doStackTest() {
+        running = false;
+        frameCounter = 0;
+
+        dicePhysics.clearDice();
+
+        // Würfel 0: ruhig in der Mitte, knapp über dem Boden
+        spawnDieAt(0, 0, 0, 40, 0, 0, 0);
+        // Würfel 1: direkt darüber, fällt nach unten
+        spawnDieAt(1, 0, 0, 250, 0, 0, -50);
+
+        running = true;
+    }
+
+    private void spawnDieAt(int id, double px, double py, double pz,
+                            double vx, double vy, double vz) {
+        VectorData vd = new VectorData();
+        vd.pos = new Vec3(px, py, pz);
+        vd.velocity = new Vec3(vx, vy, vz);
+        vd.angle = new Vec3(0, 0, 0);
+        vd.axis = new AxisData();
+        vd.axis.x = 0;
+        vd.axis.y = 0;
+        vd.axis.z = 1;
+        vd.axis.a = 0;
+        vd.type = "d6";
+
+        DiceOptions opts = new DiceOptions();
+        opts.secret = false;
+
+        dicePhysics.createDice(id, "d6", "default", vd, 1.0, opts);
+        dicePhysics.addDice(id);
     }
 
     private void doThrow() {
@@ -184,7 +233,7 @@ public class DicePhysicsRealtimeTestPane {
 
             double screenX = trayX + trayW / 2.0 + px;
             double screenY = trayY + trayH / 2.0 + py - pz * 0.25;
-            double r = DICE_RADIUS * 0.8;
+            double r = DICE_RADIUS;
 
             g.setFill(Color.rgb(0, 0, 0, 0.30));
             g.fillOval(
@@ -303,6 +352,38 @@ public class DicePhysicsRealtimeTestPane {
                 20, 30
         );
 
+        // --- Probe-Readout (live, damit wir nicht im Log suchen müssen) ---
+        PhysicsDebugProbe probe = dicePhysics.getWorld().probe;
+        if (probe != null) {
+            g.setFont(Font.font("Monospaced", 12));
+
+            // ΔKE(solve) > 0 ist der Smoking Gun – rot einfärben wenn positiv
+            double dSolve = probe.getLastDeltaKESolve();
+            g.setFill(dSolve > 0.1 ? Color.rgb(255, 120, 120) : Color.LIGHTGRAY);
+            g.fillText(
+                    String.format("PROBE step=%d  KE=%.0f  KEr=%.0f  PE=%.0f  E=%.0f",
+                            probe.getStepIndex(),
+                            probe.getLastKE(), probe.getLastKER(),
+                            probe.getLastPE(),
+                            probe.getLastKE() + probe.getLastKER() + probe.getLastPE()),
+                    20, canvas.getHeight() - 78
+            );
+            g.fillText(
+                    String.format("ΔKE(solve)=%+.1f  ΔKE(integ)=%+.1f  ← Solver darf ΔKE NICHT erhöhen!",
+                            dSolve, probe.getLastDeltaKEInteg()),
+                    20, canvas.getHeight() - 60
+            );
+            g.fillText(
+                    String.format("pairs=%d  contacts=%d  friction=%d  maxJn=%.1f  maxPen=%.3f",
+                            probe.getLastBroadphasePairs(),
+                            probe.getLastContactCount(),
+                            probe.getLastFrictionCount(),
+                            probe.getLastMaxJn(), probe.getLastMaxPen()),
+                    20, canvas.getHeight() - 42
+            );
+        }
+
+        // alter Dice-Status-Block unverändert darüber gelassen
         int line = 0;
         for (PhysicsBody die : dicePhysics.getDiceBodies()) {
             double y = 55 + line * 18;
