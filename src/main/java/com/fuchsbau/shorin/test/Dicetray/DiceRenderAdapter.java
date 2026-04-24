@@ -1,22 +1,19 @@
 package com.fuchsbau.shorin.test.Dicetray;
 
+import com.fuchsbau.shorin.Engine.Images.ImagePaths;
+import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape.DiceShapeData;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.CullFace;
-import javafx.scene.shape.DrawMode;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DiceRenderAdapter {
 
@@ -24,11 +21,24 @@ public class DiceRenderAdapter {
     private final Map<Integer, MeshView> dieViews = new HashMap<>();
     private final float targetRadius;
 
-    private final PhongMaterial normalMat = new PhongMaterial(Color.LIGHTGRAY);
+    Image diceTexture = ImagePreLoader.getCached(ImagePaths.SHORIN_CLEAN_MAP);
+
+    private final PhongMaterial normalMat = new PhongMaterial();
+    private final PhongMaterial hoverMat = new PhongMaterial();
 
     public DiceRenderAdapter(Group world, float targetRadius) {
         this.world = world;
         this.targetRadius = targetRadius;
+
+        normalMat.setDiffuseColor(Color.WHITE);
+        normalMat.setDiffuseMap(diceTexture);
+        normalMat.setSpecularColor(Color.WHITE);
+        normalMat.setSpecularPower(16);
+
+        hoverMat.setDiffuseColor(Color.ORANGE);
+        hoverMat.setDiffuseMap(diceTexture);
+        hoverMat.setSpecularColor(Color.WHITE);
+        hoverMat.setSpecularPower(24);
     }
 
     public void sync(Collection<PhysicsBody> bodies) {
@@ -77,25 +87,30 @@ public class DiceRenderAdapter {
         TriangleMesh mesh = buildConvexPolyhedronMesh(data, scale);
 
         MeshView view = new MeshView(mesh);
+
+        PhongMaterial mat = new PhongMaterial();
+        //mat.setDiffuseColor(Color.RED);
+        mat.setDiffuseMap(diceTexture);
+        mat.setSpecularColor(Color.WHITE);
+        mat.setSpecularPower(16);
+
+
         view.setMaterial(normalMat);
-        view.setCullFace(CullFace.BACK);
-        view.setDrawMode(DrawMode.FILL);
+
+        view.setOnMouseEntered(e -> {
+            view.setMaterial(hoverMat);
+        });
+
+        view.setOnMouseExited(e -> {
+            view.setMaterial(normalMat);
+        });
+
+        view.setMaterial(mat);
 
         return view;
     }
 
     private void updateViewFromBody(MeshView view, PhysicsBody body) {
-        // Simulation:
-        // x = rechts/links
-        // y = vor/zur Seite im Tray
-        // z = Höhe
-        //
-        // JavaFX:
-        // x = rechts
-        // y = runter
-        // z = Tiefe
-        //
-        // Für Draufsicht ist diese Zuordnung meist passend:
         view.setTranslateX(body.position.x);
         view.setTranslateY(-body.position.z);
         view.setTranslateZ(body.position.y);
@@ -161,7 +176,12 @@ public class DiceRenderAdapter {
             );
         }
 
-        mesh.getTexCoords().addAll(0, 0);
+        mesh.getTexCoords().addAll(
+                0, 0,
+                1, 0,
+                1, 1,
+                0, 1
+        );
 
         for (int[] face : data.faces) {
             int usableLength = face.length;
@@ -180,13 +200,26 @@ public class DiceRenderAdapter {
 
                 mesh.getFaces().addAll(
                         v0, 0,
-                        v1, 0,
-                        v2, 0
+                        v1, 1,
+                        v2, 2
                 );
             }
         }
 
         return mesh;
+    }
+
+    public void setHover(int dieId, boolean hover) {
+        MeshView view = dieViews.get(dieId);
+        if (view == null) return;
+
+        PhongMaterial mat = (PhongMaterial) view.getMaterial();
+
+        if (hover) {
+            mat.setDiffuseColor(Color.ORANGE);
+        } else {
+            mat.setDiffuseColor(Color.WHITE);
+        }
     }
 
     private static final class RotateAxes {

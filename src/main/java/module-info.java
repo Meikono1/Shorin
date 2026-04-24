@@ -4,7 +4,6 @@ module com.fuchsbau.shorin {
 
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
-    //requires com.almasb.fxgl.all;
     requires java.logging;
     requires com.fasterxml.jackson.databind;
     requires jdk.jshell;
@@ -13,6 +12,7 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Races;
     exports com.fuchsbau.shorin.Races.Base;
     exports com.fuchsbau.shorin;
+    exports com.fuchsbau.shorin.test.DicetrayThird;
     opens com.fuchsbau.shorin to javafx.fxml;
     exports com.fuchsbau.shorin.Engine;
     opens com.fuchsbau.shorin.Engine to javafx.fxml;

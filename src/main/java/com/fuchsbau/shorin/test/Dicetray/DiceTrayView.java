@@ -149,7 +149,6 @@ public class DiceTrayView {
     private void build3d() {
         renderAdapter = new DiceRenderAdapter(world, 70f);
 
-
         dieView.setMaterial(normalMat);
         dieView.setCullFace(CullFace.BACK);
         dieView.setDrawMode(DrawMode.FILL);
@@ -353,5 +352,9 @@ public class DiceTrayView {
 
     public void renderSimulation(Collection<PhysicsBody> bodies) {
         renderAdapter.sync(bodies);
+    }
+
+    public void clearSimulation() {
+        renderAdapter.clear();
     }
 }
