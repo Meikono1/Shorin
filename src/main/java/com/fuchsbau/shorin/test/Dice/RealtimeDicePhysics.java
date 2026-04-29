@@ -35,7 +35,7 @@ public class RealtimeDicePhysics {
         this.deskBodyMaterial = new Material();
         this.barrierBodyMaterial = new Material();
 
-        world.gravity.set(0, 0, -9.8 * 800);
+        world.gravity.set(0, 0, -9.8 * 50);
         world.broadphase = new NaiveBroadphase();
         world.solver.iterations = 24;
         world.allowSleep = false;

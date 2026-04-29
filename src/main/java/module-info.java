@@ -42,4 +42,5 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Engine.Encounter;
     exports com.fuchsbau.shorin.Engine.Dice;
     exports com.fuchsbau.shorin.test.Dicetray;
+    exports com.fuchsbau.shorin.Engine.Encounter.Widget;
 }

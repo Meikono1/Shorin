@@ -14,16 +14,28 @@ public class DieDritteMain extends Application {
         AnchorPane root = new AnchorPane();
 
         DiceTrayController trayController = new DiceTrayController();
-        trayController.attachBottomRight(root, 0.20, 220, 150, 420, 300);
+        trayController.attachBottomRight(root, 0.80, 220, 150, 4020, 3000);
         trayController.start();
 
-        Button oneDie = new Button("1x D6");
-        oneDie.setOnAction(e -> trayController.throwOneD6());
+        Button oneD20 = new Button("1x D20");
+        oneD20.setOnAction(e -> trayController.throwOneD20());
 
-        Button twoDice = new Button("2x D6");
-        twoDice.setOnAction(e -> trayController.throwTwoD6());
+        Button combo = new Button("2x D6 + 1x D8");
+        combo.setOnAction(e -> trayController.throwTwoD6OneD8());
 
-        HBox controls = new HBox(10, oneDie, twoDice);
+        Button standard = new Button("Standard-Set (1x D20 + 2x D6 + 1x D8)");
+        standard.setOnAction(e -> trayController.throwStandardSet());
+
+        Button oneD2 = new Button("1x D2 (Coin)");
+        oneD2.setOnAction(e -> trayController.throwOneD2());
+
+        // Volle Typen-Reihe – zum Austesten aller Shapes
+        Button allTypes = new Button("Alle Typen (D2/D4/D6/D8/D10/D12/D20)");
+        allTypes.setOnAction(e -> trayController.throwDice(
+                "d2", 1, "d4", 1, "d6", 1, "d8", 1, "d10", 1, "d12", 1, "d20", 1
+        ));
+
+        HBox controls = new HBox(10, oneD20, combo, standard, oneD2, allTypes);
         controls.setStyle("-fx-padding: 12;");
 
         AnchorPane.setTopAnchor(controls, 10.0);

@@ -1,5 +1,6 @@
 package com.fuchsbau.shorin.Engine.Encounter;
 
+import com.fuchsbau.shorin.Engine.Encounter.Widget.EncounterWidget;
 import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.scene.layout.AnchorPane;

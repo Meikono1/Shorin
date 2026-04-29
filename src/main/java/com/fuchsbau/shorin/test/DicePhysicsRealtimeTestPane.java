@@ -3,6 +3,7 @@ package com.fuchsbau.shorin.test;
 import com.fuchsbau.shorin.Engine.Dice.DiceOptions;
 import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
+import com.fuchsbau.shorin.Engine.Physics.Solver.GaussSeidelSolver;
 import com.fuchsbau.shorin.Engine.Physics.World.PhysicsDebugProbe;
 import com.fuchsbau.shorin.test.Dice.*;
 import javafx.animation.AnimationTimer;
@@ -42,7 +43,7 @@ public class DicePhysicsRealtimeTestPane {
 
     private void initPhysics() {
         Margin margin = new Margin(10, 10, 10, 10);
-        dicePhysics.init(trayH / 2.0, trayW / 2.0, margin);
+        dicePhysics.init(trayH, trayW, margin);
         dicePhysics.createShape("d6", DICE_RADIUS);
 
         // --- Debug Probe einhängen ---
@@ -54,7 +55,7 @@ public class DicePhysicsRealtimeTestPane {
         // Solver auch verkabeln, damit maxJn gemessen wird
         dicePhysics.getWorld().solver.getClass();
         if (dicePhysics.getWorld().solver
-                instanceof com.fuchsbau.shorin.Engine.Physics.Solver.GaussSeidelSolver gs) {
+                instanceof GaussSeidelSolver gs) {
             gs.debugProbe = probe;
         }
     }

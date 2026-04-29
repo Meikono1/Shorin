@@ -3,22 +3,30 @@ package com.fuchsbau.shorin.test.Dicetray;
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
+import com.fuchsbau.shorin.Engine.Physics.Shape.ShapeType;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape.DiceShapeData;
+import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 public class DiceRenderAdapter {
 
+    private static final Logger logger = FileLogger.getLogger();
+
     private final Group world;
-    private final Map<Integer, MeshView> dieViews = new HashMap<>();
+    private final Map<Integer, Node> dieViews = new HashMap<>();
+    private final Map<String, TriangleMesh> meshCache = new HashMap<>();
     private final float targetRadius;
 
     Image diceTexture = ImagePreLoader.getCached(ImagePaths.SHORIN_CLEAN_MAP);
@@ -47,7 +55,7 @@ public class DiceRenderAdapter {
         for (PhysicsBody body : bodies) {
             aliveIds.add(body.id);
 
-            MeshView view = dieViews.get(body.id);
+            Node view = dieViews.get(body.id);
             if (view == null) {
                 view = createViewFor(body);
                 dieViews.put(body.id, view);
@@ -57,7 +65,6 @@ public class DiceRenderAdapter {
             updateViewFromBody(view, body);
         }
 
-        // entfernte Würfel aus der Szene löschen
         dieViews.entrySet().removeIf(entry -> {
             boolean remove = !aliveIds.contains(entry.getKey());
             if (remove) {
@@ -68,57 +75,93 @@ public class DiceRenderAdapter {
     }
 
     public void clear() {
-        for (MeshView view : dieViews.values()) {
+        for (Node view : dieViews.values()) {
             world.getChildren().remove(view);
         }
         dieViews.clear();
     }
 
-    private MeshView createViewFor(PhysicsBody body) {
-        //String diceType = body.shape != null && body.shape.shapeId != null
-        //        ? body.shape.shapeId
-        //        : "d6";
-        String diceType = "d6";
-
-
+    private Node createViewFor(PhysicsBody body) {
+        String diceType = resolveDiceType(body);
         DiceShapeData data = DiceShape.get(diceType);
-        float scale = computeNormalizedScale(data, targetRadius);
 
-        TriangleMesh mesh = buildConvexPolyhedronMesh(data, scale);
+        // Cylinder-Pfad (D2 / Coin)
+        if (data.type == ShapeType.CYLINDER) {
+            Node view = createCylinderView(data);
+            logger.fine("[Render] Cylinder-View erstellt id=" + body.id + " type=" + diceType);
+            return view;
+        }
+
+        // Polyhedron-Pfad (D4, D6, D8, D10, D12, D20) – gecacht
+        TriangleMesh mesh = meshCache.computeIfAbsent(diceType, key -> {
+            DiceShapeData d = DiceShape.get(key);
+            float scale = computeNormalizedScale(d, targetRadius);
+            TriangleMesh m = buildConvexPolyhedronMesh(d, scale);
+            logger.fine("[Render] Mesh gebaut für " + key + " (scale=" + scale + ")");
+            return m;
+        });
 
         MeshView view = new MeshView(mesh);
-
-        PhongMaterial mat = new PhongMaterial();
-        //mat.setDiffuseColor(Color.RED);
-        mat.setDiffuseMap(diceTexture);
-        mat.setSpecularColor(Color.WHITE);
-        mat.setSpecularPower(16);
-
-
         view.setMaterial(normalMat);
+        view.setOnMouseEntered(e -> view.setMaterial(hoverMat));
+        view.setOnMouseExited(e -> view.setMaterial(normalMat));
 
-        view.setOnMouseEntered(e -> {
-            view.setMaterial(hoverMat);
-        });
-
-        view.setOnMouseExited(e -> {
-            view.setMaterial(normalMat);
-        });
-
-        view.setMaterial(mat);
-
+        logger.fine("[Render] Mesh-View erstellt id=" + body.id + " type=" + diceType);
         return view;
     }
 
-    private void updateViewFromBody(MeshView view, PhysicsBody body) {
-        view.setTranslateX(body.position.x);
-        view.setTranslateY(-body.position.z);
-        view.setTranslateZ(body.position.y);
+    /**
+     * Baut einen JavaFX-Cylinder passend zur Shape-Definition.
+     * radiusTop/radiusBottom sind relative Faktoren – wir multiplizieren mit targetRadius.
+     * JavaFX kennt nur einheitlichen Radius, also nehmen wir den Mittelwert.
+     */
+    private Cylinder createCylinderView(DiceShapeData data) {
+        double r = targetRadius * (data.radiusTop + data.radiusBottom) * 0.5;
+        double h = targetRadius * data.height * 2.0;  // *2 weil height in DiceShape "halbe Höhe" meint
 
-        applyQuaternion(view, body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
+        Cylinder c = new Cylinder(r, h, Math.max(8, data.numSegments));
+        c.setMaterial(normalMat);
+
+        c.setOnMouseEntered(e -> c.setMaterial(hoverMat));
+        c.setOnMouseExited(e -> c.setMaterial(normalMat));
+        return c;
     }
 
-    private void applyQuaternion(MeshView view, double qx, double qy, double qz, double qw) {
+    /**
+     * Liest den Würfeltyp vom Body. Fallback auf d6 falls nichts gesetzt oder
+     * unbekannt – damit ein falsch konfigurierter Body nicht den ganzen Frame killt.
+     */
+    private String resolveDiceType(PhysicsBody body) {
+        String t = body.diceShape;
+        if (t == null || t.isEmpty()) {
+            logger.warning("[Render] body id=" + body.id + " hat keinen diceShape – fallback d6");
+            return "d6";
+        }
+        try {
+            DiceShape.get(t);
+            return t;
+        } catch (IllegalArgumentException ex) {
+            logger.warning("[Render] unbekannter diceShape '" + t + "' – fallback d6");
+            return "d6";
+        }
+    }
+
+    private void updateViewFromBody(Node view, PhysicsBody body) {
+        view.setTranslateX(body.position.x);
+        view.setTranslateY(-body.position.y);
+        view.setTranslateZ(body.position.z);
+
+        // Quaternion-Achsen müssen dem Positions-Mapping folgen:
+        // Flip bei Y bedeutet, die Quaternion-Y-Komponente dreht sich mit.
+        applyQuaternion(view,
+                body.quaternion.x,
+                -body.quaternion.y,
+                body.quaternion.z,
+                body.quaternion.w);
+    }
+
+    private void applyQuaternion(Node view, double qx, double qy, double qz, double qw) {
+        // unverändert – nur der Parametertyp oben wechselt
         double len = Math.sqrt(qx * qx + qy * qy + qz * qz + qw * qw);
         if (len == 0) {
             view.setRotationAxis(RotateAxes.Y_AXIS);
@@ -150,6 +193,11 @@ public class DiceRenderAdapter {
     }
 
     private float computeNormalizedScale(DiceShapeData data, float targetRadius) {
+        if (data.vertices == null) {
+            logger.warning("[Render] computeNormalizedScale auf Non-Polyhedron – return targetRadius");
+            return targetRadius;
+        }
+
         double maxDist = 0.0;
 
         for (double[] v : data.vertices) {
@@ -210,16 +258,17 @@ public class DiceRenderAdapter {
     }
 
     public void setHover(int dieId, boolean hover) {
-        MeshView view = dieViews.get(dieId);
-        if (view == null) return;
-
-        PhongMaterial mat = (PhongMaterial) view.getMaterial();
-
-        if (hover) {
-            mat.setDiffuseColor(Color.ORANGE);
-        } else {
-            mat.setDiffuseColor(Color.WHITE);
+        Node view = dieViews.get(dieId);
+        switch (view) {
+            case null -> {
+                return;
+            }
+            case MeshView mv -> mv.setMaterial(hover ? hoverMat : normalMat);
+            case Cylinder cy -> cy.setMaterial(hover ? hoverMat : normalMat);
+            default -> {
+            }
         }
+
     }
 
     private static final class RotateAxes {

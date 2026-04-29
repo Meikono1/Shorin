@@ -1,6 +1,8 @@
 package com.fuchsbau.shorin.Engine.Editor.Module;
 
 import com.fuchsbau.shorin.Engine.Encounter.EncounterPane;
+import com.fuchsbau.shorin.Engine.Encounter.Widget.InitiativeTrackerWidget;
+import com.fuchsbau.shorin.Engine.Encounter.WidgetAnchor;
 import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
 import com.fuchsbau.shorin.Engine.Map.Core.MapSaverLoader;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
@@ -37,15 +39,20 @@ public class EncounterModule implements EditorModule {
     private ListView<String> mapListView;
 
     @Override
-    public String getTitle() { return "Encounter"; }
+    public String getTitle() {
+        return "Encounter";
+    }
 
     @Override
     public Node buildContent() {
         // EncounterPane aufbauen
-        encounterPane = new EncounterPane(mapRenderer);
-        mapRenderer.setupCanvasHandlers();
+        if (encounterPane == null) {
+            encounterPane = new EncounterPane(mapRenderer);
+            mapRenderer.setupCanvasHandlers();
 
-        logger.info("EncounterModule Content gebaut");
+            encounterPane.addWidget(new InitiativeTrackerWidget(), WidgetAnchor.RIGHT_CENTER);
+            logger.info("EncounterPane erstmalig gebaut");
+        }
         return encounterPane.getRoot();
     }
 
@@ -98,7 +105,7 @@ public class EncounterModule implements EditorModule {
             logger.fine("Nächster Zug");
         });
 
-        Button endBtn = new Button("■ Encounter beenden");
+        Button endBtn = new Button("Encounter beenden");
         endBtn.setMaxWidth(Double.MAX_VALUE);
         endBtn.setOnAction(e -> {
             if (encounterPane == null) return;
@@ -121,7 +128,10 @@ public class EncounterModule implements EditorModule {
     // --- Karten laden ---
     private void refreshMapList() {
         mapFiles.clear();
-        if (!MAPS_DIR.exists()) { MAPS_DIR.mkdirs(); return; }
+        if (!MAPS_DIR.exists()) {
+            MAPS_DIR.mkdirs();
+            return;
+        }
         File[] files = MAPS_DIR.listFiles(f -> f.getName().endsWith(".shorin"));
         if (files == null) return;
         for (File f : files) mapFiles.add(f.getName());
@@ -161,8 +171,12 @@ public class EncounterModule implements EditorModule {
     }
 
     @Override
-    public Node buildToolbar() { return null; }
+    public Node buildToolbar() {
+        return null;
+    }
 
     @Override
-    public List<Menu> getMenus() { return List.of(); }
+    public List<Menu> getMenus() {
+        return List.of();
+    }
 }

@@ -8,9 +8,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
 import static javafx.scene.SceneAntialiasing.BALANCED;
+import static javafx.scene.transform.Rotate.X_AXIS;
 
 public class DiceTrayOverlayBuilder {
     private final StackPane diceTrayPane = new StackPane();
+    private PerspectiveCamera camera = new PerspectiveCamera(true);
 
     private final Canvas backgroundCanvas = new Canvas(320, 220);
     private final Canvas trayCanvas = new Canvas(320, 220);
@@ -34,16 +36,57 @@ public class DiceTrayOverlayBuilder {
 
         dice3dScene.setFill(Color.TRANSPARENT);
 
-        PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
         camera.setFarClip(5000);
+
         camera.setTranslateX(0);
-        camera.setTranslateY(-500);
-        camera.setTranslateZ(-420);
-        camera.setRotationAxis(javafx.scene.transform.Rotate.X_AXIS);
-        camera.setRotate(-55);
+        camera.setTranslateY(0);
+        camera.setTranslateZ(500);
+        camera.setRotationAxis(X_AXIS);
+        camera.setRotate(-180);
+        camera.setFieldOfView(30);
 
         dice3dScene.setCamera(camera);
+
+        // Dice3DScene braucht Focus für Keyboard-Events
+        dice3dScene.setOnMouseClicked(e -> dice3dScene.requestFocus());
+
+        dice3dScene.setOnKeyPressed(e -> {
+            double stepMove = e.isShiftDown() ? 50.0 : 10.0;
+            double stepRot = e.isShiftDown() ? 10.0 : 2.0;
+            double stepFov = e.isShiftDown() ? 5.0 : 1.0;
+
+            switch (e.getCode()) {
+                case W -> camera.setTranslateZ(camera.getTranslateZ() + stepMove);
+                case S -> camera.setTranslateZ(camera.getTranslateZ() - stepMove);
+                case A -> camera.setTranslateX(camera.getTranslateX() - stepMove);
+                case D -> camera.setTranslateX(camera.getTranslateX() + stepMove);
+                case Q -> camera.setTranslateY(camera.getTranslateY() - stepMove); // hoch
+                case E -> camera.setTranslateY(camera.getTranslateY() + stepMove); // runter
+                case R -> camera.setRotate(camera.getRotate() + stepRot);
+                case F -> camera.setRotate(camera.getRotate() - stepRot);
+                case T -> camera.setFieldOfView(camera.getFieldOfView() + stepFov);
+                case G -> camera.setFieldOfView(Math.max(5, camera.getFieldOfView() - stepFov));
+                case P -> {
+                    System.out.println("[Cam] x=" + camera.getTranslateX()
+                            + " y=" + camera.getTranslateY()
+                            + " z=" + camera.getTranslateZ()
+                            + " rot=" + camera.getRotate()
+                            + " fov=" + camera.getFieldOfView());
+                    return; // kein Re-Log
+                }
+                default -> {
+                    return;
+                }
+            }
+
+            // Bei jeder Änderung aktuellen Zustand loggen
+            System.out.println("[Cam] " + e.getCode() + "  →  x=" + (int) camera.getTranslateX()
+                    + " y=" + (int) camera.getTranslateY()
+                    + " z=" + (int) camera.getTranslateZ()
+                    + " rot=" + String.format("%.1f", camera.getRotate())
+                    + " fov=" + String.format("%.1f", camera.getFieldOfView()));
+        });
 
         backgroundCanvas.widthProperty().bind(diceTrayPane.widthProperty());
         backgroundCanvas.heightProperty().bind(diceTrayPane.heightProperty());
