@@ -106,6 +106,13 @@ public class GameEditor {
         moduleSidePane.setPannable(true);
         moduleSidePane.setPrefWidth(220);
 
+        moduleSidePane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        moduleSidePane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        moduleSidePane.setFitToHeight(false);
+
+        moduleSidePane.setMinHeight(0);
+        moduleSidePane.setMinViewportHeight(0);
+
         // --- Layout zusammenbauen ---
         VBox topArea = new VBox(menuBar, groupBar, editorTabs, moduleToolbar);
         root.setTop(topArea);
@@ -152,7 +159,6 @@ public class GameEditor {
         // SidePanel + Center setzen
         moduleSidePane.setContent(module.buildSidePanel());
         moduleSidePane.setFitToWidth(true);
-        moduleSidePane.setFitToHeight(true);
 
         root.setCenter(module.buildContent());
         module.onActivate();

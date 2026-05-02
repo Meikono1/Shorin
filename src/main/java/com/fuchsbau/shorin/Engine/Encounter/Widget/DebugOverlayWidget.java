@@ -14,16 +14,18 @@ import javafx.scene.layout.VBox;
 public class DebugOverlayWidget implements EncounterWidget {
 
     @Override
-    public String getId() { return "debug-overlay"; }
+    public String getId() {
+        return "debug-overlay";
+    }
 
     @Override
     public Node build(EncounterState state) {
         // --- Labels ---
-        Label roundLabel   = new Label("Runde: –");
-        Label tokenLabel   = new Label("Aktiv: –");
+        Label roundLabel = new Label("Runde: –");
+        Label tokenLabel = new Label("Aktiv: –");
         Label actionsLabel = new Label("Aktionen: –");
-        Label hpLabel      = new Label("HP: –");
-        Label initLabel    = new Label("Initiative-Einträge: 0");
+        Label hpLabel = new Label("HP: –");
+        Label initLabel = new Label("Initiative-Einträge: 0");
 
         for (Label l : new Label[]{roundLabel, tokenLabel, actionsLabel, hpLabel, initLabel}) {
             l.setStyle("-fx-text-fill: #b0b0cc; -fx-font-size: 11px;");
@@ -37,7 +39,7 @@ public class DebugOverlayWidget implements EncounterWidget {
             if (active != null) {
                 tokenLabel.setText("Aktiv: " + active.name);
                 int used = state.actionsUsed.get();
-                int max  = active.maxActions;
+                int max = active.maxActions;
                 actionsLabel.setText("Aktionen: " + used + " / " + max);
                 hpLabel.setText("HP: " + (active.npcBuild != null ? active.npcBuild.hp : "?"));
             } else {

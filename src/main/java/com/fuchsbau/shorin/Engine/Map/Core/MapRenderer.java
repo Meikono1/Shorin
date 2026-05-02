@@ -179,14 +179,13 @@ public class MapRenderer {
         // TextField konfigurieren
         mapNameField.setPromptText("Map-Name");
         mapNameField.setMaxWidth(260);
-        mapNameField.getStyleClass().add("map-name-field"); // falls du CSS nutzt
 
         // oben über dem Canvas positionieren
         StackPane.setAlignment(mapNameField, Pos.TOP_CENTER);
         StackPane.setMargin(mapNameField, new Insets(10, 10, 0, 10));
 
         StackPane root = new StackPane();
-        root.getChildren().addAll(canvasNode, mapNameField); // Reihenfolge: Canvas unten, TextField oben
+        root.getChildren().addAll(canvasNode, mapNameField);
 
         return root;
     }
