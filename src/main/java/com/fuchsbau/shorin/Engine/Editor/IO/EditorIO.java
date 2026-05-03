@@ -14,7 +14,7 @@ public class EditorIO {
     private static final ObjectMapper mapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT);
 
-    private static File dataDir(String filename) {
+    public static File dataDir(String filename) {
         Path file = PathResolver.resolveWritable("GameConfig/" + filename);
         file.getParent().toFile().mkdirs();
         return file.toFile();

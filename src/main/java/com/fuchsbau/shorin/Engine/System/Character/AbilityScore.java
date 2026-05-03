@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.System.Character;
 
-public enum AbilityScores {
+public enum AbilityScore {
     STR, DEX, CON, INT, WIS, CHA;
 
     public String fullName() {

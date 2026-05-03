@@ -1,8 +1,8 @@
 package com.fuchsbau.shorin.Engine.System.Character;
 
 import com.fuchsbau.shorin.Engine.System.Combat.ArmorCategory;
-import com.fuchsbau.shorin.Engine.System.Misc.Expertise;
 import com.fuchsbau.shorin.Engine.System.Combat.SavingThrows;
+import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -13,10 +13,10 @@ public class ClassBuild {
     public String name = "";
     public String description = "";
     public int hpPerLevel = 1;
-    public List<AbilityScores> keyAbilities = new ArrayList<>(AbilityScores.STR.ordinal());
-    public Map<SavingThrows, Expertise> savingThrows = genDefaultSaves();
-    public Map<ArmorCategory, Expertise> armorProficiencies = new EnumMap<>(ArmorCategory.class);
-    public Map<WeaponCategory, Expertise> weaponProficiencies = new EnumMap<>(WeaponCategory.class);
+    public List<AbilityScoreEntry> keyAbilities = new ArrayList<>();
+    public Map<SavingThrows, Proficiency> savingThrows = genDefaultSaves();
+    public Map<ArmorCategory, Proficiency> armorProficiencies = new EnumMap<>(ArmorCategory.class);
+    public Map<WeaponCategory, Proficiency> weaponProficiencies = new EnumMap<>(WeaponCategory.class);
 
     public ClassBuild() {
     }
@@ -41,10 +41,10 @@ public class ClassBuild {
         this.description = d;
     }
 
-    private EnumMap<SavingThrows, Expertise> genDefaultSaves() {
-        EnumMap<SavingThrows, Expertise> map = new EnumMap<>(SavingThrows.class);
+    private EnumMap<SavingThrows, Proficiency> genDefaultSaves() {
+        EnumMap<SavingThrows, Proficiency> map = new EnumMap<>(SavingThrows.class);
         for (SavingThrows savingThrows : SavingThrows.values()) {
-            map.put(savingThrows, Expertise.T);
+            map.put(savingThrows, Proficiency.TRAINED);
         }
         return map;
     }

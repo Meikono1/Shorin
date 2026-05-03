@@ -4,11 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.Classes.ClassModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.Races.AncestryModule;
-import com.fuchsbau.shorin.Engine.System.Character.ClassBuild;
-import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
+import com.fuchsbau.shorin.Engine.Race.Ancestrie;
+import com.fuchsbau.shorin.Engine.System.Character.*;
 import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 import com.fuchsbau.shorin.Engine.System.SlotType;
-import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -22,8 +21,10 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,28 +33,39 @@ import java.util.logging.Logger;
 public class CharacterModule implements EditorModule {
 
     private static final Logger logger = FileLogger.getLogger();
-
+    private final String DIR = "User/Charakters/";
 
     // UI-Refs
     private TextField nameField, levelField;
-    private ComboBox<String> classDropdown, ancestryDropdown;
     private Label classLabel;
     private Label ancestryLabel;
     private Label backgroundLabel;
     private VBox featPanel;
     private VBox tabContextPanel;
+    private Button classSlotBtn;
+    private Button ancestrySlotBtn;
+    private Button backgroundSlotBtn;
+
 
     private final ObservableList<String> charNames = FXCollections.observableArrayList();
 
     private PlayerCharacter character = new PlayerCharacter();
 
     // Stats panel
+    private final IntegerProperty acField = new SimpleIntegerProperty(0);
+    private final IntegerProperty hpField = new SimpleIntegerProperty(0);
+    private final IntegerProperty speedField = new SimpleIntegerProperty(0);
+    private final IntegerProperty fortField = new SimpleIntegerProperty(0);
+    private final IntegerProperty refField = new SimpleIntegerProperty(0);
+    private final IntegerProperty willField = new SimpleIntegerProperty(0);
     private final IntegerProperty strMod = new SimpleIntegerProperty(0);
     private final IntegerProperty dexMod = new SimpleIntegerProperty(0);
     private final IntegerProperty conMod = new SimpleIntegerProperty(0);
     private final IntegerProperty intMod = new SimpleIntegerProperty(0);
     private final IntegerProperty wisMod = new SimpleIntegerProperty(0);
     private final IntegerProperty chaMod = new SimpleIntegerProperty(0);
+
+    private AbilityBoostPanel abilityBoostPanel = null;
 
 
     @Override
@@ -115,8 +127,16 @@ public class CharacterModule implements EditorModule {
         Node tabArea = buildTabArea();
 
         VBox center = new VBox(0, statsRow, new Separator(), tabArea);
-        VBox.setVgrow(tabArea, Priority.ALWAYS); // Tab bekommt den ganzen Rest
         area.setCenter(center);
+        VBox.setVgrow(tabArea, Priority.ALWAYS);
+        VBox.setVgrow(statsRow, Priority.SOMETIMES);
+
+        center.heightProperty().addListener((obs, ov, nv) -> {
+            double h = nv.doubleValue() * 0.25;
+            statsRow.setMinHeight(h);
+            statsRow.setMaxHeight(h);
+        });
+
         return area;
     }
 
@@ -161,56 +181,29 @@ public class CharacterModule implements EditorModule {
         grid.setVgap(4);
         grid.setPadding(new Insets(8));
 
-        addCombatRow(grid, "AC", 0);
-        addCombatRow(grid, "HP", 1);
-        addCombatRow(grid, "Speed", 2);
+        addStatRow(grid, "AC", acField, 0);
+        addStatRow(grid, "HP", hpField, 1);
+        addStatRow(grid, "Speed", speedField, 2);
 
         grid.add(new Separator(), 0, 3, 2, 1);
 
-        addCombatRow(grid, "Fort", 4);
-        addCombatRow(grid, "Ref", 5);
-        addCombatRow(grid, "Will", 6);
+        addStatRow(grid, "Fort", fortField, 4);
+        addStatRow(grid, "Ref", refField, 5);
+        addStatRow(grid, "Will", willField, 6);
 
         return grid;
     }
 
-    private void addCombatRow(GridPane grid, String label, int row) {
-        grid.add(makeLabel(label), 0, row);
-        TextField f = new TextField("0");
-        f.setPrefWidth(50);
-        grid.add(f, 1, row);
-    }
-
     // --- SKILLS ---
-    private final Map<String, ObjectProperty<Proficiency>> skillProfs = new LinkedHashMap<>();
+    private final Map<Skill, ObjectProperty<Proficiency>> skillProfs = new LinkedHashMap<>();
     private final Map<String, Label> skillBonusLabels = new LinkedHashMap<>();
 
-    private static final String[] SKILLS = {
-            "Acrobatics", "Arcana", "Athletics", "Crafting", "Deception",
-            "Diplomacy", "Intimidation", "Lore", "Medicine", "Nature",
-            "Occultism", "Performance", "Religion", "Society", "Stealth",
-            "Survival", "Thievery"
-    };
-
-    // Welcher Stat gehört zu welchem Skill
-    private static IntegerProperty skillStat(String skill,
-                                             IntegerProperty str, IntegerProperty dex, IntegerProperty con,
-                                             IntegerProperty intel, IntegerProperty wis, IntegerProperty cha) {
-        return switch (skill) {
-            case "Athletics" -> str;
-            case "Acrobatics", "Stealth", "Thievery" -> dex;
-            case "Arcana", "Crafting", "Lore", "Occultism", "Society" -> intel;
-            case "Medicine", "Nature", "Perception", "Religion", "Survival" -> wis;
-            case "Deception", "Diplomacy", "Intimidation", "Performance" -> cha;
-            default -> wis;
-        };
-    }
 
     private Node buildSkillsPanel() {
         VBox box = new VBox(3);
         box.setPadding(new Insets(8));
 
-        for (String skill : SKILLS) {
+        for (Skill skill : Skill.values()) {
             ObjectProperty<Proficiency> prof = new SimpleObjectProperty<>(Proficiency.UNTRAINED);
             skillProfs.put(skill, prof);
 
@@ -251,7 +244,7 @@ public class CharacterModule implements EditorModule {
             bonusLabel.setPrefWidth(35);
             bonusLabel.setMinWidth(35);
             bonusLabel.setTextFill(Color.BLACK);
-            skillBonusLabels.put(skill, bonusLabel);
+            skillBonusLabels.put(skill.displayName(), bonusLabel);
 
             HBox row = new HBox(4, nameLabel, profBox, bonusLabel);
             box.getChildren().add(row);
@@ -268,22 +261,12 @@ public class CharacterModule implements EditorModule {
         int level = parseLevel();
         logger.fine("Skills neu berechnen — Level " + level);
 
-        for (String skill : SKILLS) {
-            Proficiency prof = skillProfs.get(skill).get();
-            IntegerProperty stat = skillStat(skill, strMod, dexMod, conMod, intMod, wisMod, chaMod);
+        for (Skill skill : Skill.values()) {
+            int value = character.getSkillValue(skill);
 
-            // PF2e Formel: Stat-Mod + Level (wenn trained+) + Proficiency-Bonus
-            int profBonus = switch (prof) {
-                case UNTRAINED -> 0;                  // kein Level-Bonus
-                case TRAINED -> level + 2;
-                case EXPERT -> level + 4;
-                case MASTER -> level + 6;
-                case LEGENDARY -> level + 8;
-            };
+            Label lbl = skillBonusLabels.get(skill.displayName());
 
-            int total = stat.get() + profBonus;
-            Label lbl = skillBonusLabels.get(skill);
-            lbl.setText((total >= 0 ? "+" : "") + total);
+            lbl.setText((value >= 0 ? "+" : "") + value);
         }
     }
 
@@ -299,9 +282,10 @@ public class CharacterModule implements EditorModule {
     private Node buildTabArea() {
         tabContextPanel = new VBox(6);
         tabContextPanel.setPadding(new Insets(8));
-        tabContextPanel.setPrefWidth(220);
+        tabContextPanel.setMaxWidth(Double.MAX_VALUE);
+        tabContextPanel.setMinWidth(0);
 
-        // featPanel IST jetzt tabContextPanel — kein separater Node mehr
+        HBox.setHgrow(tabContextPanel, Priority.ALWAYS);
         featPanel = tabContextPanel;
 
         TabPane tabs = new TabPane();
@@ -323,8 +307,13 @@ public class CharacterModule implements EditorModule {
 
         tabs.getSelectionModel().select(0);
 
-        SplitPane split = new SplitPane(tabs, new ScrollPane(tabContextPanel));
-        split.setDividerPositions(0.70);
+        ScrollPane contextScroll = new ScrollPane(tabContextPanel);
+        contextScroll.setFitToWidth(true);
+        contextScroll.setFitToHeight(true);
+        contextScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
+        SplitPane split = new SplitPane(tabs, contextScroll);
+        split.setDividerPositions(0.65);
         VBox.setVgrow(split, Priority.ALWAYS);
         return split;
     }
@@ -336,14 +325,13 @@ public class CharacterModule implements EditorModule {
         VBox levelScroll = new VBox(8);
         levelScroll.setPadding(new Insets(8));
 
-        // Level 0 — Charakter-Erstellung
         levelScroll.getChildren().add(buildLevelBlock(0, List.of(
                 SlotType.CLASS,
                 SlotType.BACKGROUND,
-                SlotType.ANCESTRY
+                SlotType.ANCESTRY,
+                SlotType.ABILITY_BOOST
         )));
 
-        // Level 1-20
         for (int lvl = 1; lvl <= 20; lvl++) {
             levelScroll.getChildren().add(buildLevelBlock(lvl, List.of(
                     SlotType.CLASS_FEAT,
@@ -356,68 +344,7 @@ public class CharacterModule implements EditorModule {
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         tab.setContent(scroll);
 
-        tab.selectedProperty().addListener((obs, ov, selected) -> {
-            if (!selected) return;
-            buildCreationContext(null, null, null);
-        });
-
         return tab;
-    }
-
-    private void buildCreationContext(Label classDisplay, Label ancestryDisplay, Label backgroundDisplay) {
-        tabContextPanel.getChildren().clear();
-        tabContextPanel.getChildren().add(makeLabel("Klasse"));
-
-        ComboBox<String> classBox = new ComboBox<>();
-        classBox.setMaxWidth(Double.MAX_VALUE);
-        classBox.getItems().setAll(ClassModule.loadAllNames());
-        if (character != null && !character.className.isBlank()) classBox.setValue(character.className);
-        classBox.setOnAction(e -> {
-            String v = classBox.getValue();
-            if (v == null || character == null) return;
-            character.className = v;
-            classLabel.setText(v);
-            classDisplay.setText("Klasse — " + v);
-            logger.fine("Klasse: " + v);
-        });
-
-        tabContextPanel.getChildren().add(classBox);
-        tabContextPanel.getChildren().add(makeLabel("Ancestry"));
-
-        ComboBox<String> ancestryBox = new ComboBox<>();
-        ancestryBox.setMaxWidth(Double.MAX_VALUE);
-        ancestryBox.getItems().setAll(AncestryModule.loadAllNames());
-        if (character != null && !character.ancestry.isBlank()) ancestryBox.setValue(character.ancestry);
-        ancestryBox.setOnAction(e -> {
-            String v = ancestryBox.getValue();
-            if (v == null || character == null) return;
-            character.ancestry = v;
-            ancestryLabel.setText(v);
-            ancestryDisplay.setText("Ancestry — " + v);
-            logger.fine("Ancestry: " + v);
-        });
-
-        tabContextPanel.getChildren().add(ancestryBox);
-        tabContextPanel.getChildren().add(makeLabel("Background"));
-
-        ComboBox<String> backgroundBox = new ComboBox<>();
-        backgroundBox.setMaxWidth(Double.MAX_VALUE);
-        backgroundBox.getItems().setAll(BackgroundModule.loadAllNames());
-        if (character != null && !character.background.isBlank()) backgroundBox.setValue(character.background);
-        backgroundBox.setOnAction(e -> {
-            String v = backgroundBox.getValue();
-            if (v == null || character == null) return;
-            character.background = v;
-            backgroundLabel.setText(v);
-            backgroundDisplay.setText("Background — " + v);
-            logger.fine("Background: " + v);
-        });
-
-        tabContextPanel.getChildren().add(backgroundBox);
-        logger.fine("Erstellungs-Context: "
-                + classBox.getItems().size() + " Klassen | "
-                + ancestryBox.getItems().size() + " Ancestries | "
-                + backgroundBox.getItems().size() + " Backgrounds");
     }
 
     private Tab makeEquipTab(String title, String type) {
@@ -454,6 +381,15 @@ public class CharacterModule implements EditorModule {
             Button slotBtn = new Button(slotLabel(slot) + "  —  Nicht gewählt");
             slotBtn.setMaxWidth(Double.MAX_VALUE);
             slotBtn.setOnAction(e -> showFeatPanel(slot));
+
+            if (level == 0) {
+                switch (slot) {
+                    case CLASS -> classSlotBtn = slotBtn;
+                    case ANCESTRY -> ancestrySlotBtn = slotBtn;
+                    case BACKGROUND -> backgroundSlotBtn = slotBtn;
+                }
+            }
+
             block.getChildren().add(slotBtn);
         }
 
@@ -468,18 +404,17 @@ public class CharacterModule implements EditorModule {
         switch (slot) {
             case CLASS -> {
                 List<ClassBuild> allClasses = ClassModule.loadAll();
-
-                // Suchefeld
-                TextField search = new TextField();
-                search.setPromptText("Suchen...");
-
-                // Liste
                 ObservableList<ClassBuild> classItems = FXCollections.observableArrayList(allClasses);
                 FilteredList<ClassBuild> filtered = new FilteredList<>(classItems, c -> true);
+
+                // Suche — nur über der Liste
+                TextField search = new TextField();
+                search.setPromptText("Klasse suchen...");
                 search.textProperty().addListener((obs, ov, nv) ->
                         filtered.setPredicate(c -> nv == null || nv.isBlank()
                                 || c.name.toLowerCase().contains(nv.toLowerCase())));
 
+                // Liste — Breite: breitester Eintrag + 20px, nach Layout berechnet
                 ListView<ClassBuild> list = new ListView<>(filtered);
                 list.setCellFactory(lv -> new ListCell<>() {
                     @Override
@@ -488,35 +423,49 @@ public class CharacterModule implements EditorModule {
                         setText(empty || c == null ? null : c.name);
                     }
                 });
+
+                double listWidth = calcListWidth(allClasses.stream().map(c -> c.name).toList());
+                list.setPrefWidth(listWidth);
+                list.setMinWidth(listWidth);
+                list.setMaxWidth(listWidth);
                 VBox.setVgrow(list, Priority.ALWAYS);
 
-                // Beschreibung
-                Label descLabel = makeSmallLabel("");
-                descLabel.setWrapText(true);
-                descLabel.setPadding(new Insets(4, 0, 0, 0));
+                // Liste + Suche als linke Spalte
+                VBox leftCol = new VBox(4, search, list);
+                leftCol.setPrefWidth(listWidth);
+                leftCol.setMinWidth(listWidth);
+                leftCol.setMaxWidth(listWidth);
 
-                // Einfachklick → Beschreibung
+                // Detail — ScrollPane nimmt den Rest
+                VBox detail = new VBox(6);
+                detail.setPadding(new Insets(8));
+                ScrollPane detailScroll = new ScrollPane(detail);
+                detailScroll.setFitToWidth(true);
+                detailScroll.setFitToHeight(true);
+                detailScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                detailScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                detail.getChildren().add(makeSmallLabel("Klasse auswählen..."));
+
+                // Einfachklick → Detail
                 list.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
-                    if (nv == null) {
-                        descLabel.setText("");
-                        return;
-                    }
-                    descLabel.setText(nv.description.isBlank() ? "(keine Beschreibung)" : nv.description);
-                    logger.fine("Klasse vorschau: " + nv.name);
+                    if (nv == null) return;
+                    updateClassDetail(detail, nv);
+                    logger.fine("Klasse Vorschau: " + nv.name);
                 });
 
                 // Doppelklick → übernehmen
                 list.setOnMouseClicked(e -> {
                     if (e.getClickCount() != 2) return;
-                    ClassBuild selected = list.getSelectionModel().getSelectedItem();
-                    if (selected == null || character == null) return;
-                    character.className = selected.name;
-                    classLabel.setText(selected.name);
-                    refreshLevelBlock(0);
-                    logger.info("Klasse übernommen: " + selected.name);
+                    ClassBuild sel = list.getSelectionModel().getSelectedItem();
+                    if (sel == null || character == null) return;
+                    character.className = sel.name;
+                    classLabel.setText(sel.name);
+                    character.setClass(sel);
+                    refreshOverview();
+                    logger.info("Klasse übernommen: " + sel.name);
                 });
 
-                // aktuellen Wert vorselektieren
+                // vorselektieren
                 if (character != null && !character.className.isBlank()) {
                     allClasses.stream()
                             .filter(c -> c.name.equals(character.className))
@@ -527,70 +476,390 @@ public class CharacterModule implements EditorModule {
                             });
                 }
 
-                tabContextPanel.getChildren().addAll(search, list, new Separator(), descLabel);
+                // BorderPane: links fixe Liste, Mitte Detail
+                BorderPane layout = new BorderPane();
+                layout.setLeft(leftCol);
+                layout.setCenter(detailScroll);
+                BorderPane.setMargin(leftCol, new Insets(0, 6, 0, 0));
+
+                // tabContextPanel auf volle Größe bringen
+                tabContextPanel.getChildren().clear();
+                tabContextPanel.setPrefWidth(Double.MAX_VALUE);
+                tabContextPanel.setMaxWidth(Double.MAX_VALUE);
+                VBox.setVgrow(layout, Priority.ALWAYS);
+                tabContextPanel.getChildren().add(layout);
+
+                // Label oben drüber — getrennt damit es nicht im Layout verschwindet
                 logger.fine("Klassen-Panel: " + allClasses.size() + " geladen");
             }
             case ANCESTRY -> {
-                ComboBox<String> ancestryBox = new ComboBox<>();
-                ancestryBox.setMaxWidth(Double.MAX_VALUE);
-                ancestryBox.getItems().setAll(AncestryModule.loadAllNames());
-                if (character != null && !character.ancestry.isBlank())
-                    ancestryBox.setValue(character.ancestry);
-                ancestryBox.setOnAction(e -> {
-                    String v = ancestryBox.getValue();
-                    if (v == null || character == null) return;
-                    character.ancestry = v;
-                    ancestryLabel.setText(v);
-                    refreshLevelBlock(0);
-                    logger.fine("Ancestry gewählt: " + v);
+                List<Ancestrie> all = AncestryModule.loadAll();
+                ObservableList<Ancestrie> items = FXCollections.observableArrayList(all);
+                FilteredList<Ancestrie> filtered = new FilteredList<>(items, a -> true);
+
+                TextField search = new TextField();
+                search.setPromptText("Ancestry suchen...");
+                search.textProperty().addListener((obs, ov, nv) ->
+                        filtered.setPredicate(a -> nv == null || nv.isBlank()
+                                || a.name.toLowerCase().contains(nv.toLowerCase())));
+
+                ListView<Ancestrie> list = new ListView<>(filtered);
+                list.setCellFactory(lv -> new ListCell<>() {
+                    @Override
+                    protected void updateItem(Ancestrie a, boolean empty) {
+                        super.updateItem(a, empty);
+                        setText(empty || a == null ? null : a.name);
+                    }
                 });
-                tabContextPanel.getChildren().add(ancestryBox);
+                double listWidth = calcListWidth(all.stream().map(a -> a.name).toList());
+                list.setPrefWidth(listWidth);
+                list.setMinWidth(listWidth);
+                list.setMaxWidth(listWidth);
+                VBox.setVgrow(list, Priority.ALWAYS);
+
+                VBox leftCol = new VBox(4, search, list);
+                leftCol.setPrefWidth(listWidth);
+                leftCol.setMinWidth(listWidth);
+                leftCol.setMaxWidth(listWidth);
+
+                VBox detail = new VBox(6);
+                detail.setPadding(new Insets(8));
+                ScrollPane detailScroll = new ScrollPane(detail);
+                detailScroll.setFitToWidth(true);
+                detailScroll.setFitToHeight(true);
+                detailScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                detail.getChildren().add(makeSmallLabel("Ancestry auswählen..."));
+
+                list.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
+                    if (nv == null) return;
+                    updateAncestryDetail(detail, nv);
+                    logger.fine("Ancestry Vorschau: " + nv.name);
+                });
+
+                list.setOnMouseClicked(e -> {
+                    if (e.getClickCount() != 2) return;
+                    Ancestrie sel = list.getSelectionModel().getSelectedItem();
+                    if (sel == null || character == null) return;
+                    character.setAncestrie(sel);
+                    refreshOverview();
+                    logger.info("Ancestry übernommen: " + sel.name);
+                });
+
+                if (character != null && !character.ancestry.isBlank()) {
+                    all.stream().filter(a -> a.name.equals(character.ancestry)).findFirst()
+                            .ifPresent(a -> {
+                                list.getSelectionModel().select(a);
+                                list.scrollTo(a);
+                            });
+                }
+
+                BorderPane layout = new BorderPane();
+                layout.setLeft(leftCol);
+                layout.setCenter(detailScroll);
+                BorderPane.setMargin(leftCol, new Insets(0, 6, 0, 0));
+
+                tabContextPanel.getChildren().clear();
+                tabContextPanel.setMaxWidth(Double.MAX_VALUE);
+                VBox.setVgrow(layout, Priority.ALWAYS);
+                tabContextPanel.getChildren().add(layout);
+                logger.fine("Ancestry-Panel: " + all.size() + " geladen");
             }
             case BACKGROUND -> {
-                ComboBox<String> backgroundBox = new ComboBox<>();
-                backgroundBox.setMaxWidth(Double.MAX_VALUE);
-                backgroundBox.getItems().setAll(BackgroundModule.loadAllNames());
-                if (character != null && !character.background.isBlank())
-                    backgroundBox.setValue(character.background);
-                backgroundBox.setOnAction(e -> {
-                    String v = backgroundBox.getValue();
-                    if (v == null || character == null) return;
-                    character.background = v;
-                    backgroundLabel.setText(v);
-                    refreshLevelBlock(0);
-                    logger.fine("Background gewählt: " + v);
+                List<PlayerBackground> all = BackgroundModule.loadAll();
+                ObservableList<PlayerBackground> items = FXCollections.observableArrayList(all);
+                FilteredList<PlayerBackground> filtered = new FilteredList<>(items, b -> true);
+
+                TextField search = new TextField();
+                search.setPromptText("Background suchen...");
+                search.textProperty().addListener((obs, ov, nv) ->
+                        filtered.setPredicate(b -> nv == null || nv.isBlank()
+                                || b.name.toLowerCase().contains(nv.toLowerCase())));
+
+                ListView<PlayerBackground> list = new ListView<>(filtered);
+                list.setCellFactory(lv -> new ListCell<>() {
+                    @Override
+                    protected void updateItem(PlayerBackground b, boolean empty) {
+                        super.updateItem(b, empty);
+                        setText(empty || b == null ? null : b.name);
+                    }
                 });
-                tabContextPanel.getChildren().add(backgroundBox);
+                double listWidth = calcListWidth(all.stream().map(b -> b.name).toList());
+                list.setPrefWidth(listWidth);
+                list.setMinWidth(listWidth);
+                list.setMaxWidth(listWidth);
+                VBox.setVgrow(list, Priority.ALWAYS);
+
+                VBox leftCol = new VBox(4, search, list);
+                leftCol.setPrefWidth(listWidth);
+                leftCol.setMinWidth(listWidth);
+                leftCol.setMaxWidth(listWidth);
+
+                VBox detail = new VBox(6);
+                detail.setPadding(new Insets(8));
+                ScrollPane detailScroll = new ScrollPane(detail);
+                detailScroll.setFitToWidth(true);
+                detailScroll.setFitToHeight(true);
+                detailScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                detail.getChildren().add(makeSmallLabel("Background auswählen..."));
+
+                list.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
+                    if (nv == null) return;
+                    updateBackgroundDetail(detail, nv);
+                    logger.fine("Background Vorschau: " + nv.name);
+                });
+
+                list.setOnMouseClicked(e -> {
+                    if (e.getClickCount() != 2) return;
+                    PlayerBackground sel = list.getSelectionModel().getSelectedItem();
+                    if (sel == null || character == null) return;
+                    character.background = sel.name;
+                    backgroundLabel.setText(sel.name);
+                    refreshLevelBlock(0);
+                    logger.info("Background übernommen: " + sel.name);
+                });
+
+                if (character != null && !character.background.isBlank()) {
+                    all.stream().filter(b -> b.name.equals(character.background)).findFirst()
+                            .ifPresent(b -> {
+                                list.getSelectionModel().select(b);
+                                list.scrollTo(b);
+                            });
+                }
+
+                BorderPane layout = new BorderPane();
+                layout.setLeft(leftCol);
+                layout.setCenter(detailScroll);
+                BorderPane.setMargin(leftCol, new Insets(0, 6, 0, 0));
+
+                tabContextPanel.getChildren().clear();
+                tabContextPanel.setMaxWidth(Double.MAX_VALUE);
+                VBox.setVgrow(layout, Priority.ALWAYS);
+                tabContextPanel.getChildren().add(layout);
+                logger.fine("Background-Panel: " + all.size() + " geladen");
             }
+            case ABILITY_BOOST -> {
+                if (character.className.isBlank() || character.ancestry.isBlank() || character.background.isBlank()) {
+                    tabContextPanel.getChildren().add(makeSmallLabel(
+                            "⚠ Klasse, Ancestry und Background müssen zuerst gewählt werden."));
+                    logger.fine("AbilityBoost: nicht alle Voraussetzungen erfüllt");
+                    return;
+                }
+
+                // Quellen laden
+                Ancestrie anc = AncestryModule.loadAll().stream()
+                        .filter(a -> a.name.equals(character.ancestry)).findFirst().orElse(null);
+                PlayerBackground bg = BackgroundModule.loadAll().stream()
+                        .filter(b -> b.name.equals(character.background)).findFirst().orElse(null);
+                ClassBuild cls = ClassModule.loadAll().stream()
+                        .filter(c -> c.name.equals(character.className)).findFirst().orElse(null);
+
+                if (anc == null || bg == null || cls == null) {
+                    tabContextPanel.getChildren().add(makeSmallLabel("Daten konnten nicht geladen werden."));
+                    return;
+                }
+
+                abilityBoostPanel = new AbilityBoostPanel(anc, bg, cls, character);
+                VBox.setVgrow(abilityBoostPanel.getRoot(), Priority.ALWAYS);
+                tabContextPanel.getChildren().add(abilityBoostPanel.getRoot());
+                logger.fine("AbilityBoost-Panel gebaut");
+            }
+
             default -> tabContextPanel.getChildren().add(makeSmallLabel("(noch nicht verbunden)"));
         }
 
         logger.fine("showFeatPanel: " + slot);
     }
 
+    private void refreshOverview() {
+        nameField.setText(character.name);
+        levelField.setText(String.valueOf(character.level));
+
+        classLabel.setText(character.className.isBlank() ? "–" : character.className);
+        ancestryLabel.setText(character.ancestry.isBlank() ? "–" : character.ancestry);
+        backgroundLabel.setText(character.background.isBlank() ? "–" : character.background);
+
+
+        // Ich liebe JavaFX... 2 mal setzen, damit der Listener feuert und die sachen korrekt anzeigt.
+        acField.set(Integer.MIN_VALUE);
+        acField.set(character.ac);
+        hpField.set(Integer.MIN_VALUE);
+        hpField.set(character.hp);
+        speedField.set(Integer.MIN_VALUE);
+        speedField.set(character.speed);
+        fortField.set(Integer.MIN_VALUE);
+        fortField.set(character.fortitude);
+        refField.set(Integer.MIN_VALUE);
+        refField.set(character.reflex);
+        willField.set(Integer.MIN_VALUE);
+        willField.set(character.will);
+
+        strMod.set(Integer.MIN_VALUE);
+        strMod.set(character.str);
+        dexMod.set(Integer.MIN_VALUE);
+        dexMod.set(character.dex);
+        conMod.set(Integer.MIN_VALUE);
+        conMod.set(character.con);
+        intMod.set(Integer.MIN_VALUE);
+        intMod.set(character.intel);
+        wisMod.set(Integer.MIN_VALUE);
+        wisMod.set(character.wis);
+        chaMod.set(Integer.MIN_VALUE);
+        chaMod.set(character.cha);
+
+        refreshLevelBlock(0);
+    }
+
+    private void updateClassDetail(VBox detail, ClassBuild c) {
+        detail.getChildren().clear();
+
+        Label name = makeLabel(c.name);
+        name.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        detail.getChildren().add(name);
+        detail.getChildren().add(new Separator());
+
+        // HP + Key Abilities
+        String abilities = c.keyAbilities.isEmpty() ? "–" :
+                c.keyAbilities.stream().map(e -> e.abilityScore.name())
+                        .reduce((a, b) -> a + ", " + b).orElse("–");
+        detail.getChildren().add(makeSmallLabel("HP/Level: " + c.hpPerLevel));
+        detail.getChildren().add(makeSmallLabel("Key Ability: " + abilities));
+
+        // Saving Throws
+        if (!c.savingThrows.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Saving Throws:"));
+            c.savingThrows.forEach((save, exp) ->
+                    detail.getChildren().add(makeSmallLabel("  " + save.getName() + ": " + exp.name())));
+        }
+
+        // Armor
+        List<String> armorList = new ArrayList<>();
+        c.armorProficiencies.forEach((cat, exp) -> {
+            if (exp != Proficiency.UNTRAINED) armorList.add(cat.name() + " (" + exp.name() + ")");
+        });
+        if (!armorList.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Rüstung:"));
+            armorList.forEach(s -> detail.getChildren().add(makeSmallLabel("  " + s)));
+        }
+
+        // Weapons
+        List<String> weaponList = new ArrayList<>();
+        c.weaponProficiencies.forEach((cat, exp) -> {
+            if (exp != Proficiency.UNTRAINED) weaponList.add(cat.name() + " (" + exp.name() + ")");
+        });
+        if (!weaponList.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Waffen:"));
+            weaponList.forEach(s -> detail.getChildren().add(makeSmallLabel("  " + s)));
+        }
+
+        // Beschreibung
+        if (!c.description.isBlank()) {
+            detail.getChildren().add(new Separator());
+            Label desc = makeSmallLabel(c.description);
+            desc.setWrapText(true);
+            detail.getChildren().add(desc);
+        }
+
+        logger.fine("ClassDetail: " + c.name);
+    }
+
+    private void updateAncestryDetail(VBox detail, Ancestrie a) {
+        detail.getChildren().clear();
+
+        Label name = makeLabel(a.name);
+        name.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        detail.getChildren().add(name);
+        detail.getChildren().add(new Separator());
+
+        detail.getChildren().add(makeSmallLabel("HP: " + a.health));
+        detail.getChildren().add(makeSmallLabel("Speed: " + a.speedFt + " ft"));
+        detail.getChildren().add(makeSmallLabel("Größe: " + a.size.name()));
+
+        if (!a.abilityBoosts.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Ability Boosts:"));
+            a.abilityBoosts.forEach(b -> detail.getChildren().add(
+                    makeSmallLabel("  " + b.abilityScore.name() + ": " + (b.value > 0 ? "+" : "") + b.value)));
+        }
+        if (a.freeBoosts > 0)
+            detail.getChildren().add(makeSmallLabel("Freie Boosts: " + a.freeBoosts));
+
+        if (!a.traits.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Traits: " + String.join(", ", a.traits)));
+        }
+        if (!a.languages.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Sprachen:"));
+            a.languages.forEach(l -> detail.getChildren().add(makeSmallLabel("  " + l.name)));
+        }
+        logger.fine("AncestryDetail: " + a.name);
+    }
+
+    private void updateBackgroundDetail(VBox detail, PlayerBackground b) {
+        detail.getChildren().clear();
+
+        Label name = makeLabel(b.name);
+        name.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        detail.getChildren().add(name);
+        detail.getChildren().add(new Separator());
+
+        if (!b.description.isBlank()) {
+            Label desc = makeSmallLabel(b.description);
+            desc.setWrapText(true);
+            detail.getChildren().add(desc);
+        }
+
+        if (!b.choiceBoosts.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel(
+                    "Ability Boost (wähle einen): " + String.join(" / ", b.choiceBoosts)));
+        }
+        if (b.freeBoosts > 0)
+            detail.getChildren().add(makeSmallLabel("Freie Boosts: " + b.freeBoosts));
+
+        if (!b.skills.isEmpty()) {
+            detail.getChildren().add(new Separator());
+            detail.getChildren().add(makeSmallLabel("Skills: " + String.join(", ", b.skills)));
+        }
+        if (!b.lores.isEmpty())
+            detail.getChildren().add(makeSmallLabel("Lores: " + String.join(", ", b.lores)));
+        if (!b.feats.isEmpty())
+            detail.getChildren().add(makeSmallLabel("Feats: " + String.join(", ", b.feats)));
+
+        logger.fine("BackgroundDetail: " + b.name);
+    }
+
     private void refreshLevelBlock(int level) {
         if (character == null) return;
+        if (level != 0) return;
 
-        // Direkt die Button-Labels im Tab-Content aktualisieren
-        Tab creationTab = ((TabPane) ((SplitPane) featPanel.getParent()
-                .getParent()).getItems().getFirst()).getTabs().getFirst();
+        if (classSlotBtn != null)
+            classSlotBtn.setText("Klasse  —  "
+                    + (character.className.isBlank() ? "Nicht gewählt" : character.className));
+        if (ancestrySlotBtn != null)
+            ancestrySlotBtn.setText("Ancestry  —  "
+                    + (character.ancestry.isBlank() ? "Nicht gewählt" : character.ancestry));
+        if (backgroundSlotBtn != null)
+            backgroundSlotBtn.setText("Background  —  "
+                    + (character.background.isBlank() ? "Nicht gewählt" : character.background));
 
-        ScrollPane scroll = (ScrollPane) creationTab.getContent();
-        VBox levelScroll = (VBox) scroll.getContent();
-        VBox block = (VBox) levelScroll.getChildren().getFirst(); // Level 0 Block
+        logger.fine("Level-0-Block aktualisiert: "
+                + character.className + " | " + character.ancestry + " | " + character.background);
+    }
 
-        for (Node node : block.getChildren()) {
-            if (!(node instanceof Button btn)) continue;
-            String text = btn.getText();
-            if (text.startsWith("Klasse")) {
-                btn.setText("Klasse  —  " + (character.className.isBlank() ? "Nicht gewählt" : character.className));
-            } else if (text.startsWith("Background")) {
-                btn.setText("Background  —  " + (character.background.isBlank() ? "Nicht gewählt" : character.background));
-            } else if (text.startsWith("Ancestry")) {
-                btn.setText("Ancestry  —  " + (character.ancestry.isBlank() ? "Nicht gewählt" : character.ancestry));
-            }
+    private double calcListWidth(List<String> names) {
+        Text ruler = new Text();
+        ruler.setStyle("-fx-font-size: 13px;");
+        double max = 80; // Minimum
+        for (String n : names) {
+            ruler.setText(n);
+            double w = ruler.getLayoutBounds().getWidth();
+            if (w > max) max = w;
         }
-        logger.fine("Level-0-Block aktualisiert");
+        return max + 28;
     }
 
     private String slotLabel(SlotType slot) {
@@ -609,6 +878,12 @@ public class CharacterModule implements EditorModule {
     }
 
     // --- Helpers ---
+    private Label makeLabel(Skill text) {
+        Label l = new Label(text.displayName());
+        l.setTextFill(Color.BLACK);
+        return l;
+    }
+
     private Label makeLabel(String text) {
         Label l = new Label(text);
         l.setTextFill(Color.BLACK);
@@ -639,15 +914,19 @@ public class CharacterModule implements EditorModule {
                                 s.toLowerCase().contains(nv.toLowerCase())));
 
         ListView<String> listView = new ListView<>(filtered);
-        listView.setPrefHeight(200);
         listView.setOnMouseClicked(e -> {
             String selected = listView.getSelectionModel().getSelectedItem();
             if (selected != null) loadCharacter(selected);
         });
+        VBox.setVgrow(listView, Priority.ALWAYS);
 
         Button newBtn = new Button("+ Neu");
         newBtn.setMaxWidth(Double.MAX_VALUE);
         newBtn.setOnAction(e -> createNewCharacter(listView));
+
+        Button saveBtn = new Button("Speichern");
+        saveBtn.setMaxWidth(Double.MAX_VALUE);
+        saveBtn.setOnAction(e -> saveCharacter());
 
         Button deleteBtn = new Button("✕ Löschen");
         deleteBtn.setMaxWidth(Double.MAX_VALUE);
@@ -657,15 +936,15 @@ public class CharacterModule implements EditorModule {
             deleteCharacter(selected);
         });
 
-        VBox box = new VBox(6, search, listView, newBtn, deleteBtn);
+        VBox box = new VBox(6, search, listView, newBtn, saveBtn, deleteBtn);
         box.setPadding(new Insets(8));
-        VBox.setVgrow(listView, Priority.ALWAYS);
         return box;
     }
 
     private void loadCharNames() {
         charNames.clear();
-        File dir = PathResolver.resolveWritable("User/Charakters").toFile();
+
+        File dir = EditorIO.dataDir(DIR);
         if (!dir.exists()) {
             dir.mkdirs();
             logger.info("Charakterverzeichnis erstellt: " + dir.getAbsolutePath());
@@ -673,66 +952,86 @@ public class CharacterModule implements EditorModule {
         }
         File[] files = dir.listFiles((d, name) -> name.endsWith(".json"));
         if (files == null) return;
-        for (File f : files) {
-            // Dateiname ohne .json
-            charNames.add(f.getName().replace(".json", ""));
-        }
+        for (File f : files) charNames.add(f.getName().replace(".json", ""));
         charNames.sort(String::compareToIgnoreCase);
         logger.info("Charaktere geladen: " + charNames.size());
     }
 
     private void loadCharacter(String name) {
         character = EditorIO.load(
-                "User/Charakters/" + name + ".json",
+                DIR + name + ".json",
                 new TypeReference<>() {
                 },
                 new PlayerCharacter());
         character.name = name;
+        character.refresh();
 
-        nameField.setText(character.name);
+        refreshOverview();
 
-        // Header-Labels aktualisieren
-        classLabel.setText(character.className.isBlank() ? "–" : character.className);
-        ancestryLabel.setText(character.ancestry.isBlank() ? "–" : character.ancestry);
-        backgroundLabel.setText(character.background.isBlank() ? "–" : character.background);
-
-        logger.info("Charakter geladen: " + name
-                + " | Klasse: " + character.className
-                + " | Ancestry: " + character.ancestry
-                + " | Background: " + character.background);
+        logger.info("Geladen: " + name + " | STR=" + character.str + " DEX=" + character.dex
+                + " CON=" + character.con + " INT=" + character.intel
+                + " WIS=" + character.wis + " CHA=" + character.cha);
     }
 
     private void createNewCharacter(ListView<String> listView) {
         character = new PlayerCharacter();
         character.name = "Neuer Charakter";
         nameField.setText(character.name);
-        saveCharacter();
-        charNames.add(character.name);
-        charNames.sort(String::compareToIgnoreCase);
         listView.getSelectionModel().select(character.name);
         logger.fine("Neuer Charakter erstellt");
     }
 
     private void saveCharacter() {
-        if (character == null || character.name == null || character.name.isBlank()) return;
-        try {
-            EditorIO.save("User/Charakters/" + character.name + ".json", character);
-        } catch (Exception e) {
-            logger.severe("SaveCharacter Failed im CharacterModule");
-            logger.severe(e.getMessage());
+        if (character == null) return;
+
+        String newName = nameField.getText().trim();
+        if (newName.isBlank()) {
+            logger.warning("Speichern: Name leer");
+            return;
         }
-        logger.info("Charakter gespeichert: " + character.name);
+
+        // Rename — alte Datei löschen
+        if (!character.name.equals(newName)) {
+
+            File old = EditorIO.dataDir(DIR + character.name + ".json");
+            if (old.exists() && old.delete()) {
+                charNames.remove(character.name);
+                logger.info("Alte Datei gelöscht: " + character.name);
+            }
+        }
+
+        character.name = newName;
+        character.level = parseLevel();
+
+        character.skills.clear();
+        for (Skill skill : Skill.values()) {
+            character.skills.put(skill, skillProfs.get(skill).getValue());
+        }
+
+        try {
+            EditorIO.save(DIR + newName + ".json", character);
+            logger.info("Gespeichert: " + newName + " | STR=" + character.str + " DEX=" + character.dex);
+        } catch (Exception ex) {
+            logger.severe("Speichern fehlgeschlagen: " + ex.getMessage());
+            return;
+        }
+
+        if (!charNames.contains(newName)) {
+            charNames.add(newName);
+            charNames.sort(String::compareToIgnoreCase);
+        }
     }
 
     private void deleteCharacter(String name) {
-        File f = PathResolver.resolveWritable("User/Charakters/" + name + ".json").toFile();
+
+        File f = EditorIO.dataDir(DIR + name + ".json");
         if (f.exists() && f.delete()) {
             charNames.remove(name);
             character = new PlayerCharacter();
             nameField.clear();
             logger.info("Charakter gelöscht: " + name);
         } else {
-            logger.warning("Charakter konnte nicht gelöscht werden: " + name);
+            logger.warning("Löschen fehlgeschlagen: " + name);
         }
     }
 
@@ -749,6 +1048,5 @@ public class CharacterModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveCharacter();
     }
 }

@@ -1,17 +1,17 @@
 package com.fuchsbau.shorin.Engine.System.Combat;
 
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
 
 public enum SavingThrows {
-    FORTITUDE(AbilityScores.CON), REFLEX(AbilityScores.DEX), WILL(AbilityScores.WIS);
+    FORTITUDE(AbilityScore.CON), REFLEX(AbilityScore.DEX), WILL(AbilityScore.WIS);
 
-    private final AbilityScores score;
+    private final AbilityScore score;
 
-    SavingThrows(AbilityScores score) {
+    SavingThrows(AbilityScore score) {
         this.score = score;
     }
 
-    public AbilityScores getScore() {
+    public AbilityScore getScore() {
         return score;
     }
 

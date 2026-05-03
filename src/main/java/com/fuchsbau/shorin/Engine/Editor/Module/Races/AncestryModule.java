@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
-import com.fuchsbau.shorin.Engine.Race.Ancestries;
+import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.Race.Size;
 import com.fuchsbau.shorin.Engine.RPG.Language;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScoreEntry;
 import com.fuchsbau.shorin.Engine.System.Misc.Trait;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
@@ -32,16 +33,16 @@ public class AncestryModule implements EditorModule {
     private static final Logger logger = FileLogger.getLogger();
     private static final String DIR = "RPG/Ancesteries";
 
-    private final ObservableList<Ancestries> ancestries = FXCollections.observableArrayList();
-    private Ancestries selected = null;
+    private final ObservableList<Ancestrie> ancestries = FXCollections.observableArrayList();
+    private Ancestrie selected = null;
 
     // UI-Refs
     private TextField nameField;
     private Spinner<Integer> healthSpinner;
     private Spinner<Integer> speedSpinner;
     private ComboBox<Size> sizeBox;
-    private ListView<Ancestries> sideListView;
-    private ListView<Ancestries.AbilityBoost> boostListView;
+    private ListView<Ancestrie> sideListView;
+    private ListView<AbilityScoreEntry> boostListView;
     private ListView<String> traitListView;
     private ListView<Language> languageListView;
     private Spinner<Integer> freeBoostSpinner;
@@ -97,26 +98,26 @@ public class AncestryModule implements EditorModule {
         boostListView.setPrefHeight(80);
         boostListView.setCellFactory(lv -> new ListCell<>() {
             @Override
-            protected void updateItem(Ancestries.AbilityBoost b, boolean empty) {
+            protected void updateItem(AbilityScoreEntry b, boolean empty) {
                 super.updateItem(b, empty);
                 if (empty || b == null) {
                     setText(null);
                     return;
                 }
-                setText((b.value > 0 ? "+" : "") + b.value + " " + b.score.name());
+                setText((b.value > 0 ? "+" : "") + b.value + " " + b.abilityScore.name());
             }
         });
         boostListView.setOnMouseClicked(e -> {
             if (e.getClickCount() != 2 || selected == null) return;
-            Ancestries.AbilityBoost hit = boostListView.getSelectionModel().getSelectedItem();
+            AbilityScoreEntry hit = boostListView.getSelectionModel().getSelectedItem();
             if (hit == null) return;
             selected.abilityBoosts.remove(hit);
             boostListView.getItems().setAll(selected.abilityBoosts);
-            logger.fine("Boost entfernt: " + hit.score);
+            logger.fine("Boost entfernt: " + hit.abilityScore.name());
         });
 
-        ComboBox<AbilityScores> boostScoreBox = new ComboBox<>(
-                FXCollections.observableArrayList(AbilityScores.values()));
+        ComboBox<AbilityScore> boostScoreBox = new ComboBox<>(
+                FXCollections.observableArrayList(AbilityScore.values()));
         boostScoreBox.setPromptText("Score wählen...");
         boostScoreBox.setMaxWidth(Double.MAX_VALUE);
 
@@ -143,10 +144,10 @@ public class AncestryModule implements EditorModule {
         addBoostBtn.setMaxWidth(Double.MAX_VALUE);
         addBoostBtn.setOnAction(e -> {
             if (selected == null) return;
-            AbilityScores score = boostScoreBox.getValue();
+            AbilityScore score = boostScoreBox.getValue();
             Integer val = boostValueBox.getValue();
             if (score == null || val == null) return;
-            selected.abilityBoosts.add(new Ancestries.AbilityBoost(score, val));
+            selected.abilityBoosts.add(new AbilityScoreEntry(score, val));
             boostListView.getItems().setAll(selected.abilityBoosts);
             logger.fine("Boost hinzugefügt: " + val + " " + score);
         });
@@ -276,7 +277,7 @@ public class AncestryModule implements EditorModule {
     }
 
     // --- Formular befüllen ---
-    private void loadIntoForm(Ancestries a) {
+    private void loadIntoForm(Ancestrie a) {
         selected = a;
         nameField.setText(a.name);
         healthSpinner.getValueFactory().setValue(a.health);
@@ -290,8 +291,8 @@ public class AncestryModule implements EditorModule {
     }
 
     // --- Neu ---
-    private void createNew(ListView<Ancestries> listView) {
-        Ancestries a = new Ancestries();
+    private void createNew(ListView<Ancestrie> listView) {
+        Ancestrie a = new Ancestrie();
         a.name = "Neue Ancestry";
         ancestries.add(a);
         listView.getSelectionModel().select(a);
@@ -364,7 +365,7 @@ public class AncestryModule implements EditorModule {
         ObjectMapper mapper = new ObjectMapper();
         for (File f : files) {
             try {
-                Ancestries a = mapper.readValue(f, Ancestries.class);
+                Ancestrie a = mapper.readValue(f, Ancestrie.class);
                 ancestries.add(a);
                 logger.fine("Ancestry geladen: " + f.getName());
             } catch (Exception ex) {
@@ -404,7 +405,6 @@ public class AncestryModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveToDisk();
     }
 
     @Override
@@ -417,7 +417,7 @@ public class AncestryModule implements EditorModule {
         TextField search = new TextField();
         search.setPromptText("Suchen...");
 
-        FilteredList<Ancestries> filtered = new FilteredList<>(ancestries, a -> true);
+        FilteredList<Ancestrie> filtered = new FilteredList<>(ancestries, a -> true);
         search.textProperty().addListener((obs, ov, nv) ->
                 filtered.setPredicate(a ->
                         nv == null || nv.isBlank() ||
@@ -425,16 +425,16 @@ public class AncestryModule implements EditorModule {
 
         sideListView = new ListView<>(filtered);
 
-        ListView<Ancestries> listView = new ListView<>(filtered);
+        ListView<Ancestrie> listView = new ListView<>(filtered);
         listView.setCellFactory(lv -> new ListCell<>() {
             @Override
-            protected void updateItem(Ancestries a, boolean empty) {
+            protected void updateItem(Ancestrie a, boolean empty) {
                 super.updateItem(a, empty);
                 setText(empty || a == null ? null : a.name);
             }
         });
         listView.setOnMouseClicked(e -> {
-            Ancestries hit = listView.getSelectionModel().getSelectedItem();
+            Ancestrie hit = listView.getSelectionModel().getSelectedItem();
             if (hit != null) loadIntoForm(hit);
         });
 
@@ -458,9 +458,27 @@ public class AncestryModule implements EditorModule {
     }
 
     public static List<String> loadAllNames() {
-        List<Ancestries> loaded = EditorIO.load(
-                DIR, new TypeReference<>() {
-                }, new ArrayList<>());
-        return loaded.stream().map(a -> a.name).sorted().toList();
+        return loadAll().stream().map(a -> a.name).toList();
+    }
+
+    public static List<Ancestrie> loadAll() {
+        File dir = PathResolver.resolveWritable("GameConfig/" + DIR).toFile();
+        if (!dir.exists()) return new ArrayList<>();
+
+        File[] files = dir.listFiles((d, n) -> n.endsWith(".json"));
+        if (files == null || files.length == 0) return new ArrayList<>();
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Ancestrie> result = new ArrayList<>();
+        for (File f : files) {
+            try {
+                result.add(mapper.readValue(f, Ancestrie.class));
+            } catch (Exception ex) {
+                logger.warning("Ancestry loadAll Fehler: " + f.getName() + " — " + ex.getMessage());
+            }
+        }
+        result.sort(Comparator.comparing(a -> a.name.toLowerCase()));
+        logger.fine("AncestryModule.loadAll: " + result.size());
+        return result;
     }
 }

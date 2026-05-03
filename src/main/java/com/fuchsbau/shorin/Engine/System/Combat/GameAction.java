@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.System.Combat;
 
 import com.fuchsbau.shorin.Engine.Editor.Module.Actions.ActionCategory;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
 import com.fuchsbau.shorin.Engine.System.Misc.EffectType;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class GameAction {
     public boolean hasDC = false;
     public DCType dcType = null;
     public int fixedDC = 0;
-    public AbilityScores dcStat = null;
+    public AbilityScore dcStat = null;
 
     public boolean secretRoll = false;
 

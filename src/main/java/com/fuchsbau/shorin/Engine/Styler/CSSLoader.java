@@ -73,7 +73,7 @@ public class CSSLoader {
         try {
             File dir = getDirectory();
             if (!dir.exists() && !dir.mkdir()) {
-                FileLogger.getLogger().warning("Konnte Styling-Ordner nicht erstellen");
+                logger.warning("Konnte Styling-Ordner nicht erstellen");
                 return;
             }
 
@@ -87,7 +87,7 @@ public class CSSLoader {
                 );
             }
         } catch (Exception e) {
-            FileLogger.getLogger().warning("Konnte user css nicht erstellen: " + e.getMessage());
+            logger.warning("Konnte user css nicht erstellen: " + e.getMessage());
         }
     }
 
@@ -95,7 +95,7 @@ public class CSSLoader {
         try {
             File dir = getDirectory();
             if (!dir.exists() && !dir.mkdir()) {
-                FileLogger.getLogger().warning("Konnte Styling-Ordner nicht erstellen");
+                logger.warning("Konnte Styling-Ordner nicht erstellen");
                 return;
             }
 
@@ -111,7 +111,7 @@ public class CSSLoader {
             apply(scene);
 
         } catch (Exception e) {
-            FileLogger.getLogger().warning("Konnte user css nicht bearbeiten: " + e.getMessage());
+            logger.warning("Konnte user css nicht bearbeiten: " + e.getMessage());
         }
     }
 
@@ -120,7 +120,7 @@ public class CSSLoader {
             Path cssPath = getCssPath();
 
             if (!Files.exists(cssPath)) {
-                FileLogger.getLogger().warning("User CSS fehlt: " + cssPath);
+                logger.warning("User CSS fehlt: " + cssPath);
                 return;
             }
 
@@ -137,7 +137,7 @@ public class CSSLoader {
             scene.getRoot().requestLayout();
 
         } catch (Exception e) {
-            FileLogger.getLogger().warning("Konnte user css nicht hinzufügen: " + e.getMessage());
+            logger.warning("Konnte user css nicht hinzufügen: " + e.getMessage());
         }
     }
 

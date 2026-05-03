@@ -150,7 +150,6 @@ public class TraitModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveToDisk();
     }
 
     @Override

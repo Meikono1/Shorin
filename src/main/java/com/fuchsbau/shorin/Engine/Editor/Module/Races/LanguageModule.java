@@ -185,7 +185,6 @@ public class LanguageModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveToDisk();
     }
 
     @Override

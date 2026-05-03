@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.System;
 
 import com.fuchsbau.shorin.Engine.System.Character.SenseEntry;
-import com.fuchsbau.shorin.Engine.System.Character.Skills;
+import com.fuchsbau.shorin.Engine.System.Character.Skill;
 import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageModifier;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageType;
@@ -43,7 +43,7 @@ public class NpcBuild {
     public List<SenseEntry> senses = new ArrayList<>();
 
     // --- Skills ---
-    public Map<Skills, Integer> skills = new EnumMap<>(Skills.class);
+    public Map<Skill, Integer> skills = new EnumMap<>(Skill.class);
 
     // --- Angriffe ---
     public List<NpcAttack> attacks = new ArrayList<>();

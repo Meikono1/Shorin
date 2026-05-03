@@ -157,7 +157,7 @@ public class LoreModule implements EditorModule {
     }
 
     @Override
-    public void onDeactivate() { saveToDisk(); }
+    public void onDeactivate() {  }
 
     @Override
     public Node buildToolbar() { return null; }

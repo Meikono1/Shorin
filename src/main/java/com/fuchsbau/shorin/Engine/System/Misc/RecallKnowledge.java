@@ -1,9 +1,9 @@
 package com.fuchsbau.shorin.Engine.System.Misc;
 
-import com.fuchsbau.shorin.Engine.System.Character.Skills;
+import com.fuchsbau.shorin.Engine.System.Character.Skill;
 
 public class RecallKnowledge {
-    public Skills skill;
+    public Skill skill;
     public int dc;
 
     public RecallKnowledge() {

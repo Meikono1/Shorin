@@ -3,12 +3,13 @@ package com.fuchsbau.shorin.Engine.Editor.Module.Classes;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScoreEntry;
 import com.fuchsbau.shorin.Engine.System.Character.ClassBuild;
 import com.fuchsbau.shorin.Engine.System.Character.WeaponCategory;
 import com.fuchsbau.shorin.Engine.System.Combat.SavingThrows;
-import com.fuchsbau.shorin.Engine.System.Misc.Expertise;
 import com.fuchsbau.shorin.Engine.System.Combat.ArmorCategory;
+import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -30,13 +31,13 @@ public class ClassModule implements EditorModule {
     private final ObservableList<ClassBuild> classes = FXCollections.observableArrayList();
     private ClassBuild selectedClass = null;
     private ListView<ClassBuild> classListView;
-    private final Map<SavingThrows, ComboBox<Expertise>> saveBoxes = new EnumMap<>(SavingThrows.class);
-    private final Map<ArmorCategory, ComboBox<Expertise>> armorBoxes = new EnumMap<>(ArmorCategory.class);
-    private final Map<WeaponCategory, ComboBox<Expertise>> weaponBoxes = new EnumMap<>(WeaponCategory.class);
+    private final Map<SavingThrows, ComboBox<Proficiency>> saveBoxes = new EnumMap<>(SavingThrows.class);
+    private final Map<ArmorCategory, ComboBox<Proficiency>> armorBoxes = new EnumMap<>(ArmorCategory.class);
+    private final Map<WeaponCategory, ComboBox<Proficiency>> weaponBoxes = new EnumMap<>(WeaponCategory.class);
 
     private Spinner<Integer> hpPerLevelSpinner = new Spinner<>(1, 99, 1);
 
-    private final Map<AbilityScores, CheckBox> abilityButtons = new EnumMap<>(AbilityScores.class);
+    private final Map<AbilityScore, CheckBox> abilityButtons = new EnumMap<>(AbilityScore.class);
 
     @Override
     public String getTitle() {
@@ -124,7 +125,7 @@ public class ClassModule implements EditorModule {
         options.setHgap(12);
         options.setVgap(4);
 
-        AbilityScores[] abilities = AbilityScores.values();
+        AbilityScore[] abilities = AbilityScore.values();
         for (int i = 0; i < abilities.length; i++) {
             CheckBox cb = new CheckBox(abilities[i].toString());
             abilityButtons.put(abilities[i], cb);
@@ -132,7 +133,7 @@ public class ClassModule implements EditorModule {
             cb.setOnAction(e -> {
                 if (selectedClass == null) return;
                 if (cb.isSelected()) {
-                    selectedClass.keyAbilities.add(abilities[finalI]);
+                    selectedClass.keyAbilities.add(new AbilityScoreEntry(abilities[finalI]));
                     logger.fine("Key Ability hinzugefügt: " + abilities[finalI].fullName());
                 } else {
                     selectedClass.keyAbilities.remove(abilities[finalI]);
@@ -141,6 +142,7 @@ public class ClassModule implements EditorModule {
             });
             options.add(cb, i % 3, i / 3);
         }
+
         Label hpLabel = new Label("HP per Level");
         hpPerLevelSpinner = new Spinner<>(1, 99, 1);
         hpPerLevelSpinner.setEditable(true);
@@ -167,11 +169,11 @@ public class ClassModule implements EditorModule {
         for (int i = 0; i < saves.length; i++) {
             SavingThrows save = saves[i];
             Label label = new Label(save.getName() + " (" + save.getScore().name() + ")");
-            ComboBox<Expertise> box = makeExpertiseBox(Expertise.T);
+            ComboBox<Proficiency> box = makeExpertiseBox(Proficiency.TRAINED);
             box.setOnAction(e -> {
                 if (selectedClass != null) {
                     selectedClass.savingThrows.put(save, box.getValue());
-                    logger.fine("Save gesetzt: " + save.getName() + " → " + box.getValue().fullName());
+                    logger.fine("Save gesetzt: " + save.getName() + " → " + box.getValue().name());
                 }
             });
             saveBoxes.put(save, box);
@@ -186,11 +188,11 @@ public class ClassModule implements EditorModule {
 
         int row = 0;
         for (ArmorCategory cat : ArmorCategory.values()) {
-            ComboBox<Expertise> box = makeExpertiseBox(Expertise.U);
+            ComboBox<Proficiency> box = makeExpertiseBox(Proficiency.UNTRAINED);
             box.setOnAction(e -> {
                 if (selectedClass != null) {
                     selectedClass.armorProficiencies.put(cat, box.getValue());
-                    logger.fine("Armor gesetzt: " + cat.name() + " → " + box.getValue().fullName());
+                    logger.fine("Armor gesetzt: " + cat.name() + " → " + box.getValue().name());
                 }
             });
             armorBoxes.put(cat, box);
@@ -205,11 +207,11 @@ public class ClassModule implements EditorModule {
 
         row = 0;
         for (WeaponCategory cat : WeaponCategory.values()) {
-            ComboBox<Expertise> box = makeExpertiseBox(Expertise.U);
+            ComboBox<Proficiency> box = makeExpertiseBox(Proficiency.UNTRAINED);
             box.setOnAction(e -> {
                 if (selectedClass != null) {
                     selectedClass.weaponProficiencies.put(cat, box.getValue());
-                    logger.fine("Weapon gesetzt: " + cat.name() + " → " + box.getValue().fullName());
+                    logger.fine("Weapon gesetzt: " + cat.name() + " → " + box.getValue().name());
                 }
             });
             weaponBoxes.put(cat, box);
@@ -217,11 +219,11 @@ public class ClassModule implements EditorModule {
             weaponGrid.add(box, 1, row++);
         }
 
-        VBox saveCol   = new VBox(4, new Label("Saving Throws"), new Separator(), saveGrid);
-        VBox armorCol  = new VBox(4, new Label("Armor"),         new Separator(), armorGrid);
-        VBox weaponCol = new VBox(4, new Label("Weapons"),       new Separator(), weaponGrid);
-        HBox.setHgrow(saveCol,   Priority.ALWAYS);
-        HBox.setHgrow(armorCol,  Priority.ALWAYS);
+        VBox saveCol = new VBox(4, new Label("Saving Throws"), new Separator(), saveGrid);
+        VBox armorCol = new VBox(4, new Label("Armor"), new Separator(), armorGrid);
+        VBox weaponCol = new VBox(4, new Label("Weapons"), new Separator(), weaponGrid);
+        HBox.setHgrow(saveCol, Priority.ALWAYS);
+        HBox.setHgrow(armorCol, Priority.ALWAYS);
         HBox.setHgrow(weaponCol, Priority.ALWAYS);
 
         HBox columns = new HBox(24, saveCol, new Separator(), armorCol, new Separator(), weaponCol);
@@ -229,10 +231,10 @@ public class ClassModule implements EditorModule {
         return buildSection("Proficiencies at level 1", columns);
     }
 
-    private ComboBox<Expertise> makeExpertiseBox(Expertise min) {
-        ComboBox<Expertise> box = new ComboBox<>();
+    private ComboBox<Proficiency> makeExpertiseBox(Proficiency min) {
+        ComboBox<Proficiency> box = new ComboBox<>();
         // Nur Werte ab Minimum
-        for (Expertise e : Expertise.values()) {
+        for (Proficiency e : Proficiency.values()) {
             if (e.ordinal() >= min.ordinal()) box.getItems().add(e);
         }
         box.setValue(min);
@@ -315,20 +317,22 @@ public class ClassModule implements EditorModule {
                 cb.setSelected(gc.keyAbilities.contains(ability)));
 
         saveBoxes.forEach((save, box) -> {
-            Expertise val = gc.savingThrows.getOrDefault(save, Expertise.T);
+            Proficiency val = gc.savingThrows.getOrDefault(save, Proficiency.TRAINED);
             box.setValue(val);
         });
 
         hpPerLevelSpinner.getValueFactory().setValue(gc.hpPerLevel);
 
         armorBoxes.forEach((cat, box) ->
-                box.setValue(gc.armorProficiencies.getOrDefault(cat, Expertise.U)));
+                box.setValue(gc.armorProficiencies.getOrDefault(cat, Proficiency.UNTRAINED)));
         weaponBoxes.forEach((cat, box) ->
-                box.setValue(gc.weaponProficiencies.getOrDefault(cat, Expertise.U)));
+                box.setValue(gc.weaponProficiencies.getOrDefault(cat, Proficiency.UNTRAINED)));
 
         armorBoxes.forEach((cat, box) -> gc.armorProficiencies.put(cat, box.getValue()));
         weaponBoxes.forEach((cat, box) -> gc.weaponProficiencies.put(cat, box.getValue()));
 
+        abilityButtons.forEach((ability, cb) ->
+                cb.setSelected(gc.keyAbilities.stream().anyMatch(e -> e.abilityScore == ability)));
 
         logger.fine("Klasse geladen: " + gc.getName());
     }
@@ -368,14 +372,16 @@ public class ClassModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveToDisk();
     }
 
     public static List<String> loadAllNames() {
-        List<ClassBuild> loaded = EditorIO.load(FILE, new TypeReference<>() {}, new ArrayList<>());
+        List<ClassBuild> loaded = EditorIO.load(FILE, new TypeReference<>() {
+        }, new ArrayList<>());
         return loaded.stream().map(c -> c.name).sorted().toList();
     }
+
     public static List<ClassBuild> loadAll() {
-        return EditorIO.load(FILE, new TypeReference<>() {}, new ArrayList<>());
+        return EditorIO.load(FILE, new TypeReference<>() {
+        }, new ArrayList<>());
     }
 }

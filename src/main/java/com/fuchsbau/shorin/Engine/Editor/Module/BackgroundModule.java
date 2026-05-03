@@ -3,10 +3,10 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.Classes.FeatModule;
-import com.fuchsbau.shorin.Engine.Race.Ancestries;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
-import com.fuchsbau.shorin.Engine.System.Character.Background;
-import com.fuchsbau.shorin.Engine.System.Character.Skills;
+import com.fuchsbau.shorin.Engine.Race.Ancestrie;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
+import com.fuchsbau.shorin.Engine.System.Character.PlayerBackground;
+import com.fuchsbau.shorin.Engine.System.Character.Skill;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,17 +26,17 @@ public class BackgroundModule implements EditorModule {
     private static final Logger logger = FileLogger.getLogger();
     private static final String DIR = "Engine/backgrounds.json";
 
-    private final ObservableList<Background> backgrounds = FXCollections.observableArrayList();
-    private Background selected = null;
+    private final ObservableList<PlayerBackground> backgrounds = FXCollections.observableArrayList();
+    private PlayerBackground selected = null;
 
     // UI-Refs
-    private ListView<Background> sideListView;
+    private ListView<PlayerBackground> sideListView;
     private TextField nameField;
     private TextArea descField;
     private Spinner<Integer> freeBoostSpinner;
 
     // Choice-Boosts: Checkboxen pro AbilityScore
-    private final java.util.Map<AbilityScores, CheckBox> choiceBoxes = new java.util.EnumMap<>(AbilityScores.class);
+    private final java.util.Map<AbilityScore, CheckBox> choiceBoxes = new java.util.EnumMap<>(AbilityScore.class);
 
     // Listen
     private ListView<String> skillListView;
@@ -80,9 +80,9 @@ public class BackgroundModule implements EditorModule {
         GridPane choiceGrid = new GridPane();
         choiceGrid.setHgap(10);
         choiceGrid.setVgap(4);
-        AbilityScores[] scores = AbilityScores.values();
+        AbilityScore[] scores = AbilityScore.values();
         for (int i = 0; i < scores.length; i++) {
-            AbilityScores s = scores[i];
+            AbilityScore s = scores[i];
             CheckBox cb = new CheckBox(s.name());
             choiceBoxes.put(s, cb);
             cb.setOnAction(e -> {
@@ -127,7 +127,7 @@ public class BackgroundModule implements EditorModule {
         ComboBox<String> skillPicker = new ComboBox<>();
         skillPicker.setMaxWidth(Double.MAX_VALUE);
         skillPicker.getItems().setAll(
-                java.util.Arrays.stream(Skills.values()).map(Skills::displayName).toList()
+                java.util.Arrays.stream(Skill.values()).map(Skill::displayName).toList()
         );
         skillPicker.setPromptText("Skill hinzufügen...");
         skillPicker.setOnAction(e -> {
@@ -239,7 +239,7 @@ public class BackgroundModule implements EditorModule {
         TextField search = new TextField();
         search.setPromptText("Suchen...");
 
-        FilteredList<Background> filtered = new FilteredList<>(backgrounds, b -> true);
+        FilteredList<PlayerBackground> filtered = new FilteredList<>(backgrounds, b -> true);
         search.textProperty().addListener((obs, ov, nv) ->
                 filtered.setPredicate(b ->
                         nv == null || nv.isBlank() ||
@@ -248,13 +248,13 @@ public class BackgroundModule implements EditorModule {
         sideListView = new ListView<>(filtered);
         sideListView.setCellFactory(lv -> new ListCell<>() {
             @Override
-            protected void updateItem(Background b, boolean empty) {
+            protected void updateItem(PlayerBackground b, boolean empty) {
                 super.updateItem(b, empty);
                 setText(empty || b == null ? null : b.name);
             }
         });
         sideListView.setOnMouseClicked(e -> {
-            Background hit = sideListView.getSelectionModel().getSelectedItem();
+            PlayerBackground hit = sideListView.getSelectionModel().getSelectedItem();
             if (hit != null) loadIntoForm(hit);
         });
         VBox.setVgrow(sideListView, Priority.ALWAYS);
@@ -273,7 +273,7 @@ public class BackgroundModule implements EditorModule {
     }
 
     // --- Form befüllen ---
-    private void loadIntoForm(Background b) {
+    private void loadIntoForm(PlayerBackground b) {
         selected = b;
         nameField.setText(b.name);
         descField.setText(b.description);
@@ -289,7 +289,7 @@ public class BackgroundModule implements EditorModule {
     }
 
     private void createNew() {
-        Background b = new Background();
+        PlayerBackground b = new PlayerBackground();
         b.name = "Neuer Background";
         backgrounds.add(b);
         sideListView.getSelectionModel().select(b);
@@ -325,7 +325,7 @@ public class BackgroundModule implements EditorModule {
     }
 
     private void loadFromDisk() {
-        List<Background> loaded = EditorIO.load(DIR, new TypeReference<>() {
+        List<PlayerBackground> loaded = EditorIO.load(DIR, new TypeReference<>() {
         }, new ArrayList<>());
         backgrounds.setAll(loaded);
         backgrounds.sort(Comparator.comparing(b -> b.name.toLowerCase()));
@@ -333,7 +333,7 @@ public class BackgroundModule implements EditorModule {
     }
 
     // statische Hilfsmethode — wird später von CharacterModule genutzt
-    public static List<Background> loadAll() {
+    public static List<PlayerBackground> loadAll() {
         return EditorIO.load(DIR, new TypeReference<>() {
         }, new ArrayList<>());
     }
@@ -353,7 +353,6 @@ public class BackgroundModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveToDisk();
     }
 
     @Override
@@ -367,7 +366,7 @@ public class BackgroundModule implements EditorModule {
     }
 
     public static List<String> loadAllNames() {
-        List<Ancestries> loaded = EditorIO.load(
+        List<Ancestrie> loaded = EditorIO.load(
                 DIR, new TypeReference<>() {
                 }, new ArrayList<>());
         return loaded.stream().map(a -> a.name).sorted().toList();

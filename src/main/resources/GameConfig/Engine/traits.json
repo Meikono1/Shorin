@@ -212,6 +212,9 @@
   "name" : "Free-Hand",
   "description" : "This weapon doesn’t take up your hand, usually because it is built into your armor. A free-hand weapon can’t be Disarmed. You can use the hand covered by your free-hand weapon to wield other items, perform manipulate actions, and so on. You can’t attack with a free-hand weapon if you’re wielding anything in that hand or otherwise using that hand. When you’re not wielding anything and not otherwise using the hand, you can use abilities that require you to have a hand free as well as those that require you to be wielding a weapon in that hand. Each of your hands can have only one free-hand weapon on it."
 }, {
+  "name" : "General",
+  "description" : ""
+}, {
   "name" : "Gnome",
   "description" : "A creature with this trait is a member of the gnome ancestry. Gnomes are small people skilled at magic who seek out new experiences and usually have low-light vision. An ability with this trait can be used or selected only by gnomes. A weapon with this trait is created and used by gnomes."
 }, {
@@ -319,6 +322,9 @@
 }, {
   "name" : "Shove",
   "description" : "You can use this weapon to Shove with the Athletics skill even if you don’t have a free hand. This uses the weapon’s reach (if different from your own) and adds the weapon’s item bonus to attack rolls as an item bonus to the Athletics check. If you critically fail a check to Shove using the weapon, you can drop the weapon to take the effects of a failure instead of a critical failure."
+}, {
+  "name" : "Skill",
+  "description" : ""
 }, {
   "name" : "Sleep",
   "description" : "This effect makes a creature fall asleep or get drowsy"

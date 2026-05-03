@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
 import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
 import com.fuchsbau.shorin.Engine.System.Combat.DCType;
 import com.fuchsbau.shorin.Engine.System.Combat.GameAction;
@@ -49,7 +49,7 @@ public class ActionModule implements EditorModule {
     private CheckBox hasDCBox = new CheckBox();
     private ComboBox<DCType> dcTypeBox = new ComboBox<>();
     private Spinner<Integer> fixedDCSpinner = new Spinner<>(1, 99, 15);
-    private ComboBox<AbilityScores> dcStatBox = new ComboBox<>();
+    private ComboBox<AbilityScore> dcStatBox = new ComboBox<>();
 
     private TextArea critSuccessArea = new TextArea();
     private TextArea successArea = new TextArea();
@@ -241,7 +241,7 @@ public class ActionModule implements EditorModule {
         });
 
         dcStatBox = new ComboBox<>();
-        dcStatBox.getItems().addAll(AbilityScores.values());
+        dcStatBox.getItems().addAll(AbilityScore.values());
         dcStatBox.setOnAction(e -> {
             if (selectedAction != null) selectedAction.dcStat = dcStatBox.getValue();
         });

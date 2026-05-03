@@ -5,7 +5,7 @@ import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
 import com.fuchsbau.shorin.Engine.RPG.Lore;
-import com.fuchsbau.shorin.Engine.System.Character.Skills;
+import com.fuchsbau.shorin.Engine.System.Character.Skill;
 import com.fuchsbau.shorin.Engine.System.Feat;
 import com.fuchsbau.shorin.Engine.System.Misc.Trait;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
@@ -215,7 +215,7 @@ public class FeatModule implements EditorModule {
             switch (nv) {
                 case FEAT -> prereqOptions.setAll(availableFeats);
                 case SKILL -> prereqOptions.setAll(
-                        Arrays.stream(Skills.values())
+                        Arrays.stream(Skill.values())
                                 .map(Enum::name).toList());
             }
             logger.fine("Prerequisite-Typ gewählt: " + nv);
@@ -288,7 +288,7 @@ public class FeatModule implements EditorModule {
 
         ComboBox<String> effectRefBox = new ComboBox<>(
                 FXCollections.observableArrayList(
-                        Arrays.stream(Skills.values())
+                        Arrays.stream(Skill.values())
                                 .map(Enum::name).toList()));
         effectRefBox.setPromptText("Skill");
         effectRefBox.setMaxWidth(Double.MAX_VALUE);
@@ -522,7 +522,6 @@ public class FeatModule implements EditorModule {
 
     @Override
     public void onDeactivate() {
-        saveToDisk();
     }
 
     @Override

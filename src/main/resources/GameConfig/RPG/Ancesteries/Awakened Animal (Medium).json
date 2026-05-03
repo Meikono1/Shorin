@@ -1,8 +1,8 @@
 {
-  "name" : "Dwarf",
-  "health" : 10,
+  "name" : "Awakened Animal (Medium)",
+  "health" : 8,
   "size" : "MEDIUM",
-  "speedFt" : 20,
+  "speedFt" : 25,
   "abilityBoosts" : [ {
     "abilityScore" : "CON",
     "value" : 1
@@ -10,18 +10,14 @@
     "abilityScore" : "WIS",
     "value" : 1
   }, {
-    "abilityScore" : "CHA",
+    "abilityScore" : "INT",
     "value" : -1
   } ],
   "freeBoosts" : 1,
   "languages" : [ {
-    "name" : "Dwarven",
-    "description" : "Language of Dwarves",
-    "decryptionTemplate" : ""
-  }, {
     "name" : "Common",
     "description" : "The Common Language",
     "decryptionTemplate" : ""
   } ],
-  "traits" : [ "Dwarf", "Humanoid" ]
+  "traits" : [ "Awakened Animal", "Beast", "Rare" ]
 }

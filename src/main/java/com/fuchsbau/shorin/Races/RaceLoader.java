@@ -161,7 +161,7 @@ public final class RaceLoader {
             Path p = Paths.get(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             return Files.isDirectory(p) ? p : p.getParent();
         } catch (Exception e) {
-            FileLogger.getLogger().warning("Bild nicht gefunden");
+            logger.warning("Bild nicht gefunden");
             return wd;
         }
     }

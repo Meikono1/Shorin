@@ -3,10 +3,10 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.System.*;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScores;
+import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
 import com.fuchsbau.shorin.Engine.System.Character.Sense;
 import com.fuchsbau.shorin.Engine.System.Character.SenseEntry;
-import com.fuchsbau.shorin.Engine.System.Character.Skills;
+import com.fuchsbau.shorin.Engine.System.Character.Skill;
 import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageModifier;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageType;
@@ -55,9 +55,9 @@ public class NpcModule implements EditorModule {
     private FlowPane traitPane;
     private TextField traitInput;
 
-    private final Map<AbilityScores, Spinner<Integer>> statSpinners = new EnumMap<>(AbilityScores.class);
+    private final Map<AbilityScore, Spinner<Integer>> statSpinners = new EnumMap<>(AbilityScore.class);
 
-    private final Map<Skills, Spinner<Integer>> skillSpinners = new EnumMap<>(Skills.class);
+    private final Map<Skill, Spinner<Integer>> skillSpinners = new EnumMap<>(Skill.class);
     private VBox recallBox;
     private VBox sensesBox;
     private VBox attacksBox;
@@ -242,9 +242,9 @@ public class NpcModule implements EditorModule {
         statGrid.setHgap(12);
         statGrid.setVgap(4);
 
-        AbilityScores[] abilities = AbilityScores.values();
+        AbilityScore[] abilities = AbilityScore.values();
         for (int i = 0; i < abilities.length; i++) {
-            AbilityScores ab = abilities[i];
+            AbilityScore ab = abilities[i];
             Spinner<Integer> spinner = new Spinner<>(-5, 10, 0);
             spinner.setEditable(true);
             spinner.setPrefWidth(70);
@@ -280,9 +280,9 @@ public class NpcModule implements EditorModule {
         grid.setHgap(12);
         grid.setVgap(4);
 
-        Skills[] skills = Skills.values();
+        Skill[] skills = Skill.values();
         for (int i = 0; i < skills.length; i++) {
-            Skills skill = skills[i];
+            Skill skill = skills[i];
             Spinner<Integer> spinner = new Spinner<>(-10, 30, 0);
             spinner.setEditable(true);
             spinner.setPrefWidth(70);
@@ -616,8 +616,8 @@ public class NpcModule implements EditorModule {
         if (selectedNpc == null) return;
 
         for (RecallKnowledge rk : selectedNpc.recallKnowledge) {
-            ComboBox<Skills> skillBox = new ComboBox<>();
-            skillBox.getItems().addAll(Skills.values());
+            ComboBox<Skill> skillBox = new ComboBox<>();
+            skillBox.getItems().addAll(Skill.values());
             skillBox.setValue(rk.skill);
             skillBox.setOnAction(e -> rk.skill = skillBox.getValue());
 
@@ -808,12 +808,12 @@ public class NpcModule implements EditorModule {
         refreshRecallBox();
         refreshSensesBox();
 
-        statSpinners.get(AbilityScores.STR).getValueFactory().setValue(n.str);
-        statSpinners.get(AbilityScores.DEX).getValueFactory().setValue(n.dex);
-        statSpinners.get(AbilityScores.CON).getValueFactory().setValue(n.con);
-        statSpinners.get(AbilityScores.INT).getValueFactory().setValue(n.intel);
-        statSpinners.get(AbilityScores.WIS).getValueFactory().setValue(n.wis);
-        statSpinners.get(AbilityScores.CHA).getValueFactory().setValue(n.cha);
+        statSpinners.get(AbilityScore.STR).getValueFactory().setValue(n.str);
+        statSpinners.get(AbilityScore.DEX).getValueFactory().setValue(n.dex);
+        statSpinners.get(AbilityScore.CON).getValueFactory().setValue(n.con);
+        statSpinners.get(AbilityScore.INT).getValueFactory().setValue(n.intel);
+        statSpinners.get(AbilityScore.WIS).getValueFactory().setValue(n.wis);
+        statSpinners.get(AbilityScore.CHA).getValueFactory().setValue(n.cha);
 
         skillSpinners.forEach((skill, spinner) ->
                 spinner.getValueFactory().setValue(n.skills.getOrDefault(skill, 0)));

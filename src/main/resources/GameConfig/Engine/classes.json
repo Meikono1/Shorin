@@ -1,23 +1,29 @@
 [ {
   "name" : "Fighter",
   "description" : "Fighting for honor, greed, loyalty, or simply the thrill of battle, you are an undisputed master of weaponry and combat techniques. \nYou combine your actions through clever combinations of opening moves, finishing strikes, and counterattacks whenever your foes are unwise enough to drop their guard. \nWhether you are a knight, mercenary, sharpshooter, or blade master, you have honed your martial skills into an art form and perform devastating critical attacks on your enemies.",
-  "hpPerLevel" : 8,
-  "keyAbilities" : [ "STR", "DEX" ],
+  "hpPerLevel" : 10,
+  "keyAbilities" : [ {
+    "abilityScore" : "STR",
+    "value" : 1
+  }, {
+    "abilityScore" : "DEX",
+    "value" : 1
+  } ],
   "savingThrows" : {
-    "FORTITUDE" : "T",
-    "REFLEX" : "T",
-    "WILL" : "T"
+    "FORTITUDE" : "EXPERT",
+    "REFLEX" : "EXPERT",
+    "WILL" : "TRAINED"
   },
   "armorProficiencies" : {
-    "UNARMORED" : "T",
-    "LIGHT" : "T",
-    "MEDIUM" : "T",
-    "HEAVY" : "T"
+    "UNARMORED" : "TRAINED",
+    "LIGHT" : "TRAINED",
+    "MEDIUM" : "TRAINED",
+    "HEAVY" : "TRAINED"
   },
   "weaponProficiencies" : {
-    "UNARMED" : "T",
-    "SIMPLE" : "T",
-    "MARTIAL" : "T",
-    "ADVANCED" : "U"
+    "UNARMED" : "TRAINED",
+    "SIMPLE" : "TRAINED",
+    "MARTIAL" : "TRAINED",
+    "ADVANCED" : "UNTRAINED"
   }
 } ]
