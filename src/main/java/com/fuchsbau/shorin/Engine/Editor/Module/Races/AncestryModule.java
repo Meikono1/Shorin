@@ -387,7 +387,8 @@ public class AncestryModule implements EditorModule {
 
     private void loadAvailableLanguages() {
         List<Language> loaded = EditorIO.load("Engine/languages.json",
-                new TypeReference<>() {}, new ArrayList<>());
+                new TypeReference<>() {
+                }, new ArrayList<>());
         availableLanguages.setAll(loaded);
         logger.fine("Verfügbare Sprachen geladen: " + availableLanguages.size());
     }
@@ -454,5 +455,12 @@ public class AncestryModule implements EditorModule {
     @Override
     public List<Menu> getMenus() {
         return List.of();
+    }
+
+    public static List<String> loadAllNames() {
+        List<Ancestries> loaded = EditorIO.load(
+                DIR, new TypeReference<>() {
+                }, new ArrayList<>());
+        return loaded.stream().map(a -> a.name).sorted().toList();
     }
 }

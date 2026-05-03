@@ -359,8 +359,6 @@ public class EncounterModule implements EditorModule {
 
     // NPC-Liste
     private void refreshNpcList() {
-        // Selbe Quelle wie BattleMapModule — NpcBuild.loadAll() oder eigenes Repo
-        // Placeholder bis NpcRepository verfügbar ist
         npcList.clear();
         logger.fine("NPC-Liste geleert (Repository noch nicht angebunden)");
     }

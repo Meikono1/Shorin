@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.TraitModule;
+import com.fuchsbau.shorin.Engine.RPG.Lore;
 import com.fuchsbau.shorin.Engine.System.Character.Skills;
 import com.fuchsbau.shorin.Engine.System.Feat;
 import com.fuchsbau.shorin.Engine.System.Misc.Trait;
@@ -501,7 +502,8 @@ public class FeatModule implements EditorModule {
     private void loadAvailableActions() {
         List<com.fuchsbau.shorin.Engine.System.Combat.GameAction> loaded =
                 EditorIO.load("Engine/actions.json",
-                        new TypeReference<>() {}, new ArrayList<>());
+                        new TypeReference<>() {
+                        }, new ArrayList<>());
         availableActions.setAll(loaded.stream()
                 .map(a -> a.name)
                 .toList());
@@ -531,5 +533,12 @@ public class FeatModule implements EditorModule {
     @Override
     public List<Menu> getMenus() {
         return List.of();
+    }
+
+
+    public static List<String> loadAllNames() {
+        List<Lore> loaded = EditorIO.load(DIR, new TypeReference<>() {
+        }, new ArrayList<>());
+        return loaded.stream().map(l -> l.name).sorted().toList();
     }
 }

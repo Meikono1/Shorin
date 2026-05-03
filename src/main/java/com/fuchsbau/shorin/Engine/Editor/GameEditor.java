@@ -73,7 +73,8 @@ public class GameEditor {
                         new BackgroundModule(),
                         new ConditionModule(),
                         new TraitModule(),
-                        new LanguageModule()
+                        new LanguageModule(),
+                        new LoreModule()
                 )),
                 new ModuleGroup("Items", List.of(
                         new ItemModule(),

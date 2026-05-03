@@ -370,4 +370,12 @@ public class ClassModule implements EditorModule {
     public void onDeactivate() {
         saveToDisk();
     }
+
+    public static List<String> loadAllNames() {
+        List<ClassBuild> loaded = EditorIO.load(FILE, new TypeReference<>() {}, new ArrayList<>());
+        return loaded.stream().map(c -> c.name).sorted().toList();
+    }
+    public static List<ClassBuild> loadAll() {
+        return EditorIO.load(FILE, new TypeReference<>() {}, new ArrayList<>());
+    }
 }

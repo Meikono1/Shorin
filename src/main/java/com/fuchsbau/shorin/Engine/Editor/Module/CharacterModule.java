@@ -2,6 +2,9 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
+import com.fuchsbau.shorin.Engine.Editor.Module.Classes.ClassModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.Races.AncestryModule;
+import com.fuchsbau.shorin.Engine.System.Character.ClassBuild;
 import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 import com.fuchsbau.shorin.Engine.System.SlotType;
@@ -34,7 +37,9 @@ public class CharacterModule implements EditorModule {
     // UI-Refs
     private TextField nameField, levelField;
     private ComboBox<String> classDropdown, ancestryDropdown;
-    private Label activeLevelLabel;
+    private Label classLabel;
+    private Label ancestryLabel;
+    private Label backgroundLabel;
     private VBox featPanel;
     private VBox tabContextPanel;
 
@@ -73,34 +78,31 @@ public class CharacterModule implements EditorModule {
     private Node buildHeader() {
         nameField = new TextField();
         nameField.setPromptText("Name");
+        nameField.textProperty().addListener((obs, ov, nv) -> {
+            if (character != null) character.name = nv.trim();
+        });
+
         levelField = new TextField("1");
         levelField.setPrefWidth(45);
 
-        classDropdown = new ComboBox<>();
-        classDropdown.setPromptText("Klasse");
-        classDropdown.getItems().addAll("Fighter", "Rogue", "Wizard", "Cleric"); // später aus ClassModule
-        classDropdown.setPrefWidth(120);
-
-        ancestryDropdown = new ComboBox<>();
-        ancestryDropdown.setPromptText("Ancestry");
-        ancestryDropdown.getItems().addAll("Human", "Elf", "Dwarf", "Gnome"); // später aus AncestryModule
-        ancestryDropdown.setPrefWidth(120);
+        classLabel = new Label("–");
+        ancestryLabel = new Label("–");
+        backgroundLabel = new Label("–");
 
         HBox header = new HBox(10,
                 makeLabel("Name"), nameField,
                 makeLabel("Level"), levelField,
-                makeLabel("Klasse"), classDropdown,
-                makeLabel("Ancestry"), ancestryDropdown
+                makeLabel("Klasse"), classLabel,
+                makeLabel("Ancestry"), ancestryLabel,
+                makeLabel("Background"), backgroundLabel
         );
         header.setPadding(new Insets(8));
         return header;
     }
 
-    // --- HAUPTBEREICH ---
     private Node buildMainArea() {
         BorderPane area = new BorderPane();
 
-        // Obere Hälfte: Stats | Combat | Skills
         HBox statsRow = new HBox(0,
                 buildStatsPanel(),
                 new Separator(),
@@ -108,18 +110,12 @@ public class CharacterModule implements EditorModule {
                 new Separator(),
                 buildSkillsPanel()
         );
-        HBox.setHgrow(buildSkillsPanel(), Priority.ALWAYS);
 
-        // Mitte: Tabs + Kontext
+        // Level-Bereich lebt jetzt IM Tab — nicht mehr separat
         Node tabArea = buildTabArea();
 
-        // Untere Hälfte: Level-Scroll + Feat-Panel
-        Node levelArea = buildLevelArea();
-
-        VBox center = new VBox(0, statsRow, new Separator(), tabArea, new Separator(), levelArea);
-        VBox.setVgrow(tabArea, Priority.SOMETIMES);
-        VBox.setVgrow(levelArea, Priority.ALWAYS);
-
+        VBox center = new VBox(0, statsRow, new Separator(), tabArea);
+        VBox.setVgrow(tabArea, Priority.ALWAYS); // Tab bekommt den ganzen Rest
         area.setCenter(center);
         return area;
     }
@@ -305,10 +301,14 @@ public class CharacterModule implements EditorModule {
         tabContextPanel.setPadding(new Insets(8));
         tabContextPanel.setPrefWidth(220);
 
+        // featPanel IST jetzt tabContextPanel — kein separater Node mehr
+        featPanel = tabContextPanel;
+
         TabPane tabs = new TabPane();
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         tabs.getTabs().addAll(
+                makeCreationTab(),
                 makeEquipTab("Waffen", "weapon"),
                 makeEquipTab("Rüstung", "armor"),
                 makeEquipTab("Ausrüstung", "gear"),
@@ -317,46 +317,33 @@ public class CharacterModule implements EditorModule {
         );
 
         tabs.getSelectionModel().selectedItemProperty().addListener(
-                (obs, ov, nv) -> updateTabContext(nv.getText()));
+                (obs, ov, nv) -> {
+                    if (nv != null) updateTabContext(nv.getUserData());
+                });
+
+        tabs.getSelectionModel().select(0);
 
         SplitPane split = new SplitPane(tabs, new ScrollPane(tabContextPanel));
         split.setDividerPositions(0.70);
-        split.setPrefHeight(220);
+        VBox.setVgrow(split, Priority.ALWAYS);
         return split;
     }
 
-    private Tab makeEquipTab(String title, String type) {
-        Tab tab = new Tab(title);
-        VBox content = new VBox(6);
-        content.setPadding(new Insets(8));
-        content.getChildren().add(makeSmallLabel("(leer)"));
-        tab.setContent(content);
-        return tab;
-    }
-
-    private void updateTabContext(String tabName) {
-        tabContextPanel.getChildren().clear();
-        tabContextPanel.getChildren().add(makeLabel(tabName + " — verfügbar"));
-        // Später: gefilterte Item-Liste aus ItemModule laden
-    }
-
-    // --- LEVEL BEREICH ---
-    private Node buildLevelArea() {
-        featPanel = new VBox(6);
-        featPanel.setPadding(new Insets(8));
-        featPanel.getChildren().add(makeSmallLabel("Slot auswählen..."));
+    private Tab makeCreationTab() {
+        Tab tab = new Tab("Erstellung");
+        tab.setUserData("erstellung");
 
         VBox levelScroll = new VBox(8);
         levelScroll.setPadding(new Insets(8));
 
-        // Level 0 — Klasse, Background, Ancestry
+        // Level 0 — Charakter-Erstellung
         levelScroll.getChildren().add(buildLevelBlock(0, List.of(
                 SlotType.CLASS,
                 SlotType.BACKGROUND,
                 SlotType.ANCESTRY
         )));
 
-        // Level 1-20 — Platzhalter, später aus ClassModule befüllt
+        // Level 1-20
         for (int lvl = 1; lvl <= 20; lvl++) {
             levelScroll.getChildren().add(buildLevelBlock(lvl, List.of(
                     SlotType.CLASS_FEAT,
@@ -366,11 +353,91 @@ public class CharacterModule implements EditorModule {
 
         ScrollPane scroll = new ScrollPane(levelScroll);
         scroll.setFitToWidth(true);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        tab.setContent(scroll);
 
-        SplitPane split = new SplitPane(scroll, new ScrollPane(featPanel));
-        split.setDividerPositions(0.55);
-        SplitPane.setResizableWithParent(scroll, true);
-        return split;
+        tab.selectedProperty().addListener((obs, ov, selected) -> {
+            if (!selected) return;
+            buildCreationContext(null, null, null);
+        });
+
+        return tab;
+    }
+
+    private void buildCreationContext(Label classDisplay, Label ancestryDisplay, Label backgroundDisplay) {
+        tabContextPanel.getChildren().clear();
+        tabContextPanel.getChildren().add(makeLabel("Klasse"));
+
+        ComboBox<String> classBox = new ComboBox<>();
+        classBox.setMaxWidth(Double.MAX_VALUE);
+        classBox.getItems().setAll(ClassModule.loadAllNames());
+        if (character != null && !character.className.isBlank()) classBox.setValue(character.className);
+        classBox.setOnAction(e -> {
+            String v = classBox.getValue();
+            if (v == null || character == null) return;
+            character.className = v;
+            classLabel.setText(v);
+            classDisplay.setText("Klasse — " + v);
+            logger.fine("Klasse: " + v);
+        });
+
+        tabContextPanel.getChildren().add(classBox);
+        tabContextPanel.getChildren().add(makeLabel("Ancestry"));
+
+        ComboBox<String> ancestryBox = new ComboBox<>();
+        ancestryBox.setMaxWidth(Double.MAX_VALUE);
+        ancestryBox.getItems().setAll(AncestryModule.loadAllNames());
+        if (character != null && !character.ancestry.isBlank()) ancestryBox.setValue(character.ancestry);
+        ancestryBox.setOnAction(e -> {
+            String v = ancestryBox.getValue();
+            if (v == null || character == null) return;
+            character.ancestry = v;
+            ancestryLabel.setText(v);
+            ancestryDisplay.setText("Ancestry — " + v);
+            logger.fine("Ancestry: " + v);
+        });
+
+        tabContextPanel.getChildren().add(ancestryBox);
+        tabContextPanel.getChildren().add(makeLabel("Background"));
+
+        ComboBox<String> backgroundBox = new ComboBox<>();
+        backgroundBox.setMaxWidth(Double.MAX_VALUE);
+        backgroundBox.getItems().setAll(BackgroundModule.loadAllNames());
+        if (character != null && !character.background.isBlank()) backgroundBox.setValue(character.background);
+        backgroundBox.setOnAction(e -> {
+            String v = backgroundBox.getValue();
+            if (v == null || character == null) return;
+            character.background = v;
+            backgroundLabel.setText(v);
+            backgroundDisplay.setText("Background — " + v);
+            logger.fine("Background: " + v);
+        });
+
+        tabContextPanel.getChildren().add(backgroundBox);
+        logger.fine("Erstellungs-Context: "
+                + classBox.getItems().size() + " Klassen | "
+                + ancestryBox.getItems().size() + " Ancestries | "
+                + backgroundBox.getItems().size() + " Backgrounds");
+    }
+
+    private Tab makeEquipTab(String title, String type) {
+        Tab tab = new Tab(title);
+        tab.setUserData(type);
+        VBox content = new VBox(6);
+        content.setPadding(new Insets(8));
+        content.getChildren().add(makeSmallLabel("(leer)"));
+        tab.setContent(content);
+        return tab;
+    }
+
+    private void updateTabContext(Object userData) {
+        if ("erstellung".equals(userData)) return;
+        tabContextPanel.getChildren().clear();
+        String name = userData != null ? userData.toString() : "";
+        tabContextPanel.getChildren().add(makeLabel(name.substring(0, 1).toUpperCase()
+                + name.substring(1) + " — verfügbar"));
+        tabContextPanel.getChildren().add(makeSmallLabel("(noch nicht verbunden)"));
+        logger.fine("TabContext: " + name);
     }
 
     private Node buildLevelBlock(int level, List<SlotType> slots) {
@@ -394,11 +461,136 @@ public class CharacterModule implements EditorModule {
     }
 
     private void showFeatPanel(SlotType slot) {
-        featPanel.getChildren().clear();
-        featPanel.getChildren().add(makeLabel(slotLabel(slot)));
-        featPanel.getChildren().add(makeSmallLabel("Verfügbare Optionen:"));
-        // Später: aus FeatModule / TraitModule gefiltert laden
-        featPanel.getChildren().add(makeSmallLabel("(noch nicht verbunden)"));
+        tabContextPanel.getChildren().clear();
+        tabContextPanel.getChildren().add(makeLabel(slotLabel(slot)));
+        tabContextPanel.getChildren().add(makeSmallLabel("Verfügbare Optionen:"));
+
+        switch (slot) {
+            case CLASS -> {
+                List<ClassBuild> allClasses = ClassModule.loadAll();
+
+                // Suchefeld
+                TextField search = new TextField();
+                search.setPromptText("Suchen...");
+
+                // Liste
+                ObservableList<ClassBuild> classItems = FXCollections.observableArrayList(allClasses);
+                FilteredList<ClassBuild> filtered = new FilteredList<>(classItems, c -> true);
+                search.textProperty().addListener((obs, ov, nv) ->
+                        filtered.setPredicate(c -> nv == null || nv.isBlank()
+                                || c.name.toLowerCase().contains(nv.toLowerCase())));
+
+                ListView<ClassBuild> list = new ListView<>(filtered);
+                list.setCellFactory(lv -> new ListCell<>() {
+                    @Override
+                    protected void updateItem(ClassBuild c, boolean empty) {
+                        super.updateItem(c, empty);
+                        setText(empty || c == null ? null : c.name);
+                    }
+                });
+                VBox.setVgrow(list, Priority.ALWAYS);
+
+                // Beschreibung
+                Label descLabel = makeSmallLabel("");
+                descLabel.setWrapText(true);
+                descLabel.setPadding(new Insets(4, 0, 0, 0));
+
+                // Einfachklick → Beschreibung
+                list.getSelectionModel().selectedItemProperty().addListener((obs, ov, nv) -> {
+                    if (nv == null) {
+                        descLabel.setText("");
+                        return;
+                    }
+                    descLabel.setText(nv.description.isBlank() ? "(keine Beschreibung)" : nv.description);
+                    logger.fine("Klasse vorschau: " + nv.name);
+                });
+
+                // Doppelklick → übernehmen
+                list.setOnMouseClicked(e -> {
+                    if (e.getClickCount() != 2) return;
+                    ClassBuild selected = list.getSelectionModel().getSelectedItem();
+                    if (selected == null || character == null) return;
+                    character.className = selected.name;
+                    classLabel.setText(selected.name);
+                    refreshLevelBlock(0);
+                    logger.info("Klasse übernommen: " + selected.name);
+                });
+
+                // aktuellen Wert vorselektieren
+                if (character != null && !character.className.isBlank()) {
+                    allClasses.stream()
+                            .filter(c -> c.name.equals(character.className))
+                            .findFirst()
+                            .ifPresent(c -> {
+                                list.getSelectionModel().select(c);
+                                list.scrollTo(c);
+                            });
+                }
+
+                tabContextPanel.getChildren().addAll(search, list, new Separator(), descLabel);
+                logger.fine("Klassen-Panel: " + allClasses.size() + " geladen");
+            }
+            case ANCESTRY -> {
+                ComboBox<String> ancestryBox = new ComboBox<>();
+                ancestryBox.setMaxWidth(Double.MAX_VALUE);
+                ancestryBox.getItems().setAll(AncestryModule.loadAllNames());
+                if (character != null && !character.ancestry.isBlank())
+                    ancestryBox.setValue(character.ancestry);
+                ancestryBox.setOnAction(e -> {
+                    String v = ancestryBox.getValue();
+                    if (v == null || character == null) return;
+                    character.ancestry = v;
+                    ancestryLabel.setText(v);
+                    refreshLevelBlock(0);
+                    logger.fine("Ancestry gewählt: " + v);
+                });
+                tabContextPanel.getChildren().add(ancestryBox);
+            }
+            case BACKGROUND -> {
+                ComboBox<String> backgroundBox = new ComboBox<>();
+                backgroundBox.setMaxWidth(Double.MAX_VALUE);
+                backgroundBox.getItems().setAll(BackgroundModule.loadAllNames());
+                if (character != null && !character.background.isBlank())
+                    backgroundBox.setValue(character.background);
+                backgroundBox.setOnAction(e -> {
+                    String v = backgroundBox.getValue();
+                    if (v == null || character == null) return;
+                    character.background = v;
+                    backgroundLabel.setText(v);
+                    refreshLevelBlock(0);
+                    logger.fine("Background gewählt: " + v);
+                });
+                tabContextPanel.getChildren().add(backgroundBox);
+            }
+            default -> tabContextPanel.getChildren().add(makeSmallLabel("(noch nicht verbunden)"));
+        }
+
+        logger.fine("showFeatPanel: " + slot);
+    }
+
+    private void refreshLevelBlock(int level) {
+        if (character == null) return;
+
+        // Direkt die Button-Labels im Tab-Content aktualisieren
+        Tab creationTab = ((TabPane) ((SplitPane) featPanel.getParent()
+                .getParent()).getItems().getFirst()).getTabs().getFirst();
+
+        ScrollPane scroll = (ScrollPane) creationTab.getContent();
+        VBox levelScroll = (VBox) scroll.getContent();
+        VBox block = (VBox) levelScroll.getChildren().getFirst(); // Level 0 Block
+
+        for (Node node : block.getChildren()) {
+            if (!(node instanceof Button btn)) continue;
+            String text = btn.getText();
+            if (text.startsWith("Klasse")) {
+                btn.setText("Klasse  —  " + (character.className.isBlank() ? "Nicht gewählt" : character.className));
+            } else if (text.startsWith("Background")) {
+                btn.setText("Background  —  " + (character.background.isBlank() ? "Nicht gewählt" : character.background));
+            } else if (text.startsWith("Ancestry")) {
+                btn.setText("Ancestry  —  " + (character.ancestry.isBlank() ? "Nicht gewählt" : character.ancestry));
+            }
+        }
+        logger.fine("Level-0-Block aktualisiert");
     }
 
     private String slotLabel(SlotType slot) {
@@ -496,9 +688,18 @@ public class CharacterModule implements EditorModule {
                 },
                 new PlayerCharacter());
         character.name = name;
-        // Formular befüllen
+
         nameField.setText(character.name);
-        logger.info("Charakter geladen: " + name);
+
+        // Header-Labels aktualisieren
+        classLabel.setText(character.className.isBlank() ? "–" : character.className);
+        ancestryLabel.setText(character.ancestry.isBlank() ? "–" : character.ancestry);
+        backgroundLabel.setText(character.background.isBlank() ? "–" : character.background);
+
+        logger.info("Charakter geladen: " + name
+                + " | Klasse: " + character.className
+                + " | Ancestry: " + character.ancestry
+                + " | Background: " + character.background);
     }
 
     private void createNewCharacter(ListView<String> listView) {
