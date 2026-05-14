@@ -1,8 +1,8 @@
 package com.fuchsbau.shorin.Engine.Editor.Module.BattleMap;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fuchsbau.shorin.Engine.Editor.IO.EditorIO;
+import com.fuchsbau.shorin.Engine.Editor.Module.CharacterModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.EditorModule;
+import com.fuchsbau.shorin.Engine.Editor.Module.NpcModule;
 import com.fuchsbau.shorin.Engine.Map.Core.*;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
@@ -15,7 +15,8 @@ import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.LightPreset;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.RPG.GameClock;
-import com.fuchsbau.shorin.Engine.System.NpcBuild;
+import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
+import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
@@ -35,7 +36,6 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,8 +61,9 @@ public class BattleMapModule implements EditorModule {
     private final BorderPane sidebarContainer = new BorderPane();
     private Tool currentTool = Tool.WALL;
     private Label toolLabel;
-    private final Map<String, NpcBuild> npcs = new HashMap<>();
-    private final ObservableList<NpcBuild> npcBuildObservableList = FXCollections.observableArrayList();
+    private final Map<String, NonPlayerCharacter> npcs = new HashMap<>();
+    private final ObservableList<NonPlayerCharacter> npcBuildObservableList = FXCollections.observableArrayList();
+    private final ObservableList<PlayerCharacter> charsBuildObservableList = FXCollections.observableArrayList();
     private boolean drawingActive = false;
     private boolean tokensActive = false;
     private Token selectedToken = null;
@@ -438,7 +439,20 @@ public class BattleMapModule implements EditorModule {
                 } else if (s.startsWith("NPC:") || s.startsWith("CHAR:")) {
                     int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
                     if (rc != null) {
-                        gameMap.getTokens().add(new Token(rc[0], rc[1], npcs.get(s.split(":")[1])));
+                        String id = s.split(":")[1];
+                        Token token;
+                        if (s.startsWith("CHAR:")) {
+                            PlayerCharacter pc = CharacterModule.loadCharakterfromDisk().stream()
+                                    .filter(c -> c.name.equals(id)).findFirst().orElse(null);
+                            if (pc == null) {
+                                logger.warning("Charakter nicht gefunden: " + id);
+                                return;
+                            }
+                            token = new Token(rc[0], rc[1], pc);
+                        } else {
+                            token = new Token(rc[0], rc[1], npcs.get(id));
+                        }
+                        gameMap.getTokens().add(token);
                         mapRenderer.renderBattlemap();
                         logger.fine("Token platziert: " + s + " @ " + rc[0] + "/" + rc[1]);
                         ok = true;
@@ -845,18 +859,18 @@ public class BattleMapModule implements EditorModule {
         TextField npcSearch = new TextField();
         npcSearch.setPromptText("NPC suchen...");
 
-        FilteredList<NpcBuild> filtered = new FilteredList<>(npcBuildObservableList, n -> true);
+        FilteredList<NonPlayerCharacter> filtered = new FilteredList<>(npcBuildObservableList, n -> true);
         npcSearch.textProperty().addListener((obs, ov, nv) ->
                 filtered.setPredicate(n ->
                         nv == null || nv.isBlank() ||
                                 n.name.toLowerCase().contains(nv.toLowerCase()) ||
                                 String.valueOf(n.level).contains(nv)));
 
-        ListView<NpcBuild> npcList = new ListView<>(filtered);
+        ListView<NonPlayerCharacter> npcList = new ListView<>(filtered);
         npcList.setPrefHeight(200);
         npcList.setCellFactory(lv -> new ListCell<>() {
             @Override
-            protected void updateItem(NpcBuild n, boolean empty) {
+            protected void updateItem(NonPlayerCharacter n, boolean empty) {
                 super.updateItem(n, empty);
                 if (empty || n == null) {
                     setText(null);
@@ -866,7 +880,7 @@ public class BattleMapModule implements EditorModule {
             }
         });
         npcList.setOnDragDetected(e -> {
-            NpcBuild selected = npcList.getSelectionModel().getSelectedItem();
+            NonPlayerCharacter selected = npcList.getSelectionModel().getSelectedItem();
             if (selected == null) return;
             Dragboard db = npcList.startDragAndDrop(TransferMode.COPY);
             ClipboardContent cc = new ClipboardContent();
@@ -879,9 +893,18 @@ public class BattleMapModule implements EditorModule {
         // --- Charaktere ---
         Label charLabel = new Label("Charaktere");
 
-        ObservableList<String> chars = FXCollections.observableArrayList();
-        ListView<String> charList = new ListView<>(chars);
-        charList.setPrefHeight(120);
+        TextField charSearch = new TextField();
+        charSearch.setPromptText("Charakter suchen...");
+
+        ObservableList<String> chars = FXCollections.observableArrayList(CharacterModule.loadCharacterNames());
+        FilteredList<String> filteredChars = new FilteredList<>(chars, c -> true);
+        charSearch.textProperty().addListener((obs, ov, nv) ->
+                filteredChars.setPredicate(c ->
+                        nv == null || nv.isBlank() ||
+                                c.toLowerCase().contains(nv.toLowerCase())));
+
+        ListView<String> charList = new ListView<>(filteredChars);
+        charList.setPrefHeight(200);
         charList.setOnDragDetected(e -> {
             String selected = charList.getSelectionModel().getSelectedItem();
             if (selected == null) return;
@@ -892,10 +915,6 @@ public class BattleMapModule implements EditorModule {
             logger.fine("Char Drag: " + selected);
             e.consume();
         });
-
-        Button refreshCharsBtn = new Button("Aktualisieren");
-        refreshCharsBtn.setMaxWidth(Double.MAX_VALUE);
-        refreshCharsBtn.setOnAction(e -> loadChars(chars));
 
         // --- Platzierte Tokens ---
         Label placedLabel = new Label("Platziert");
@@ -926,13 +945,10 @@ public class BattleMapModule implements EditorModule {
             logger.fine("Token entfernt: " + selected.name);
         });
 
-        // Chars laden
-        loadChars(chars);
-
         VBox panel = new VBox(8,
                 npcLabel, npcSearch, npcList,
                 new Separator(),
-                charLabel, charList, refreshCharsBtn,
+                charLabel, charList,
                 new Separator(),
                 placedLabel, placedList, removeTokenBtn
         );
@@ -961,12 +977,6 @@ public class BattleMapModule implements EditorModule {
             if (dx * dx + dy * dy <= tolerance * tolerance) return ls;
         }
         return null;
-    }
-
-    private void loadChars(ObservableList<String> chars) {
-        chars.clear();
-        chars.add("(noch keine Charaktere)");
-        logger.fine("Charaktere geladen: " + chars.size());
     }
 
     private Node buildDrawPanel() {
@@ -1539,6 +1549,7 @@ public class BattleMapModule implements EditorModule {
     @Override
     public void onActivate() {
         loadNpcs();
+        loadChars();
         double turns = 16 * GameClock.TURNS_PER_HOUR;
         GameClock.getInstance().setTotalTurns(turns);
         mapRenderer.renderBattlemap();
@@ -1547,14 +1558,19 @@ public class BattleMapModule implements EditorModule {
 
     private void loadNpcs() {
         npcBuildObservableList.clear();
-        List<NpcBuild> loaded = EditorIO.load("Ingame/npcs.json",
-                new TypeReference<>() {
-                }, new ArrayList<>());
-        for (NpcBuild npcBuild : loaded) {
+        List<NonPlayerCharacter> loaded = NpcModule.loadNpcsfromDisk();
+        for (NonPlayerCharacter npcBuild : loaded) {
             npcs.put(npcBuild.name, npcBuild);
         }
         npcBuildObservableList.addAll(loaded);
         logger.info("NPCs geladen: " + npcs.size());
+    }
+
+    private void loadChars() {
+        charsBuildObservableList.clear();
+        charsBuildObservableList.addAll(CharacterModule.loadCharakterfromDisk());
+
+        logger.fine("Charaktere geladen: " + charsBuildObservableList.size());
     }
 
     private Button makeWallBtn(String name, WallType type) {

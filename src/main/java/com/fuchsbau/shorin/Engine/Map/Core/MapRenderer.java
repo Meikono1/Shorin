@@ -164,9 +164,11 @@ public class MapRenderer {
         // LightMask bei Resize anpassen
         pane.widthProperty().addListener((obs, o, n) -> {
             lightMask.resize(n.doubleValue(), pane.getHeight());
+            renderBattlemap();
         });
         pane.heightProperty().addListener((obs, o, n) -> {
             lightMask.resize(pane.getWidth(), n.doubleValue());
+            renderBattlemap();
         });
 
         logger.fine("CanvasPane gebaut — grayView + colorView + lightMask");
@@ -252,10 +254,9 @@ public class MapRenderer {
         renderLightLayer();
         renderStrategyMap();
 
-        renderWalls(g, camX, camY, zoom);
+        if (debug) renderWalls(g, camX, camY, zoom);
         if (wallPreviewX >= 0) renderWallPreview(g, camX, camY, zoom);
     }
-
 
     public void renderStrategyMap() {
         if (tokenCanvas == null) return;
@@ -333,8 +334,8 @@ public class MapRenderer {
                 g.strokeOval(x - 2, y - 2, size + 4, size + 4);
             }
 
-            if (t.npcBuild != null && t.npcBuild.tokenPath != null && !t.npcBuild.tokenPath.isBlank()) {
-                Image img = ImagePreLoader.getCached(t.npcBuild.tokenPath);
+            if (t.Statblock != null && t.Statblock.tokenPath != null && !t.Statblock.tokenPath.isBlank()) {
+                Image img = ImagePreLoader.getCached(t.Statblock.tokenPath);
                 if (img != null && !img.isError()) {
                     g.drawImage(img, x, y, size, size);
                 } else {
@@ -762,6 +763,7 @@ public class MapRenderer {
                 lastMouseY = e.getY();
                 setCamX(getCamX() - dx / getZoom());
                 setCamY(getCamY() - dy / getZoom());
+                clampCamera();
                 renderBattlemap();
             }
         });
@@ -769,7 +771,7 @@ public class MapRenderer {
         canvas.addEventFilter(ScrollEvent.SCROLL, e -> {
             double oldZoom = getZoom();
             double factor = Math.pow(1.0015, e.getDeltaY());
-            setZoom(clamp(getZoom() * factor, 0.2, 6.0));
+            setZoom(clamp(getZoom() * factor, 0.2, 5.0));
 
             double wx = screenToWorldX(e.getX(), oldZoom);
             double wy = screenToWorldY(e.getY(), oldZoom);
@@ -778,10 +780,23 @@ public class MapRenderer {
 
             setCamX(getCamX() + (wx - wxA));
             setCamY(getCamY() + (wy - wyA));
+            clampCamera();
             renderBattlemap();
             e.consume();
         });
 
         logger.fine("Kamera-Handler registriert");
+    }
+
+    private void clampCamera() {
+        double worldW = gameMap.getCols() * BASE_TILE;
+        double worldH = gameMap.getRows() * BASE_TILE;
+        double viewW = canvas.getWidth() / getZoom();
+        double viewH = canvas.getHeight() / getZoom();
+        double buffer = worldW * 0.25;
+        double bufferH = worldH * 0.25;
+
+        setCamX(clamp(getCamX(), -buffer, Math.max(-buffer, worldW - viewW + buffer)));
+        setCamY(clamp(getCamY(), -bufferH, Math.max(-bufferH, worldH - viewH + bufferH)));
     }
 }

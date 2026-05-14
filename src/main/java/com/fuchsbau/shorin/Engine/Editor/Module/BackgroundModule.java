@@ -16,9 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class BackgroundModule implements EditorModule {
@@ -36,7 +34,7 @@ public class BackgroundModule implements EditorModule {
     private Spinner<Integer> freeBoostSpinner;
 
     // Choice-Boosts: Checkboxen pro AbilityScore
-    private final java.util.Map<AbilityScore, CheckBox> choiceBoxes = new java.util.EnumMap<>(AbilityScore.class);
+    private final Map<AbilityScore, CheckBox> choiceBoxes = new EnumMap<>(AbilityScore.class);
 
     // Listen
     private ListView<String> skillListView;
@@ -88,7 +86,7 @@ public class BackgroundModule implements EditorModule {
             cb.setOnAction(e -> {
                 if (selected == null) return;
                 if (cb.isSelected()) {
-                    if (!selected.choiceBoosts.contains(s.name())) selected.choiceBoosts.add(s.name());
+                    if (!selected.choiceBoosts.contains(s.name())) selected.choiceBoosts.add(s);
                 } else selected.choiceBoosts.remove(s.name());
                 logger.fine("ChoiceBoost: " + selected.choiceBoosts);
             });
@@ -280,11 +278,13 @@ public class BackgroundModule implements EditorModule {
         freeBoostSpinner.getValueFactory().setValue(b.freeBoosts);
 
         choiceBoxes.forEach((score, cb) ->
-                cb.setSelected(b.choiceBoosts.contains(score.name())));
+                cb.setSelected(b.choiceBoosts.contains(score)));
 
         skillListView.getItems().setAll(b.skills);
         loreListView.getItems().setAll(b.lores);
         featListView.getItems().setAll(b.feats);
+
+
         logger.fine("Background geladen: " + b.name);
     }
 

@@ -131,7 +131,7 @@ public class LightMask {
         renderTintLayer(tintContext, computed);
     }
 
-    private void renderLightLayer(GraphicsContext g, java.util.List<LightPolygonData> computed) {
+    private void renderLightLayer(GraphicsContext g, List<LightPolygonData> computed) {
         for (LightPolygonData data : computed) {
             double brightFraction = clamp(data.brightR() / data.dimR(), 0.0, 1.0);
             double dimStart = clamp(brightFraction + 0.001, 0.0, 1.0);
@@ -153,7 +153,7 @@ public class LightMask {
         }
     }
 
-    private void renderTintLayer(GraphicsContext g, java.util.List<LightPolygonData> computed) {
+    private void renderTintLayer(GraphicsContext g, List<LightPolygonData> computed) {
         for (LightPolygonData data : computed) {
             LightSource ls = data.light();
             if (ls.colorR >= 0.99 && ls.colorG >= 0.99 && ls.colorB >= 0.99) continue;

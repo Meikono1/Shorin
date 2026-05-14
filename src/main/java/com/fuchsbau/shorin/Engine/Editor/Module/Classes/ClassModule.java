@@ -313,9 +313,6 @@ public class ClassModule implements EditorModule {
         getClassNameField().setText(gc.name);
         descriptionArea.setText(gc.description);
 
-        abilityButtons.forEach((ability, cb) ->
-                cb.setSelected(gc.keyAbilities.contains(ability)));
-
         saveBoxes.forEach((save, box) -> {
             Proficiency val = gc.savingThrows.getOrDefault(save, Proficiency.TRAINED);
             box.setValue(val);

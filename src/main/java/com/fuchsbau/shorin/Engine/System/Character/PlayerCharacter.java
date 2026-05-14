@@ -3,17 +3,13 @@ package com.fuchsbau.shorin.Engine.System.Character;
 import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.System.Combat.SavingThrows;
 import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
+import com.fuchsbau.shorin.Engine.System.StatBlock;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 
-public class PlayerCharacter {
+public class PlayerCharacter extends StatBlock {
 
-    // --- Header ---
-    public String name = "";
-    public int level = 1;
     public String className = "";
     public int classHP = -1;
     public String ancestry = "";
@@ -26,35 +22,6 @@ public class PlayerCharacter {
     public AbilityScoreEntry classBoostChoice;
     public List<AbilityScoreEntry> freeBoostChoices = new ArrayList<>();
 
-    // --- Stats ---
-    public int str = 0, dex = 0, con = 0;
-    public int intel = 0, wis = 0, cha = 0;
-
-    // --- Combat ---
-    public int ac = 10;
-    public int hp = 0;
-    public int speed = 25;
-
-    // --- Saves ---
-    public int fortitude = 0;
-    public Proficiency fortProficency = Proficiency.UNTRAINED;
-    public int reflex = 0;
-    public Proficiency reflexProficency = Proficiency.UNTRAINED;
-    public int will = 0;
-    public Proficiency willProficency = Proficiency.UNTRAINED;
-
-    // --- Skills ---
-    public Map<Skill, Proficiency> skills = new EnumMap<>(Skill.class);
-
-    // --- Ausrüstung ---
-    public List<String> weapons = new ArrayList<>();
-    public List<String> armor = new ArrayList<>();
-    public List<String> gear = new ArrayList<>();
-    public List<String> spells = new ArrayList<>();
-
-    // --- Pet/Companion ---
-    public String petName = "";
-    public String petType = "";
 
     public PlayerCharacter() {
         for (Skill s : Skill.values()) {
@@ -138,6 +105,16 @@ public class PlayerCharacter {
             case STR -> str += score.value;
             case INT -> intel += score.value;
             case WIS -> wis += score.value;
+        }
+    }
+
+    public void setLevel(String t1) {
+        try {
+            this.level = Integer.parseInt(t1);
+            if (level < 0) level = 0;
+            if (level > 20) level = 20;
+            refresh();
+        } catch (Exception ignored) {
         }
     }
 }

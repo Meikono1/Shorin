@@ -38,11 +38,11 @@ public class NpcModule implements EditorModule {
 
     private final Logger logger = FileLogger.getLogger();
 
-    private static final String FILE = "Ingame/npcs.json";
+    private static final String FILE = "GameConfig/Ingame/npcs.json";
 
-    private final ObservableList<NpcBuild> npcs = FXCollections.observableArrayList();
-    private NpcBuild selectedNpc = null;
-    private ListView<NpcBuild> npcListView;
+    private final ObservableList<NonPlayerCharacter> npcs = FXCollections.observableArrayList();
+    private NonPlayerCharacter selectedNpc = null;
+    private ListView<NonPlayerCharacter> npcListView;
     private TextField searchField;
     private Spinner<Integer> levelFilterSpinner;
 
@@ -287,7 +287,7 @@ public class NpcModule implements EditorModule {
             spinner.setEditable(true);
             spinner.setPrefWidth(70);
             spinner.valueProperty().addListener((obs, ov, nv) -> {
-                if (selectedNpc != null) selectedNpc.skills.put(skill, nv);
+                if (selectedNpc != null) selectedNpc.skillIncreases.put(skill, nv);
             });
             skillSpinners.put(skill, spinner);
             grid.add(new Label(skill.displayName()), i % 3 * 2, i / 3);
@@ -489,7 +489,7 @@ public class NpcModule implements EditorModule {
 
     private void addAttack() {
         if (selectedNpc == null) return;
-        NpcBuild.NpcAttack attack = new NpcBuild.NpcAttack();
+        NonPlayerCharacter.NpcAttack attack = new NonPlayerCharacter.NpcAttack();
         selectedNpc.attacks.add(attack);
         refreshAttacksBox();
         logger.fine("Angriff hinzugefügt");
@@ -499,7 +499,7 @@ public class NpcModule implements EditorModule {
         attacksBox.getChildren().clear();
         if (selectedNpc == null) return;
 
-        for (NpcBuild.NpcAttack attack : selectedNpc.attacks) {
+        for (NonPlayerCharacter.NpcAttack attack : selectedNpc.attacks) {
             TextField nameField = new TextField(attack.name);
             nameField.setPromptText("Name");
             nameField.setPrefWidth(100);
@@ -681,7 +681,7 @@ public class NpcModule implements EditorModule {
         HBox levelRow = new HBox(6, levelLabel, levelFilterSpinner);
 
         // --- Gefilterte + sortierte Liste ---
-        FilteredList<NpcBuild> filtered = new FilteredList<>(npcs, n -> true);
+        FilteredList<NonPlayerCharacter> filtered = new FilteredList<>(npcs, n -> true);
 
         Runnable applyFilter = () -> {
             String text = searchField.getText().trim().toLowerCase();
@@ -707,7 +707,7 @@ public class NpcModule implements EditorModule {
         npcListView = new ListView<>(filtered);
         npcListView.setCellFactory(lv -> new ListCell<>() {
             @Override
-            protected void updateItem(NpcBuild n, boolean empty) {
+            protected void updateItem(NonPlayerCharacter n, boolean empty) {
                 super.updateItem(n, empty);
                 if (empty || n == null) {
                     setText(null);
@@ -717,7 +717,7 @@ public class NpcModule implements EditorModule {
             }
         });
         npcListView.setOnMouseClicked(e -> {
-            NpcBuild n = npcListView.getSelectionModel().getSelectedItem();
+            NonPlayerCharacter n = npcListView.getSelectionModel().getSelectedItem();
             if (n != null) loadNpc(n);
         });
         VBox.setVgrow(npcListView, Priority.ALWAYS);
@@ -736,13 +736,13 @@ public class NpcModule implements EditorModule {
 
 
     private void sortNpcs() {
-        List<NpcBuild> sorted = new ArrayList<>(npcs);
+        List<NonPlayerCharacter> sorted = new ArrayList<>(npcs);
         sorted.sort((a, b) -> {
             // erst Level, dann Name
             if (a.level != b.level) return Integer.compare(a.level, b.level);
             return a.name.compareToIgnoreCase(b.name);
         });
-        NpcBuild current = selectedNpc;
+        NonPlayerCharacter current = selectedNpc;
         npcs.setAll(sorted);
         if (current != null) npcListView.getSelectionModel().select(current);
         logger.fine("NPCs sortiert: " + npcs.size());
@@ -758,18 +758,18 @@ public class NpcModule implements EditorModule {
         }
     }
 
-    public static List<NpcBuild> loadNpcsfromDisk(){
+    public static List<NonPlayerCharacter> loadNpcsfromDisk() {
         return EditorIO.load(FILE,
                 new TypeReference<>() {
                 }, new ArrayList<>());
     }
 
     private void loadFromDisk() {
-        List<NpcBuild> loaded = EditorIO.load(FILE,
+        List<NonPlayerCharacter> loaded = EditorIO.load(FILE,
                 new TypeReference<>() {
                 }, new ArrayList<>());
         if (loaded.isEmpty()) {
-            NpcBuild neu = new NpcBuild();
+            NonPlayerCharacter neu = new NonPlayerCharacter();
             neu.name = "Neuer NPC";
             loaded.add(neu);
             logger.info("Keine NPCs gefunden — leerer NPC erstellt");
@@ -781,7 +781,7 @@ public class NpcModule implements EditorModule {
     }
 
     private void createNew() {
-        NpcBuild n = new NpcBuild();
+        NonPlayerCharacter n = new NonPlayerCharacter();
         n.name = "Neuer NPC";
         npcs.add(n);
         sortNpcs();
@@ -798,7 +798,7 @@ public class NpcModule implements EditorModule {
         logger.info("NPC gelöscht");
     }
 
-    private void loadNpc(NpcBuild n) {
+    private void loadNpc(NonPlayerCharacter n) {
         selectedNpc = n;
 
         npcNameField.setText(n.name);
@@ -816,7 +816,7 @@ public class NpcModule implements EditorModule {
         statSpinners.get(AbilityScore.CHA).getValueFactory().setValue(n.cha);
 
         skillSpinners.forEach((skill, spinner) ->
-                spinner.getValueFactory().setValue(n.skills.getOrDefault(skill, 0)));
+                spinner.getValueFactory().setValue(n.skillIncreases.getOrDefault(skill, 0)));
 
         acSpinner.getValueFactory().setValue(n.ac);
         hpSpinner.getValueFactory().setValue(Math.max(1, n.hp));

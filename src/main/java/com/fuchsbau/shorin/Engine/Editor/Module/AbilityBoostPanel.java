@@ -3,11 +3,11 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.System.Character.*;
 import com.fuchsbau.shorin.Logger.FileLogger;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -19,22 +19,32 @@ public class AbilityBoostPanel {
     private static final Logger logger = FileLogger.getLogger();
     private static final AbilityScore[] ALL = AbilityScore.values();
 
+    private final PlayerCharacter character;
     private final Ancestrie ancestrie;
     private final PlayerBackground background;
     private final ClassBuild classBuild;
-    private final PlayerCharacter character;
 
-    private final VBox root = new VBox(8);
+    private final VBox root = new VBox(12);
 
-    // Auswahl-State
-    private AbilityScore ancestryFreeChoice = null;
+    // Gewählte Boosts pro Quelle
     private AbilityScore bgChoice = null;
     private AbilityScore classChoice = null;
-    private final Set<AbilityScore> freeChoices = new LinkedHashSet<>();
-    private static final int FREE_BOOST_COUNT = 4;
+    private final Set<AbilityScore> freeChoices = EnumSet.noneOf(AbilityScore.class);
+    private final Map<AbilityScore, CheckBox> bgFreeBoxes = new EnumMap<>(AbilityScore.class);
+
+    // Checkboxen Refs für UI-Sync
+    private final Map<AbilityScore, CheckBox> bgBoxes = new EnumMap<>(AbilityScore.class);
+    private final Map<AbilityScore, CheckBox> classBoxes = new EnumMap<>(AbilityScore.class);
+    private final Map<AbilityScore, CheckBox> freeBoxes = new EnumMap<>(AbilityScore.class);
+
+    private final Runnable onChanged;
+
+    private static final int FREE_COUNT = 4;
 
     public AbilityBoostPanel(Ancestrie anc, PlayerBackground bg, ClassBuild cls,
-                             PlayerCharacter character) {
+                             PlayerCharacter character, Runnable onChanged) {
+
+        this.onChanged = onChanged;
         this.ancestrie = anc;
         this.background = bg;
         this.classBuild = cls;
@@ -47,227 +57,282 @@ public class AbilityBoostPanel {
         return root;
     }
 
+    // Gespeicherte Choices aus dem Character zurückladen
     private void restoreChoices() {
-        /*
-        // Ancestry free
-        if (character.ancestryBoostChoices.containsKey("free_0")) {
-            try {
-                ancestryFreeChoice = AbilityScore.valueOf(character.ancestryBoostChoices.get("free_0"));
-            } catch (Exception ignored) {
+        if (background != null) {
+            Set<AbilityScore> choiceSet = EnumSet.copyOf(background.choiceBoosts.isEmpty()
+                    ? EnumSet.noneOf(AbilityScore.class) : EnumSet.copyOf(background.choiceBoosts));
+            for (AbilityScoreEntry e : character.backgroundBoostChoice) {
+                if (choiceSet.contains(e.abilityScore)) {
+                    bgChoice = e.abilityScore;
+                    break;
+                }
             }
         }
-        // Background
-        if (!character.backgroundBoostChoice.isBlank()) {
-            try {
-                bgChoice = AbilityScore.valueOf(character.backgroundBoostChoice);
-            } catch (Exception ignored) {
-            }
-        }
-        // Class
-        if (!character.classBoostChoice.isBlank()) {
-            try {
-                classChoice = AbilityScore.valueOf(character.classBoostChoice);
-            } catch (Exception ignored) {
-            }
-        }
-        // Free
-        for (String s : character.freeBoostChoices) {
-            try {
-                freeChoices.add(AbilityScore.valueOf(s));
-            } catch (Exception ignored) {
-            }
-        }
-        logger.fine("Choices wiederhergestellt: bg=" + bgChoice
-                + " cls=" + classChoice + " free=" + freeChoices);
 
-         */
+        if (character.classBoostChoice != null)
+            classChoice = character.classBoostChoice.abilityScore;
+
+        for (AbilityScoreEntry e : character.freeBoostChoices)
+            freeChoices.add(e.abilityScore);
+
+
+        logger.fine("Choices restored — bg=" + bgChoice + " class=" + classChoice + " free=" + freeChoices);
     }
 
     private void build() {
-        /*root.setPadding(new Insets(8));
-        root.getChildren().clear();
+        root.setPadding(new Insets(8));
+        root.getChildren().addAll(
+                buildAncestrySection(),
+                new Separator(),
+                buildBgSection(),
+                new Separator(),
+                buildClassSection(),
+                new Separator(),
+                buildFreeSection()
+        );
+    }
 
-        // --- Ancestry feste Boosts ---
-        VBox ancSection = section("Ancestry Boosts");
-        for (Ancestrie.AbilityBoost b : ancestrie.abilityBoosts) {
-            Label lbl = new Label((b.value > 0 ? "+" : "") + b.value + "  " + b.score.name()
-                    + "  (" + b.score.fullName() + ")");
-            lbl.setTextFill(b.value > 0 ? Color.LIGHTGREEN : Color.SALMON);
-            ancSection.getChildren().add(lbl);
+    private Node buildAncestrySection() {
+        VBox box = new VBox(6);
+        box.getChildren().add(sectionLabel("Ancestry — " + (ancestrie != null ? ancestrie.name : "–")));
+
+        if (ancestrie == null) return box;
+
+        Set<AbilityScore> fixedBoosts = EnumSet.noneOf(AbilityScore.class);
+        for (AbilityScoreEntry e : ancestrie.abilityBoosts) {
+            CheckBox cb = new CheckBox(e.abilityScore.name() + (e.value < 0 ? " (Flaw)" : ""));
+            cb.setSelected(true);
+            cb.setDisable(true);
+            cb.setStyle("-fx-opacity: 0.85;");
+            box.getChildren().add(cb);
+
+            if (e.value > 0) fixedBoosts.add(e.abilityScore);
         }
-        // Ancestry freeBoosts — Dropdown
-        for (int i = 0; i < ancestrie.freeBoosts; i++) {
-            ComboBox<AbilityScore> pick = scoreCombo("Freier Ancestry-Boost...");
-            pick.setOnAction(e -> {
-                ancestryFreeChoice = pick.getValue();
-                logger.fine("Ancestry Free Boost: " + ancestryFreeChoice);
-                recalculate();
-            });
-            // vorherige Wahl laden
-            if (character.ancestryBoostChoices.containsKey("free_" + i)) {
-                try {
-                    pick.setValue(AbilityScore.valueOf(character.ancestryBoostChoices.get("free_" + i)));
-                } catch (Exception ignored) {
-                }
+
+        if (ancestrie.freeBoosts > 0) {
+            box.getChildren().add(smallLabel("Freie Boosts (" + ancestrie.freeBoosts + "x wählen):"));
+            Set<AbilityScore> ancestryFreeChoices = EnumSet.noneOf(AbilityScore.class);
+
+            for (AbilityScoreEntry e : character.ancestryBoostChoices) {
+                if (e.value > 0 && !fixedBoosts.contains(e.abilityScore))
+                    ancestryFreeChoices.add(e.abilityScore);
             }
-            ancSection.getChildren().add(pick);
-        }
-        root.getChildren().add(ancSection);
 
-        // --- Background Boosts ---
-        VBox bgSection = section("Background Boosts");
-        if (!background.choiceBoosts.isEmpty()) {
-            Label info = new Label("Wähle einen: " + String.join(" / ", background.choiceBoosts));
-            info.setStyle("-fx-font-size: 11px;");
-            bgSection.getChildren().add(info);
-
-            ObservableList<AbilityScore> bgOptions = FXCollections.observableArrayList();
-            background.choiceBoosts.forEach(s -> {
-                try {
-                    bgOptions.add(AbilityScore.valueOf(s));
-                } catch (Exception ignored) {
-                }
-            });
-            ComboBox<AbilityScore> bgPick = new ComboBox<>(bgOptions);
-            bgPick.setPromptText("Boost wählen...");
-            bgPick.setMaxWidth(Double.MAX_VALUE);
-            bgPick.setOnAction(e -> {
-                bgChoice = bgPick.getValue();
-                logger.fine("Background Choice Boost: " + bgChoice);
-                recalculate();
-            });
-            if (!character.backgroundBoostChoice.isBlank()) {
-                try {
-                    bgPick.setValue(AbilityScore.valueOf(character.backgroundBoostChoice));
-                } catch (Exception ignored) {
-                }
-            }
-            bgSection.getChildren().add(bgPick);
-        }
-        // Background freeBoosts
-        for (int i = 0; i < background.freeBoosts; i++) {
-            ComboBox<AbilityScore> pick = scoreCombo("Freier Background-Boost...");
-            pick.setOnAction(e -> {
-                bgChoice = pick.getValue();  // falls kein choiceBoost
-                recalculate();
-            });
-            bgSection.getChildren().add(pick);
-        }
-        root.getChildren().add(bgSection);
-
-        // --- Class Boost ---
-        VBox classSection = section("Class Boost");
-        if (!classBuild.keyAbilities.isEmpty()) {
-            Label info = new Label("Key Ability: " + classBuild.keyAbilities.stream()
-                    .map(AbilityScore::name).reduce((a, b) -> a + " / " + b).orElse("–"));
-            info.setStyle("-fx-font-size: 11px;");
-
-            ObservableList<AbilityScore> clsOptions =
-                    FXCollections.observableArrayList(classBuild.keyAbilities);
-            ComboBox<AbilityScore> clsPick = new ComboBox<>(clsOptions);
-            clsPick.setPromptText("Key Ability wählen...");
-            clsPick.setMaxWidth(Double.MAX_VALUE);
-            clsPick.setOnAction(e -> {
-                classChoice = clsPick.getValue();
-                logger.fine("Class Key Ability: " + classChoice);
-                recalculate();
-            });
-            if (!character.classBoostChoice.isBlank()) {
-                try {
-                    clsPick.setValue(AbilityScore.valueOf(character.classBoostChoice));
-                } catch (Exception ignored) {
-                }
-            }
-            classSection.getChildren().addAll(info, clsPick);
-        }
-        root.getChildren().add(classSection);
-
-        // --- Freie Boosts (4 Checkboxen) ---
-        VBox freeSection = section("Freie Boosts (wähle " + FREE_BOOST_COUNT + ")");
-        GridPane freeGrid = new GridPane();
-        freeGrid.setHgap(16);
-        freeGrid.setVgap(4);
-
-        AbilityScore[] scores = AbilityScore.values();
-        for (int i = 0; i < scores.length; i++) {
-            AbilityScore s = scores[i];
-            CheckBox cb = new CheckBox(s.name());
-            cb.setSelected(character.freeBoostChoices.contains(s.name()));
-            cb.setOnAction(e -> {
-                if (cb.isSelected()) {
-                    if (freeChoices.size() >= FREE_BOOST_COUNT) {
-                        cb.setSelected(false);
-                        logger.fine("Freie Boosts: Maximum erreicht (" + FREE_BOOST_COUNT + ")");
-                        return;
+            HBox row = new HBox(6);
+            for (AbilityScore score : ALL) {
+                if (fixedBoosts.contains(score)) continue;
+                CheckBox cb = new CheckBox(score.name());
+                cb.setSelected(ancestryFreeChoices.contains(score));
+                cb.setOnAction(e -> {
+                    if (cb.isSelected()) {
+                        if (ancestryFreeChoices.size() >= ancestrie.freeBoosts) {
+                            cb.setSelected(false);
+                            logger.fine("Ancestry free limit erreicht");
+                            return;
+                        }
+                        ancestryFreeChoices.add(score);
+                    } else {
+                        ancestryFreeChoices.remove(score);
                     }
-                    freeChoices.add(s);
-                } else {
-                    freeChoices.remove(s);
-                }
-                logger.fine("Freie Boosts: " + freeChoices);
-                recalculate();
-            });
-            freeGrid.add(cb, i % 2, i / 2);
+                    syncAncestryFreeToCharacter(ancestryFreeChoices, fixedBoosts);
+                    logger.fine("Ancestry free -> " + ancestryFreeChoices);
+                });
+                row.getChildren().add(cb);
+            }
+            box.getChildren().add(row);
         }
-        freeSection.getChildren().add(freeGrid);
-        root.getChildren().add(freeSection);
 
-        // Separator + Übersicht
-        root.getChildren().add(new Separator());
-        root.getChildren().add(buildSummary());
-
-        // Initiale Berechnung
-        recalculate();
-
-         */
-    }
-
-    // --- Übersicht-Label (wird nach recalculate aktualisiert) ---
-    private final Map<AbilityScore, Label> summaryLabels = new EnumMap<>(AbilityScore.class);
-
-    private Node buildSummary() {
-        GridPane grid = new GridPane();
-        grid.setHgap(12);
-        grid.setVgap(4);
-        grid.setPadding(new Insets(4));
-
-        AbilityScore[] scores = AbilityScore.values();
-        for (int i = 0; i < scores.length; i++) {
-            AbilityScore s = scores[i];
-            Label name = new Label(s.name());
-            name.setStyle("-fx-font-weight: bold;");
-            Label val = new Label("10  (+0)");
-            summaryLabels.put(s, val);
-            grid.add(name, (i % 2) * 2, i / 2);
-            grid.add(val, (i % 2) * 2 + 1, i / 2);
-        }
-        return grid;
-    }
-
-    private void updateSummary(Map<AbilityScore, Integer> totals) {
-        summaryLabels.forEach((s, lbl) -> {
-            int boost = totals.getOrDefault(s, 0);
-            int score = 10 + boost;
-            int mod = (score - 10) / 2;
-            lbl.setText(score + "  (" + (mod >= 0 ? "+" : "") + mod + ")");
-            lbl.setTextFill(boost > 0 ? Color.LIGHTGREEN : boost < 0 ? Color.SALMON : Color.GRAY);
-        });
-    }
-
-    // --- Helpers ---
-    private VBox section(String title) {
-        Label hdr = new Label(title);
-        hdr.setStyle("-fx-font-weight: bold;");
-        VBox box = new VBox(4, hdr, new Separator());
-        box.setPadding(new Insets(4, 0, 4, 0));
         return box;
     }
 
-    private ComboBox<AbilityScore> scoreCombo(String prompt) {
-        ComboBox<AbilityScore> cb = new ComboBox<>(
-                FXCollections.observableArrayList(ALL));
-        cb.setPromptText(prompt);
-        cb.setMaxWidth(Double.MAX_VALUE);
-        return cb;
+    private void syncAncestryFreeToCharacter(Set<AbilityScore> freeChosen, Set<AbilityScore> fixedBoosts) {
+        character.ancestryBoostChoices.removeIf(e -> e.value > 0 && !fixedBoosts.contains(e.abilityScore));
+        for (AbilityScore s : freeChosen)
+            character.ancestryBoostChoices.add(new AbilityScoreEntry(s, 1));
+        character.refresh();
+        onChanged.run();
+    }
+
+    // Background: eine aus choiceBoosts + freeBoosts freie
+    private Node buildBgSection() {
+        VBox box = new VBox(6);
+        box.getChildren().add(sectionLabel("Background — " + (background != null ? background.name : "–")));
+
+        if (background == null) return box;
+
+        Set<AbilityScore> choiceSet = background.choiceBoosts.isEmpty()
+                ? EnumSet.noneOf(AbilityScore.class)
+                : EnumSet.copyOf(background.choiceBoosts);
+
+        Set<AbilityScore> backgroundFreeChoices = EnumSet.noneOf(AbilityScore.class);
+        for (AbilityScoreEntry e : character.backgroundBoostChoice) {
+            if (!choiceSet.contains(e.abilityScore)) backgroundFreeChoices.add(e.abilityScore);
+        }
+
+        HBox choiceRow = new HBox(6);
+        for (AbilityScore score : background.choiceBoosts) {
+            CheckBox cb = new CheckBox(score.name());
+            bgBoxes.put(score, cb);
+            cb.setSelected(score == bgChoice);
+            choiceRow.getChildren().add(cb);
+        }
+        box.getChildren().add(choiceRow);
+
+        bgBoxes.forEach((score, cb) -> cb.setOnAction(e -> {
+            if (cb.isSelected()) {
+                bgChoice = score;
+                bgBoxes.forEach((s, b) -> {
+                    if (s != score) b.setSelected(false);
+                });
+
+                // Conflict: gewählter Choice-Score im Free rauswerfen
+                if (backgroundFreeChoices.remove(score)) {
+                    bgFreeBoxes.get(score).setSelected(false);
+                    syncBgToCharacter(backgroundFreeChoices);
+                    logger.fine("BG free conflict cleared: " + score);
+                }
+                // Nur den GEWÄHLTEN Score sperren, nicht alle choiceBoosts
+                bgFreeBoxes.forEach((fs, fcb) -> fcb.setDisable(fs == score));
+
+                syncBgToCharacter(backgroundFreeChoices);
+                logger.fine("BG choice -> " + score);
+            } else {
+                bgChoice = null;
+                bgFreeBoxes.forEach((fs, fcb) -> fcb.setDisable(false));
+                syncBgToCharacter(backgroundFreeChoices);
+            }
+        }));
+
+        if (background.freeBoosts > 0) {
+            box.getChildren().add(smallLabel("Freie Boosts (" + background.freeBoosts + "x wählen):"));
+
+            HBox row = new HBox(6);
+            for (AbilityScore score : ALL) {
+                // Nur den aktuell gewählten bgChoice sperren, nicht alle choiceBoosts
+                CheckBox cb = new CheckBox(score.name());
+                bgFreeBoxes.put(score, cb);
+                cb.setSelected(backgroundFreeChoices.contains(score));
+                cb.setDisable(score == bgChoice);
+                cb.setOnAction(e -> {
+                    if (cb.isSelected()) {
+                        if (backgroundFreeChoices.size() >= background.freeBoosts) {
+                            cb.setSelected(false);
+                            logger.fine("BG free limit erreicht");
+                            return;
+                        }
+                        backgroundFreeChoices.add(score);
+                    } else {
+                        backgroundFreeChoices.remove(score);
+                    }
+                    syncBgToCharacter(backgroundFreeChoices);
+                    logger.fine("BG free -> " + backgroundFreeChoices);
+                });
+                row.getChildren().add(cb);
+            }
+            box.getChildren().add(row);
+        }
+
+        return box;
+    }
+
+    private void syncBgToCharacter(Set<AbilityScore> freeChosen) {
+        character.backgroundBoostChoice.clear();
+        if (bgChoice != null)
+            character.backgroundBoostChoice.add(new AbilityScoreEntry(bgChoice));
+        for (AbilityScore s : freeChosen)
+            character.backgroundBoostChoice.add(new AbilityScoreEntry(s));
+        character.refresh();
+        onChanged.run();
+    }
+
+    private Node buildClassSection() {
+        VBox box = new VBox(6);
+        box.getChildren().add(sectionLabel("Klasse — " + (classBuild != null ? classBuild.name : "–")));
+
+        if (classBuild == null || classBuild.keyAbilities.isEmpty()) return box;
+
+        box.getChildren().add(smallLabel("Key Ability:"));
+        HBox row = new HBox(6);
+        for (AbilityScoreEntry entry : classBuild.keyAbilities) {
+            AbilityScore score = entry.abilityScore;
+            CheckBox cb = new CheckBox(score.name());
+            classBoxes.put(score, cb);
+            cb.setSelected(score == classChoice);
+            cb.setOnAction(e -> {
+                if (cb.isSelected()) {
+                    classChoice = score;
+                    classBoxes.forEach((s, b) -> {
+                        if (s != score) b.setSelected(false);
+                    });
+                    syncClassToCharacter();
+                    logger.fine("Class choice -> " + score);
+                } else {
+                    classChoice = null;
+                    syncClassToCharacter();
+                }
+            });
+            row.getChildren().add(cb);
+        }
+        box.getChildren().add(row);
+        return box;
+    }
+
+    private void syncClassToCharacter() {
+        character.classBoostChoice = classChoice != null ? new AbilityScoreEntry(classChoice) : null;
+        character.refresh();
+        onChanged.run();
+    }
+
+    // Freie Boosts: 4x, nichts doppelt (auch nicht mit anderen Quellen)
+    private Node buildFreeSection() {
+        VBox box = new VBox(6);
+        box.getChildren().add(sectionLabel("Freie Boosts (4x)"));
+
+        HBox row = new HBox(6);
+        for (AbilityScore score : ALL) {
+            CheckBox cb = new CheckBox(score.name());
+            freeBoxes.put(score, cb);
+            cb.setSelected(freeChoices.contains(score));
+            cb.setOnAction(e -> {
+                if (cb.isSelected()) {
+                    if (freeChoices.size() >= FREE_COUNT) {
+                        cb.setSelected(false);
+                        logger.fine("Free boost limit erreicht");
+                        return;
+                    }
+                    freeChoices.add(score);
+                } else {
+                    freeChoices.remove(score);
+                }
+                syncFreeToCharacter();
+                logger.fine("Free choices -> " + freeChoices);
+            });
+            row.getChildren().add(cb);
+        }
+        box.getChildren().add(row);
+        return box;
+    }
+
+    private void syncFreeToCharacter() {
+        character.freeBoostChoices.clear();
+        for (AbilityScore s : freeChoices)
+            character.freeBoostChoices.add(new AbilityScoreEntry(s));
+        character.refresh();
+        onChanged.run();
+    }
+
+    private Label sectionLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        l.setTextFill(Color.ORANGE);
+        return l;
+    }
+
+    private Label smallLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-font-size: 11px;");
+        l.setTextFill(Color.BLACK);
+        return l;
     }
 }

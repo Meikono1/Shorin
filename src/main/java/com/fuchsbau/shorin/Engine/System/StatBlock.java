@@ -2,18 +2,16 @@ package com.fuchsbau.shorin.Engine.System;
 
 import com.fuchsbau.shorin.Engine.System.Character.SenseEntry;
 import com.fuchsbau.shorin.Engine.System.Character.Skill;
-import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageModifier;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageType;
-import com.fuchsbau.shorin.Engine.System.Misc.RecallKnowledge;
+import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-public class NpcBuild {
-
+public class StatBlock {
     // --- Basis ---
     public String name = "";
     public int level = 0;
@@ -35,54 +33,29 @@ public class NpcBuild {
 
     // --- Saves ---
     public int fortitude = 0;
+    public Proficiency fortProficency = Proficiency.UNTRAINED;
     public int reflex = 0;
+    public Proficiency reflexProficency = Proficiency.UNTRAINED;
     public int will = 0;
+    public Proficiency willProficency = Proficiency.UNTRAINED;
 
     // --- Perception ---
     public int perception = 0;
     public List<SenseEntry> senses = new ArrayList<>();
 
     // --- Skills ---
-    public Map<Skill, Integer> skills = new EnumMap<>(Skill.class);
+    public Map<Skill, Integer> skillIncreases = new EnumMap<>(Skill.class);
+    public Map<Skill, Proficiency> skills = new EnumMap<>(Skill.class);
 
     // --- Angriffe ---
-    public List<NpcAttack> attacks = new ArrayList<>();
+    public List<NonPlayerCharacter.NpcAttack> attacks = new ArrayList<>();
 
     // --- Aktionen ---
-    public List<String> actionIds = new ArrayList<>(); // Referenz auf GameAction IDs
+    public List<String> actionIds = new ArrayList<>();
 
-    // --- Loot ---
-    public List<String> lootIds = new ArrayList<>();
-
-    // -- Recall Knowledge --
-    public List<RecallKnowledge> recallKnowledge = new ArrayList<>();
-
-    public NpcBuild() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String n) {
-        this.name = n;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    // --- Angriff ---
-    public static class NpcAttack {
-        public String name = "";
-        public ActionCost cost = ActionCost.ONE;
-        public int bonus = 0;
-        public String damage = "";
-        public DamageType damageType = DamageType.PIERCING;
-        public List<String> traits = new ArrayList<>();
-
-        public NpcAttack() {
-        }
-    }
+    // --- Ausrüstung ---
+    public List<String> weapons = new ArrayList<>();
+    public List<String> armor = new ArrayList<>();
+    public List<String> gear = new ArrayList<>();
+    public List<String> spells = new ArrayList<>();
 }

@@ -90,7 +90,7 @@ public class AncestryModule implements EditorModule {
                 new Label("HP (Level 1)"), healthSpinner,
                 new Label("Speed (ft)"), speedSpinner,
                 new Label("Größe"), sizeBox,
-                new Label("Freie Ability Boosts"), freeBoostSpinner  // <-- neu
+                new Label("Freie Ability Boosts"), freeBoostSpinner
         );
 
         // --- Ability Boosts ---

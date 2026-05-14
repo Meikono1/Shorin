@@ -1,13 +1,14 @@
 package com.fuchsbau.shorin.Engine.Map;
 
-import com.fuchsbau.shorin.Engine.System.NpcBuild;
+import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
+import com.fuchsbau.shorin.Engine.System.StatBlock;
+import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import java.util.UUID;
 
 public class Token {
-
     // --- Presentation ---
     public final String id = UUID.randomUUID().toString();
     public final String name;
@@ -16,7 +17,7 @@ public class Token {
 
     // --- Information ---
     public int initiative = 0;
-    public NpcBuild npcBuild;
+    public StatBlock Statblock;
     public int maxActions = 3;
     public final BooleanProperty reactionUsed = new SimpleBooleanProperty(false);
 
@@ -25,15 +26,21 @@ public class Token {
     public boolean isPlayer = false;
     public boolean isActive = false;
 
-    public Token(int row, int col, NpcBuild npcBuild) {
+    public Token(int row, int col, NonPlayerCharacter npcBuild) {
         this.row = row;
         this.col = col;
         this.name = npcBuild.name;
-        this.npcBuild = npcBuild;
+        this.Statblock = npcBuild;
+    }
+    public Token(int row, int col, PlayerCharacter character) {
+        this.row = row;
+        this.col = col;
+        this.name = character.name;
+        this.isPlayer = true;
     }
 
     public int getMaxHp() {
-        return npcBuild != null ? npcBuild.hp : 1;
+        return Statblock != null ? Statblock.hp : 1;
     }
 
     public int getCurrentHp() {
@@ -50,17 +57,11 @@ public class Token {
 
     //@TODO erweitern
     public boolean isAlly() {
-        return !isPlayer && npcBuild != null && npcBuild.traits.contains("ally");
+        return !isPlayer && Statblock != null && Statblock.traits.contains("ally");
     }
 
     public boolean isNeutral() {
-        return !isPlayer && npcBuild != null && npcBuild.traits.contains("neutral");
+        return !isPlayer && Statblock != null && Statblock.traits.contains("neutral");
     }
 
-    @Deprecated
-    public Token(int row, int col, String name) {
-        this.row = row;
-        this.col = col;
-        this.name = name;
-    }
 }

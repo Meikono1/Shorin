@@ -6,7 +6,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
-import com.fuchsbau.shorin.Engine.System.NpcBuild;
+import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Logger.FileLogger;
 
 import java.io.*;
@@ -331,12 +331,12 @@ public class MapSaverLoader {
     private List<Token> readTokens(DataInputStream in) throws IOException {
         int count = in.readInt();
         List<Token> list = new ArrayList<>(count);
-        List<NpcBuild> npcModules = loadNpcsfromDisk();
+        List<NonPlayerCharacter> npcModules = loadNpcsfromDisk();
         for (int i = 0; i < count; i++) {
             int row = in.readInt();
             int col = in.readInt();
             String name = in.readUTF();
-            for (NpcBuild build : npcModules) {
+            for (NonPlayerCharacter build : npcModules) {
                 if (name.equals(build.name)) {
                     list.add(new Token(row, col, build));
                     break;

@@ -41,7 +41,7 @@ public class DebugOverlayWidget implements EncounterWidget {
                 int used = state.actionsUsed.get();
                 int max = active.maxActions;
                 actionsLabel.setText("Aktionen: " + used + " / " + max);
-                hpLabel.setText("HP: " + (active.npcBuild != null ? active.npcBuild.hp : "?"));
+                hpLabel.setText("HP: " + (active.Statblock != null ? active.Statblock.hp : "?"));
             } else {
                 tokenLabel.setText("Aktiv: –");
                 actionsLabel.setText("Aktionen: –");

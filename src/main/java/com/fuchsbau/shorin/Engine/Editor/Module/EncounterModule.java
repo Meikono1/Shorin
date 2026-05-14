@@ -3,7 +3,6 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 import com.fuchsbau.shorin.Engine.Encounter.EncounterPane;
 import com.fuchsbau.shorin.Engine.Encounter.EncounterState;
 import com.fuchsbau.shorin.Engine.Encounter.EncounterTransition;
-import com.fuchsbau.shorin.Engine.Encounter.Widget.DebugOverlayWidget;
 import com.fuchsbau.shorin.Engine.Encounter.Widget.InitiativeTrackerWidget;
 import com.fuchsbau.shorin.Engine.Encounter.WidgetAnchor;
 import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
@@ -11,7 +10,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.MapSaverLoader;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
 import com.fuchsbau.shorin.Engine.Map.Token;
-import com.fuchsbau.shorin.Engine.System.NpcBuild;
+import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.collections.FXCollections;
@@ -44,7 +43,7 @@ public class EncounterModule implements EditorModule {
     private ListView<String> mapListView;
 
     // NPC-Liste für den Battlemap-Editor
-    private final ObservableList<NpcBuild> npcList = FXCollections.observableArrayList();
+    private final ObservableList<NonPlayerCharacter> npcList = FXCollections.observableArrayList();
 
     // aktive Transition-Richtung (per Dropdown wählbar)
     private EncounterTransition.Direction activeDirection = EncounterTransition.Direction.FROM_RIGHT;
@@ -228,11 +227,11 @@ public class EncounterModule implements EditorModule {
         Label label = new Label("NPC – Battlemap");
 
         // NPC-Liste
-        ListView<NpcBuild> npcListView = new ListView<>(npcList);
+        ListView<NonPlayerCharacter> npcListView = new ListView<>(npcList);
         npcListView.setPrefHeight(160);
         npcListView.setCellFactory(lv -> new ListCell<>() {
             @Override
-            protected void updateItem(NpcBuild n, boolean empty) {
+            protected void updateItem(NonPlayerCharacter n, boolean empty) {
                 super.updateItem(n, empty);
                 setText(empty || n == null ? null : "[" + n.level + "] " + n.name);
             }
@@ -245,7 +244,7 @@ public class EncounterModule implements EditorModule {
         Button placeBtn = new Button("→ Auf Karte setzen");
         placeBtn.setMaxWidth(Double.MAX_VALUE);
         placeBtn.setOnAction(e -> {
-            NpcBuild selected = npcListView.getSelectionModel().getSelectedItem();
+            NonPlayerCharacter selected = npcListView.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 logger.warning("placeNpc: kein NPC ausgewählt");
                 return;
@@ -266,7 +265,7 @@ public class EncounterModule implements EditorModule {
         Button removeBtn = new Button("✕ Entfernen");
         removeBtn.setMaxWidth(Double.MAX_VALUE);
         removeBtn.setOnAction(e -> {
-            NpcBuild selected = npcListView.getSelectionModel().getSelectedItem();
+            NonPlayerCharacter selected = npcListView.getSelectionModel().getSelectedItem();
             if (selected == null) {
                 logger.warning("removeNpc: kein NPC ausgewählt");
                 return;
@@ -274,7 +273,7 @@ public class EncounterModule implements EditorModule {
 
             // Alle Tokens dieses NPCs von der Karte räumen
             int before = gameMap.getTokens().size();
-            gameMap.getTokens().removeIf(t -> t.npcBuild == selected);
+            gameMap.getTokens().removeIf(t -> t.Statblock == selected);
             int removed = before - gameMap.getTokens().size();
             mapRenderer.renderBattlemap();
             logger.info("NPC entfernt: " + selected.name + " → " + removed + " Token(s) gelöscht");

@@ -8,7 +8,7 @@ public class PlayerBackground {
     public String name = "";
     public String description = "";
 
-    public List<String> choiceBoosts = new ArrayList<>();
+    public List<AbilityScore> choiceBoosts = new ArrayList<>();
     public int freeBoosts = 1;
 
     public List<String> skills = new ArrayList<>();

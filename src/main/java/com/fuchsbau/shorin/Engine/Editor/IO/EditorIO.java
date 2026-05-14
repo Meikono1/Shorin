@@ -15,7 +15,7 @@ public class EditorIO {
             .enable(SerializationFeature.INDENT_OUTPUT);
 
     public static File dataDir(String filename) {
-        Path file = PathResolver.resolveWritable("GameConfig/" + filename);
+        Path file = PathResolver.resolveWritable( filename);
         file.getParent().toFile().mkdirs();
         return file.toFile();
     }

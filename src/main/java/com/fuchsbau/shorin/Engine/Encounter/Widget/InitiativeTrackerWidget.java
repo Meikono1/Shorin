@@ -271,8 +271,8 @@ public class InitiativeTrackerWidget implements EncounterWidget {
 
     // Token-Bild
     private Node buildTokenImage(Token t, double size) {
-        if (t.npcBuild != null && t.npcBuild.tokenPath != null && !t.npcBuild.tokenPath.isBlank()) {
-            String url = PathResolver.resolveString(t.npcBuild.tokenPath);
+        if (t.Statblock != null && t.Statblock.tokenPath != null && !t.Statblock.tokenPath.isBlank()) {
+            String url = PathResolver.resolveString(t.Statblock.tokenPath);
             if (url != null) {
                 try {
                     Image img = new Image(url, size, size, true, true, true);
@@ -349,11 +349,11 @@ public class InitiativeTrackerWidget implements EncounterWidget {
         HBox row = new HBox(2);
         row.setAlignment(Pos.CENTER);
 
-        if (t.npcBuild == null || t.npcBuild.traits.isEmpty()) return row;
+        if (t.Statblock == null || t.Statblock.traits.isEmpty()) return row;
 
-        int shown = Math.min(t.npcBuild.traits.size(), 4);
+        int shown = Math.min(t.Statblock.traits.size(), 4);
         for (int i = 0; i < shown; i++) {
-            String trait = t.npcBuild.traits.get(i);
+            String trait = t.Statblock.traits.get(i);
             Label icon = new Label(trait.substring(0, Math.min(2, trait.length())).toUpperCase());
             icon.setPrefSize(iconSize, iconSize);
             icon.setAlignment(Pos.CENTER);

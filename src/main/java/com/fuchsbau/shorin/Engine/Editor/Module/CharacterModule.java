@@ -8,6 +8,7 @@ import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.System.Character.*;
 import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 import com.fuchsbau.shorin.Engine.System.SlotType;
+import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -24,16 +25,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class CharacterModule implements EditorModule {
 
     private static final Logger logger = FileLogger.getLogger();
-    private final String DIR = "User/Charakters/";
+    private static final String DIR = "GameConfig/User/Charakters/";
 
     // UI-Refs
     private TextField nameField, levelField;
@@ -67,7 +65,6 @@ public class CharacterModule implements EditorModule {
 
     private AbilityBoostPanel abilityBoostPanel = null;
 
-
     @Override
     public String getTitle() {
         return "Charakter";
@@ -95,6 +92,10 @@ public class CharacterModule implements EditorModule {
         });
 
         levelField = new TextField("1");
+        levelField.textProperty().addListener((observableValue, s, t1) -> {
+            if (character != null) character.setLevel(t1);
+            refreshOverview();
+        });
         levelField.setPrefWidth(45);
 
         classLabel = new Label("–");
@@ -399,7 +400,6 @@ public class CharacterModule implements EditorModule {
     private void showFeatPanel(SlotType slot) {
         tabContextPanel.getChildren().clear();
         tabContextPanel.getChildren().add(makeLabel(slotLabel(slot)));
-        tabContextPanel.getChildren().add(makeSmallLabel("Verfügbare Optionen:"));
 
         switch (slot) {
             case CLASS -> {
@@ -645,7 +645,6 @@ public class CharacterModule implements EditorModule {
                     return;
                 }
 
-                // Quellen laden
                 Ancestrie anc = AncestryModule.loadAll().stream()
                         .filter(a -> a.name.equals(character.ancestry)).findFirst().orElse(null);
                 PlayerBackground bg = BackgroundModule.loadAll().stream()
@@ -658,7 +657,7 @@ public class CharacterModule implements EditorModule {
                     return;
                 }
 
-                abilityBoostPanel = new AbilityBoostPanel(anc, bg, cls, character);
+                abilityBoostPanel = new AbilityBoostPanel(anc, bg, cls, character, this::refreshOverview);
                 VBox.setVgrow(abilityBoostPanel.getRoot(), Priority.ALWAYS);
                 tabContextPanel.getChildren().add(abilityBoostPanel.getRoot());
                 logger.fine("AbilityBoost-Panel gebaut");
@@ -815,7 +814,7 @@ public class CharacterModule implements EditorModule {
         if (!b.choiceBoosts.isEmpty()) {
             detail.getChildren().add(new Separator());
             detail.getChildren().add(makeSmallLabel(
-                    "Ability Boost (wähle einen): " + String.join(" / ", b.choiceBoosts)));
+                    "Ability Boost"));
         }
         if (b.freeBoosts > 0)
             detail.getChildren().add(makeSmallLabel("Freie Boosts: " + b.freeBoosts));
@@ -1033,6 +1032,38 @@ public class CharacterModule implements EditorModule {
         } else {
             logger.warning("Löschen fehlgeschlagen: " + name);
         }
+    }
+
+    public static List<PlayerCharacter> loadCharakterfromDisk() {
+        File dir = PathResolver.resolveWritable(DIR).toFile();
+        if (!dir.exists()) return new ArrayList<>();
+
+        File[] files = dir.listFiles((d, n) -> n.endsWith(".json"));
+        if (files == null) return new ArrayList<>();
+
+        List<PlayerCharacter> result = new ArrayList<>();
+        for (File f : files) {
+            PlayerCharacter c = EditorIO.load(DIR + "/" + f.getName(), new TypeReference<>() {
+            }, null);
+            if (c != null) result.add(c);
+            else logger.warning("Charakter konnte nicht geladen werden: " + f.getName());
+        }
+
+        logger.info("Charaktere geladen: " + result.size());
+        return result;
+    }
+
+    public static List<String> loadCharacterNames() {
+        File dir = PathResolver.resolveWritable(DIR).toFile();
+        if (!dir.exists()) return new ArrayList<>();
+
+        File[] files = dir.listFiles((d, n) -> n.endsWith(".json"));
+        if (files == null) return new ArrayList<>();
+
+        return Arrays.stream(files)
+                .map(f -> f.getName().replace(".json", ""))
+                .sorted()
+                .toList();
     }
 
     @Override
