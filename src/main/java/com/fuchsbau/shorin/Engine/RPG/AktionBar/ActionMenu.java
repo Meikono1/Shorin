@@ -1,21 +1,23 @@
 package com.fuchsbau.shorin.Engine.RPG.AktionBar;
 
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 
+import java.util.Map;
+
+/**
+ * Hält den aktiven ActionRow und rendert ihn bei Mode-Wechsel neu.
+ * Slot-Belegung kommt als Map<Integer, Actionable> vom Controller.
+ */
 public class ActionMenu {
 
-    public enum Mode {TRAVEL, DIALOG, COMBAT}
-
-    private final SceneBuilder sb = SceneBuilder.getSceneBuilder();
     private final VBox root;
-    private Scene sceneRef; // wird von PlayerScreen gesetzt für KeyHandler
-
-    private Mode currentMode = Mode.TRAVEL;
+    private Scene sceneRef;
+    private ActionMode currentMode = ActionMode.TRAVEL;
+    private Map<Integer, Actionable> slotActions = Map.of();
 
     public ActionMenu() {
         root = new VBox(4);
@@ -30,34 +32,25 @@ public class ActionMenu {
 
     public void setScene(Scene scene) {
         this.sceneRef = scene;
-        bindKeys();
     }
 
-    public void setMode(Mode mode) {
+    public void setMode(ActionMode mode) {
         this.currentMode = mode;
+        refresh();
+    }
+
+    public void setSlotActions(Map<Integer, Actionable> actions) {
+        this.slotActions = actions;
         refresh();
     }
 
     private void refresh() {
         root.getChildren().clear();
-        switch (currentMode) {
-            case TRAVEL -> new TravelingActionBox().build(root, sceneRef);
-            case DIALOG -> new DialogActionBox().build(root, sceneRef);
-            case COMBAT -> new CombatActionBox().build(root, sceneRef);
-        }
-    }
-
-    private void bindKeys() {
-        if (sceneRef == null) return;
-        sceneRef.setOnKeyPressed(e -> {
-            switch (e.getCode()) {
-                case ESCAPE -> { /* Options – bleibt in PlayerScreen */ }
-                default -> forwardKey(e.getCode());
-            }
-        });
-    }
-
-    private void forwardKey(KeyCode code) {
-        // TODO: aktive Row informieren
+        ActionRow row = switch (currentMode) {
+            case TRAVEL -> new TravelingActionBox();
+            case DIALOG -> new DialogActionBox();
+            case COMBAT -> new CombatActionBox();
+        };
+        row.build(root, sceneRef, slotActions);
     }
 }

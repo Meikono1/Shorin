@@ -1,14 +1,16 @@
 package com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay;
 
+import com.fuchsbau.shorin.Engine.Images.ImagePaths;
+
 public class TextBuilder {
     final String text;
-    final SegmentStyle style;
+    final TextSegment.Style style;
     String speakerName = null;
-    String speakerImage = null;
-    boolean speakerLeft = true;
+    ImagePaths speakerImage = null;
+    Boolean speakerLeft = null;
     long delayMs = 0;
 
-    TextBuilder(String text, SegmentStyle style) {
+    TextBuilder(String text, TextSegment.Style style) {
         this.text = text;
         this.style = style;
     }
@@ -18,13 +20,13 @@ public class TextBuilder {
         return this;
     }
 
-    public TextBuilder image(String path) {
+    public TextBuilder image(ImagePaths path) {
         this.speakerImage = path;
         return this;
     }
 
-    public TextBuilder right() {
-        this.speakerLeft = false;
+    public TextBuilder side(boolean left) {
+        this.speakerLeft = left;
         return this;
     }
 

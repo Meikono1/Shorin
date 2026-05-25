@@ -1,5 +1,7 @@
 package com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay;
 
+import com.fuchsbau.shorin.Engine.Images.ImagePaths;
+
 /**
  * Konfiguration für eine Szene oder einen Abschnitt.
  * Wird an TextAdventureDisplayView übergeben bevor Segmente kommen.
@@ -14,13 +16,13 @@ public class TextDisplayConfig {
     }
 
     public final double typewriterSpeed; // Zeichen pro Sekunde
-    public final String sceneImagePath;  // null = kein Szenenbild
+    public final ImagePaths sceneImage;  // null = kein Szenenbild
     public final ImageMode imageMode;
     public final boolean showSpeakerImages;
 
     private TextDisplayConfig(Builder b) {
         this.typewriterSpeed = b.typewriterSpeed;
-        this.sceneImagePath = b.sceneImagePath;
+        this.sceneImage = b.sceneImagePath;
         this.imageMode = b.imageMode;
         this.showSpeakerImages = b.showSpeakerImages;
     }
@@ -31,7 +33,7 @@ public class TextDisplayConfig {
 
     public static final class Builder {
         private double typewriterSpeed = 40.0;
-        private String sceneImagePath = null;
+        private ImagePaths sceneImagePath = null;
         private ImageMode imageMode = ImageMode.NONE;
         private boolean showSpeakerImages = false;
 
@@ -40,7 +42,7 @@ public class TextDisplayConfig {
             return this;
         }
 
-        public Builder sceneImage(String path) {
+        public Builder sceneImage(ImagePaths path) {
             this.sceneImagePath = path;
             return this;
         }

@@ -1,24 +1,33 @@
 package com.fuchsbau.shorin.Engine.RPG;
 
+import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.RPG.AktionBar.ActionMenu;
+import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
+import com.fuchsbau.shorin.Engine.RPG.UI.ButtonStyle;
+import com.fuchsbau.shorin.Engine.RPG.UI.SimpleAction;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.CenterPanelView;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.LeftPanelView;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.RightPanelView;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.ScreenMode;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextDisplayConfig;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextSegment;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Game;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
  * Controller zwischen Models und Views.
  * Kein Layout-Code — nur verdrahten, routen, koordinieren.
- *
+ * <p>
  * Models: MapModel, Party (@TODO), EncounterState (@TODO)
  * Views:  LeftPanelView, CenterPanelView, RightPanelView
  */
@@ -28,38 +37,35 @@ public class PlayerScreen implements Saveble {
 
     // Models
     private final MapModel mapModel;
+    private ScreenMode currentMode = ScreenMode.ADVENTURE;
     // @TODO private Party party;
     // @TODO private EncounterModel encounterModel;
 
     // Views
-    private final LeftPanelView  leftView;
+    private final LeftPanelView leftView;
     private final CenterPanelView centerView;
-    private final RightPanelView  rightView;
+    private final RightPanelView rightView;
 
     private Scene scene;
 
     public PlayerScreen(MapModel mapModel) {
-        this.mapModel  = mapModel;
-        this.leftView  = new LeftPanelView();
+        this.mapModel = mapModel;
+        this.leftView = new LeftPanelView();
         this.centerView = new CenterPanelView();
-        this.rightView  = new RightPanelView(mapModel);
+        this.rightView = new RightPanelView(mapModel);
 
         wireViews();
         logger.info("PlayerScreen init");
     }
 
-    // Views verdrahten — Callbacks registrieren
+    // wireViews() — Testszene direkt nach build laden
     private void wireViews() {
-        // Minimap-Expand → Battlemap-Mode
         rightView.setOnMinimapExpand(this::switchToBattleMap);
-
-        // Char-Wechsel im LeftPanel → Center + Right informieren
         leftView.setOnCharSelected(this::onCharChanged);
-
         logger.fine("Views verdrahtet");
     }
 
-    // Scene aufbauen — nur einmal, dann cachen (Saveble-Pattern)
+    // build() — Testszene nach dem Aufbau starten
     private void build() {
         BorderPane root = new BorderPane();
         root.setBackground(GameOptions.hintergrund);
@@ -74,13 +80,86 @@ public class PlayerScreen implements Saveble {
         String css = CSSLoader.resolveUserOrBackupCSS();
         if (css != null) scene.getStylesheets().add(css);
 
-        // ActionMenu bekommt Scene-Ref für KeyHandler
-        centerView.setScene(scene);
-
-        // @TODO party laden und an leftView übergeben
-        // leftView.setMembers(party.getMembers(), party.getActive());
+        // Testszene laden sobald Scene aufgebaut ist
+        Platform.runLater(this::runTestScene);
 
         logger.info("PlayerScreen gebaut");
+    }
+
+
+    private void runTestScene() {
+        logger.info("Testszene start");
+        currentMode = ScreenMode.ADVENTURE;
+
+        centerView.applyConfig(new TextDisplayConfig.Builder()
+                .sceneImage(ImagePaths.SHORIN_PAPER_MAP)
+                .imageMode(TextDisplayConfig.ImageMode.BACKGROUND)
+                .build());
+
+        centerView.clearDisplay();
+        centerView.setAdventureMode(Map.of(
+                2, new SimpleAction("Sprechen", ButtonStyle.ACTION, this::startDialog)
+        ));
+
+        centerView.showSegment(
+                TextSegment.narration("Du stehst am Hafendeck. Ein Wachmann lehnt gelangweilt gegen eine Kiste.").build(),
+                () -> logger.fine("Intro fertig")
+        );
+    }
+
+    private void startDialog() {
+        logger.info("Dialog-Mode");
+        currentMode = ScreenMode.DIALOG;
+        centerView.clearDisplay();
+
+        centerView.showSegment(
+                TextSegment.npc("Wachmann", "Halt! Wer bist du und was willst du hier am Hafen?")
+                        .image(ImagePaths.MAP_TOWER).build(),
+                () -> centerView.setDialogMode(buildDialogActions(), "Was antwortest du?")
+        );
+    }
+
+    private List<Actionable> buildDialogActions() {
+        return List.of(
+                new SimpleAction("Ich bin Händler.",  ButtonStyle.DIALOG, () -> dialogResponse("Ich bin Händler.")),
+                new SimpleAction("Ich suche Arbeit.", ButtonStyle.DIALOG, () -> dialogResponse("Ich suche Arbeit.")),
+                new SimpleAction("[Einschüchtern]",   ButtonStyle.ACTION,  () -> dialogResponse("Einschüchtern"))
+        );
+    }
+
+    private void dialogResponse(String choice) {
+        logger.info("Wahl → " + choice);
+        centerView.setDialogMode(List.of(), "");
+
+        centerView.showSegment(TextSegment.player("Du", choice).build(), () -> {
+            String antwort = switch (choice) {
+                case "Ich bin Händler."  -> "Händler? Dann pass auf deine Ware auf.";
+                case "Ich suche Arbeit." -> "Frag beim Hafenmeister. Der sucht immer Leute.";
+                default                  -> "Der Wachmann tritt einen Schritt zurück.";
+            };
+            centerView.showSegment(
+                    TextSegment.npc("Wachmann", antwort).image(ImagePaths.MAP_TOWER).build(),
+                    () -> centerView.setDialogMode(
+                            List.of(new SimpleAction("Auf Wiedersehen.", ButtonStyle.DIALOG, this::endDialog)),
+                            ""
+                    )
+            );
+        });
+    }
+
+    private void endDialog() {
+        logger.info("Dialog beendet → Adventure-Mode");
+        currentMode = ScreenMode.ADVENTURE;
+
+        centerView.showSegment(TextSegment.player("Du", "Auf Wiedersehen.").build(), () -> {
+            centerView.clearDisplay();
+            centerView.showSegment(
+                    TextSegment.narration("Der Wachmann nickt. Du bist wieder allein am Hafendeck.").build(),
+                    () -> centerView.setAdventureMode(Map.of(
+                            2, new SimpleAction("Sprechen", ButtonStyle.ACTION, this::startDialog)
+                    ))
+            );
+        });
     }
 
     // Keyboard-Routing — nur hier, nicht in Views
@@ -90,9 +169,9 @@ public class PlayerScreen implements Saveble {
                 case ESCAPE -> Main.getStage().setScene(
                         Game.getInstance().optionen.getScene(1));
                 case W -> onMove(0, -1);
-                case S -> onMove(0,  1);
+                case S -> onMove(0, 1);
                 case A -> onMove(-1, 0);
-                case D -> onMove(1,  0);
+                case D -> onMove(1, 0);
                 case TAB -> onTabNextChar();
             }
         });
@@ -133,19 +212,6 @@ public class PlayerScreen implements Saveble {
         logger.info("Char gewechselt → Views aktualisieren");
         centerView.refresh();
         // @TODO rightView.refresh() wenn Char-spezifische Daten im RightPanel
-    }
-
-    // ActionMenu-Mode wechseln — vom Place oder Event ausgelöst
-    public void setMode(ActionMenu.Mode mode) {
-        centerView.setMode(mode);
-        logger.info("Mode → " + mode);
-    }
-
-    // Story-Text setzen — vom aktiven Place ausgelöst
-    // @TODO durch Event-System ersetzen
-    public void setStoryText(String text) {
-        centerView.setStoryText(text);
-        logger.fine("Story gesetzt | " + text.length() + " Zeichen");
     }
 
     // Saveble

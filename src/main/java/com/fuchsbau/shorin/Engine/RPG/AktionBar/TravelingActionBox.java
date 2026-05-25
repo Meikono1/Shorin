@@ -1,83 +1,68 @@
 package com.fuchsbau.shorin.Engine.RPG.AktionBar;
 
+import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+import java.util.Map;
 
+/**
+ * 18 Action-Slots in 3 Reihen à 6.
+ * Slot-Belegung kommt als Map<Integer, Actionable> — leere Slots disabled.
+ */
 public class TravelingActionBox implements ActionRow {
-    private SceneBuilder sb = SceneBuilder.getSceneBuilder();
+
+    private static final int COLS = 6;
+    private static final SceneBuilder sb = SceneBuilder.getSceneBuilder();
+
+    private static final String[][] SLOTS = {
+            {"1","Erkunden"}, {"2","Sprechen"},    {"3","Rasten"},
+            {"4","Lager"},    {"5","Karte"},        {"6","Log"},
+            {"Q","Interagieren"}, {"W","↑"},        {"E","Untersuchen"},
+            {"R","—"},        {"T","—"},             {"Z","—"},
+            {"A","←"},        {"S","↓"},             {"D","→"},
+            {"F","—"},        {"G","—"},             {"H","—"}
+    };
 
     @Override
-    public void build(VBox container, Scene scene) {
+    public void build(VBox container, Scene scene, Map<Integer, Actionable> actions) {
+        Button[] buttons = new Button[SLOTS.length];
 
-        // REIHE 1  –  1-6 Schnellaktionen
-        HBox row1 = buildRow(
-                sb.makeActionButton("1", "Erkunden"),
-                sb.makeActionButton("2", "Sprechen"),
-                sb.makeActionButton("3", "Rasten"),
-                sb.makeActionButton("4", "Lager"),
-                sb.makeActionButton("5", "Karte"),
-                sb.makeActionButton("6", "Log")
-        );
-
-        // REIHE 2  –  Q, E + weitere
-        HBox row2 = buildRow(
-                sb.makeActionButton("Q", "Interagieren"),
-                sb.makeActionButton("W", "↑"),
-                sb.makeActionButton("E", "Untersuchen"),
-                sb.makeActionButton("R", "—"),
-                sb.makeActionButton("T", "—"),
-                sb.makeActionButton("Z", "—")
-        );
-
-        // REIHE 3  –  Bewegung WASD + Kontext
-        HBox row3 = buildRow(
-                sb.makeActionButton("A", "←"),
-                sb.makeActionButton("S", "↓"),
-                sb.makeActionButton("D", "→"),
-                sb.makeActionButton("F", "—"),
-                sb.makeActionButton("G", "—"),
-                sb.makeActionButton("H", "—")
-        );
-
-        container.getChildren().addAll(row1, row2, row3);
-
-        // Keyboard
-        if (scene != null) {
-            scene.setOnKeyPressed(e -> handleKey(e.getCode()));
-        }
-    }
-
-    private HBox buildRow(Button... buttons) {
-        HBox row = new HBox(4);
-        row.setAlignment(Pos.CENTER_LEFT);
-        row.setMaxWidth(Double.MAX_VALUE);
-        for (Button btn : buttons) {
-            btn.setPrefWidth(0); // lässt HGrow arbeiten
+        for (int i = 0; i < SLOTS.length; i++) {
+            int slot = i + 1;
+            Button btn = sb.makeActionButton(SLOTS[i][0], SLOTS[i][1]);
+            btn.setPrefWidth(0);
             HBox.setHgrow(btn, Priority.ALWAYS);
-            row.getChildren().add(btn);
-        }
-        return row;
-    }
 
-    private void handleKey(KeyCode code) {
-        switch (code) {
-            case DIGIT1 -> System.out.println("Erkunden");
-            case DIGIT2 -> System.out.println("Sprechen");
-            case DIGIT3 -> System.out.println("Rasten");
-            case W -> System.out.println("Move N");
-            case A -> System.out.println("Move W");
-            case S -> System.out.println("Move S");
-            case D -> System.out.println("Move E");
-            case Q -> System.out.println("Interagieren");
-            case E -> System.out.println("Untersuchen");
-            // TODO: echte Handler
+            Actionable action = actions.get(slot);
+            if (action != null && action.canExecute()) {
+                btn.setOnAction(e -> action.execute());
+            } else if (action != null) {
+                btn.setDisable(true);
+                Tooltip.install(btn, new Tooltip(action.getDisabledReason()));
+            } else {
+                btn.setDisable(true);
+            }
+
+            buttons[i] = btn;
         }
+
+        for (int row = 0; row < buttons.length / COLS; row++) {
+            HBox hbox = new HBox(4);
+            hbox.setAlignment(Pos.CENTER_LEFT);
+            hbox.setMaxWidth(Double.MAX_VALUE);
+            for (int col = 0; col < COLS; col++) {
+                hbox.getChildren().add(buttons[row * COLS + col]);
+            }
+            container.getChildren().add(hbox);
+        }
+
+        // @TODO Keyboard-Handler wenn WASD aktiv
     }
 }

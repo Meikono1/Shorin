@@ -2,68 +2,57 @@ package com.fuchsbau.shorin.Engine.RPG.ViewModules;
 
 import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.RPG.AktionBar.ActionMenu;
+import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
 import com.fuchsbau.shorin.Engine.RPG.UI.ButtonFactory;
 import com.fuchsbau.shorin.Engine.RPG.UI.ButtonStyle;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.ButtonControl.TextControlModule;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Hideable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Renderable;
-import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextAdventureDisplayView;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextDisplayConfig;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextSegment;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Button;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Mittleres Panel — Story-Text + ActionMenu (TextAdventure-Mode)
- * oder BattleMap-Canvas (BattleMap-Mode).
+ * Mittleres Panel.
+ * TextAdventure-Mode: TextAdventureDisplayView + TextControlModule
+ * BattleMap-Mode: MapRenderer-Canvas + Zurück-Button
  * <p>
- * Mode-Wechsel kommt vom Controller — nie selbst initiieren.
+ * Kein Spielzustand — alles kommt vom PlayerScreen (Controller).
  */
 public class CenterPanelView implements Renderable, Hideable {
 
-    private final SceneBuilder sb = SceneBuilder.getSceneBuilder();
     private final Logger logger = FileLogger.getLogger();
 
-    private StackPane root;
+    // Sub-Views
+    private final TextAdventureDisplayView displayView = new TextAdventureDisplayView();
+    private final TextControlModule controlModule = new TextControlModule();
+
+    private VBox root;
     private VBox textLayer;
     private Node battleLayer;
 
-    private TextFlow storyFlow;
-    private ActionMenu actionMenu;
-
     @Override
     public Node build() {
-        storyFlow = sb.mainFlow();
-        storyFlow.setPadding(new Insets(16));
-        storyFlow.setBackground(Background.EMPTY);
+        Node display = displayView.build();
+        Node control = controlModule.build();
+        VBox.setVgrow(display, Priority.ALWAYS);
 
-        // @TODO Story-Text aus aktivem Place/Event
-        storyFlow.getChildren().add(sb.makeText("[ Story lädt... ]"));
-
-        ScrollPane storyScroll = new ScrollPane(storyFlow);
-        storyScroll.setFitToWidth(true);
-        storyScroll.setBackground(Background.EMPTY);
-        storyScroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        storyScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        VBox.setVgrow(storyScroll, Priority.ALWAYS);
-
-        actionMenu = new ActionMenu();
-        actionMenu.setMode(ActionMenu.Mode.TRAVEL);
-
-        textLayer = new VBox(storyScroll, actionMenu.getRoot());
+        textLayer = new VBox(display, control);
         textLayer.setBackground(GameOptions.hintergrund);
-        textLayer.setPadding(new Insets(0, 8, 8, 8));
-        VBox.setVgrow(storyScroll, Priority.ALWAYS);
+        VBox.setVgrow(display, Priority.ALWAYS);
 
-        root = new StackPane(textLayer);
-        StackPane.setAlignment(textLayer, Pos.TOP_LEFT);
+        root = new VBox(textLayer);
+        VBox.setVgrow(textLayer, Priority.ALWAYS);
 
         logger.fine("CenterPanelView gebaut");
         return root;
@@ -71,49 +60,49 @@ public class CenterPanelView implements Renderable, Hideable {
 
     @Override
     public void refresh() {
-        // @TODO Story-Text aus aktivem Place neu laden
+        displayView.refresh();
+        controlModule.refresh();
         logger.fine("CenterPanelView refresh");
     }
 
-    // Scene-Ref für ActionMenu KeyHandler
-    public void setScene(Scene scene) {
-        if (actionMenu != null) actionMenu.setScene(scene);
+    // Segment anzeigen — kommt vom Controller/Place
+    public void showSegment(TextSegment segment, Runnable onDone) {
+        displayView.show(segment, onDone);
     }
 
-    // Mode-Wechsel kommt vom Controller
-    public void setMode(ActionMenu.Mode mode) {
-        if (actionMenu != null) actionMenu.setMode(mode);
-        logger.fine("ActionMenu Mode → " + mode);
+    // Config für neue Szene setzen
+    public void applyConfig(TextDisplayConfig config) {
+        displayView.applyConfig(config);
     }
 
-    // Story-Text setzen — vom aktiven Place/Event
-    public void setStoryText(String text) {
-        if (storyFlow == null) return;
-        storyFlow.getChildren().clear();
-        storyFlow.getChildren().add(new Text(text));
-        logger.fine("StoryText gesetzt | " + text.length() + " Zeichen");
+    // Display leeren — neue Szene
+    public void clearDisplay() {
+        displayView.clearDisplay();
+        controlModule.clearHint();
     }
 
-    // Screen-Swap: TextAdventure → BattleMap
-    // onBack-Callback kommt vom Controller (switchToTextAdventure)
+    public void setHint(String hint) {
+        controlModule.setHint(hint);
+    }
+
+    // Screen-Swap → BattleMap
     public void switchToBattleMap(MapModel mapModel, Runnable onBack) {
         if (root == null) return;
 
-        // BattleMap-Layer aufbauen
-        // @TODO EncounterPane aus EncounterModule holen statt direkt bauen
+        // @TODO EncounterModule statt direkt buildBattleMapPane
         Node mapNode = mapModel.getRenderer().buildBattleMapPane(null);
 
-        // Zurück-Button
-        javafx.scene.control.Button backBtn = ButtonFactory.make(
-                ButtonStyle.MENU, "◀ Zurück", onBack);
-        backBtn.setStyle(backBtn.getStyle() + "-fx-font-size: 11px;");
+        Button backBtn = ButtonFactory.make(ButtonStyle.MENU, "◀ Zurück", onBack);
+
+        HBox topBar = new HBox(backBtn);
+        topBar.setPadding(new Insets(4));
 
         BorderPane battleRoot = new BorderPane(mapNode);
-        battleRoot.setTop(new HBox(backBtn));
-        ((HBox) battleRoot.getTop()).setPadding(new Insets(4));
+        battleRoot.setTop(topBar);
 
         battleLayer = battleRoot;
         root.getChildren().add(battleLayer);
+
         textLayer.setVisible(false);
         textLayer.setManaged(false);
 
@@ -121,7 +110,7 @@ public class CenterPanelView implements Renderable, Hideable {
         logger.info("CenterPanelView → BattleMap");
     }
 
-    // Screen-Swap: BattleMap → TextAdventure
+    // Screen-Swap → TextAdventure
     public void switchToTextAdventure() {
         if (root == null) return;
         if (battleLayer != null) {
@@ -133,8 +122,22 @@ public class CenterPanelView implements Renderable, Hideable {
         logger.info("CenterPanelView → TextAdventure");
     }
 
-    public TextFlow getStoryFlow() {
-        return storyFlow;
+    public void setScene(Scene scene) {
+        controlModule.setScene(scene);
+    }
+
+    // Adventure-Mode
+    public void setAdventureMode(Map<Integer, Actionable> actions) {
+        controlModule.setAdventureMode(actions);
+    }
+
+    public void setAdventureMode() {
+        controlModule.setAdventureMode(Map.of());
+    }
+
+    // Dialog-Mode
+    public void setDialogMode(List<Actionable> actions, String hint) {
+        controlModule.setDialogMode(actions, hint);
     }
 
     @Override
