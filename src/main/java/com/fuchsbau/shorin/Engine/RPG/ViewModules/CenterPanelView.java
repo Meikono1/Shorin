@@ -38,18 +38,18 @@ public class CenterPanelView implements Renderable, Hideable {
     private final TextControlModule controlModule = new TextControlModule();
 
     private VBox root;
-    private VBox textLayer;
+    private BorderPane textLayer;
     private Node battleLayer;
 
     @Override
     public Node build() {
         Node display = displayView.build();
         Node control = controlModule.build();
-        VBox.setVgrow(display, Priority.ALWAYS);
 
-        textLayer = new VBox(display, control);
+        textLayer = new BorderPane();
+        textLayer.setCenter(display);
+        textLayer.setBottom(control);
         textLayer.setBackground(GameOptions.hintergrund);
-        VBox.setVgrow(display, Priority.ALWAYS);
 
         root = new VBox(textLayer);
         VBox.setVgrow(textLayer, Priority.ALWAYS);

@@ -111,6 +111,7 @@ public class PlayerScreen implements Saveble {
         logger.info("Dialog-Mode");
         currentMode = ScreenMode.DIALOG;
         centerView.clearDisplay();
+        centerView.setDialogMode(List.of(), "");
 
         centerView.showSegment(
                 TextSegment.npc("Wachmann", "Halt! Wer bist du und was willst du hier am Hafen?")
@@ -121,9 +122,9 @@ public class PlayerScreen implements Saveble {
 
     private List<Actionable> buildDialogActions() {
         return List.of(
-                new SimpleAction("Ich bin Händler.",  ButtonStyle.DIALOG, () -> dialogResponse("Ich bin Händler.")),
+                new SimpleAction("Ich bin Händler.", ButtonStyle.DIALOG, () -> dialogResponse("Ich bin Händler.")),
                 new SimpleAction("Ich suche Arbeit.", ButtonStyle.DIALOG, () -> dialogResponse("Ich suche Arbeit.")),
-                new SimpleAction("[Einschüchtern]",   ButtonStyle.ACTION,  () -> dialogResponse("Einschüchtern"))
+                new SimpleAction("[Einschüchtern]", ButtonStyle.ACTION, () -> dialogResponse("Einschüchtern"))
         );
     }
 
@@ -133,31 +134,41 @@ public class PlayerScreen implements Saveble {
 
         centerView.showSegment(TextSegment.player("Du", choice).build(), () -> {
             String antwort = switch (choice) {
-                case "Ich bin Händler."  -> "Händler? Dann pass auf deine Ware auf.";
+                case "Ich bin Händler." -> "Händler? Dann pass auf deine Ware auf.";
                 case "Ich suche Arbeit." -> "Frag beim Hafenmeister. Der sucht immer Leute.";
-                default                  -> "Der Wachmann tritt einen Schritt zurück.";
+                default -> "Der Wachmann tritt einen Schritt zurück.";
             };
-            centerView.showSegment(
-                    TextSegment.npc("Wachmann", antwort).image(ImagePaths.MAP_TOWER).build(),
-                    () -> centerView.setDialogMode(
-                            List.of(new SimpleAction("Auf Wiedersehen.", ButtonStyle.DIALOG, this::endDialog)),
-                            ""
-                    )
-            );
+
+            if (antwort.contains("Händler")) {
+                centerView.showSegment(
+                        TextSegment.npc("Wachmann", "Halt! Wer bist du und was willst du hier am Hafen?")
+                                .image(ImagePaths.MAP_TOWER).build(),
+                        () -> centerView.setDialogMode(buildDialogActions(), "Was antwortest du?")
+                );
+            } else {
+                centerView.showSegment(
+                        TextSegment.npc("Wachmann", antwort).image(ImagePaths.MAP_TOWER).build(),
+                        () -> centerView.setDialogMode(
+                                List.of(new SimpleAction("Auf Wiedersehen.", ButtonStyle.DIALOG, this::endDialog)),
+                                ""
+                        )
+                );
+            }
         });
     }
 
     private void endDialog() {
         logger.info("Dialog beendet → Adventure-Mode");
         currentMode = ScreenMode.ADVENTURE;
+        centerView.setAdventureMode(Map.of(
+                2, new SimpleAction("Sprechen", ButtonStyle.ACTION, this::startDialog)
+        ));
 
         centerView.showSegment(TextSegment.player("Du", "Auf Wiedersehen.").build(), () -> {
             centerView.clearDisplay();
             centerView.showSegment(
                     TextSegment.narration("Der Wachmann nickt. Du bist wieder allein am Hafendeck.").build(),
-                    () -> centerView.setAdventureMode(Map.of(
-                            2, new SimpleAction("Sprechen", ButtonStyle.ACTION, this::startDialog)
-                    ))
+                    () -> logger.fine("Szene zurück")
             );
         });
     }

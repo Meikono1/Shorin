@@ -1,6 +1,5 @@
 package com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay;
 
-import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Hideable;
@@ -9,6 +8,7 @@ import com.fuchsbau.shorin.Engine.Styler.TextStyler;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -44,6 +44,9 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
     private VBox bubbleList;   // alle Segmente landen hier
     private ScrollPane scroll;
 
+    private Region currentSpacer;
+    private int sceneStartIndex;
+
     private Timeline typewriter;
     private boolean skipRequested = false;
     private Runnable onFinished;
@@ -55,6 +58,7 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
         bubbleList.setFillWidth(true);
         bubbleList.setMinHeight(Region.USE_COMPUTED_SIZE);
         bubbleList.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        bubbleList.setAlignment(Pos.TOP_LEFT);
 
         scroll = new ScrollPane(bubbleList);
         scroll.setFitToWidth(true);
@@ -62,15 +66,47 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
         scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scroll.getStyleClass().add("scrollPane");
-        VBox.setVgrow(scroll, Priority.ALWAYS);
-
         scroll.setOnMouseClicked(e -> requestSkip());
+
+        scroll.sceneProperty().addListener((obs, ov, nv) -> {
+            if (nv == null) return;
+            scroll.heightProperty().addListener((o, oldH, newH) -> updateSpacer());
+        });
 
         root = new BorderPane(scroll);
         root.setBackground(Background.EMPTY);
 
+        // Erste Szene startet mit Spacer
+        addNewSceneSpacer();
+
         logger.fine("TextAdventureDisplayView gebaut");
         return root;
+    }
+
+    private void addNewSceneSpacer() {
+        sceneStartIndex = bubbleList.getChildren().size();
+        currentSpacer = new Region();
+        currentSpacer.setPrefHeight(scroll.getHeight());
+        bubbleList.getChildren().add(currentSpacer);
+    }
+
+    private void updateSpacer() {
+        Platform.runLater(() -> {
+            if (currentSpacer == null || scroll == null) return;
+
+            double sceneContentHeight = 0;
+            for (int i = sceneStartIndex; i < bubbleList.getChildren().size(); i++) {
+                Node node = bubbleList.getChildren().get(i);
+                if (node == currentSpacer) continue;
+                sceneContentHeight += node.getBoundsInParent().getHeight() + 25;
+            }
+
+            double remaining = scroll.getHeight() - sceneContentHeight;
+            currentSpacer.setPrefHeight(Math.max(100, remaining));
+            scrollToBottom();
+            logger.finest("Spacer → " + currentSpacer.getPrefHeight()
+                    + " | sceneContent → " + sceneContentHeight);
+        });
     }
 
     // Neue Szenenkonfiguration
@@ -89,7 +125,10 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
         enforceNodeLimit();
 
         Node bubble = buildBubble(segment);
-        bubbleList.getChildren().add(bubble);
+        int insertIndex = bubbleList.getChildren().indexOf(currentSpacer);
+        bubbleList.getChildren().add(insertIndex, bubble);
+
+        updateSpacer();
         scrollToBottom();
 
         startTypewriter(segment, bubble);
@@ -100,15 +139,18 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
     public void clearDisplay() {
         stopTypewriter();
 
+        if (currentSpacer != null) {
+            bubbleList.getChildren().remove(currentSpacer);
+            currentSpacer = null;
+        }
+
         Separator sep = new Separator();
-        sep.setPadding(new Insets(12, 0, 12, 0));
+        sep.setPadding(new Insets(8, 0, 8, 0));
         sep.setStyle("-fx-background-color: rgba(160,160,255,0.2);");
+        bubbleList.getChildren().add(sep);
 
-        // Abstandshalter damit neue Szene oben beginnt
-        Region spacer = new Region();
-        spacer.setPrefHeight(scroll.getHeight() * 0.8);
-
-        bubbleList.getChildren().addAll(sep, spacer);
+        addNewSceneSpacer();
+        updateSpacer();
         scrollToBottom();
         logger.fine("Display getrennt | " + bubbleList.getChildren().size() + " Nodes");
     }
@@ -255,12 +297,12 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
                 flow.getChildren().remove(animated);
                 TextStyler.addRestyledText(flow, full);
                 stopTypewriter();
+                updateSpacer();
                 scrollToBottom();
                 if (onFinished != null) onFinished.run();
                 return;
             }
             animated.setText(full.substring(0, ++idx[0]));
-            scrollToBottom();
         }));
 
         typewriter.setCycleCount(full.length() + 1);
@@ -291,14 +333,16 @@ public class TextAdventureDisplayView implements Renderable, Hideable {
 
     // Älteste Nodes entfernen wenn Limit erreicht
     private void enforceNodeLimit() {
-        while (bubbleList.getChildren().size() >= MAX_NODES) {
+        while (bubbleList.getChildren().size() > MAX_NODES + 1) {
+            Node first = bubbleList.getChildren().getFirst();
+            if (first == currentSpacer) break;
             bubbleList.getChildren().removeFirst();
             logger.finest("Node entfernt | limit=" + MAX_NODES);
         }
     }
 
     private void scrollToBottom() {
-        scroll.setVvalue(1.0);
+        Platform.runLater(() -> scroll.setVvalue(1.0));
     }
 
     private void stopTypewriter() {
