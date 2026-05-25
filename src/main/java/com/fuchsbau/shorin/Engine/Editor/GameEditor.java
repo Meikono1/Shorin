@@ -9,6 +9,7 @@ import com.fuchsbau.shorin.Engine.Editor.Module.Classes.SpellModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.Races.AncestryModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.Races.HeritageModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.Races.LanguageModule;
+import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.MainScreen;
@@ -25,6 +26,8 @@ import java.util.logging.Logger;
 public class GameEditor {
 
     private final Logger logger = FileLogger.getLogger();
+
+    private final MapModel mapModel = new MapModel();
 
     private final MenuBar menuBar = new MenuBar();
     private final Menu fileMenu = new Menu("File");
@@ -58,8 +61,8 @@ public class GameEditor {
         groups.addAll(List.of(
                 new ModuleGroup("Welt", List.of(
                         new WorldMapModule(),
-                        new BattleMapModule(),
-                        new EncounterModule(),
+                        new BattleMapModule(mapModel),
+                        new EncounterModule(mapModel),
                         new CharacterModule()
                 )),
                 new ModuleGroup("System", List.of(

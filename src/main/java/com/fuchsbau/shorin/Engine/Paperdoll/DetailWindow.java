@@ -2,7 +2,6 @@ package com.fuchsbau.shorin.Engine.Paperdoll;
 
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
-import com.fuchsbau.shorin.Races.Base.Race;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -30,23 +29,5 @@ public final class DetailWindow {
         stage.setScene(new Scene(root, 520, 420));
         stage.setTitle("Details");
         stage.getIcons().add(ImagePreLoader.getCached(ImagePaths.SHORIN_LOGO));
-    }
-
-    public void showRace(Race race) {
-        title.setText(race.displayName());
-        text.setText(buildRaceText(race));
-        if (!stage.isShowing()) stage.show();
-        stage.toFront();
-    }
-
-    public String buildRaceText(Race r) {
-        var ls = r.getLifeStage();
-        return "ID: " + r.getRaceName() + "\n"
-                + "Size: " + r.getSize() + "\n"
-                + "Speed: " + r.getSpeed() + "ft\n"
-                + "Health: " + r.getMaxHealth() + "\n\n"
-                + "AdultAge: " + ls.ageAdult() + "\n"
-                + "OldAge: " + ls.ageOld() + "\n"
-                + "MaxAge: " + ls.ageMax() + "\n";
     }
 }

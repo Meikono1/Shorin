@@ -564,7 +564,7 @@ public class MapRenderer {
         return camY + sy / z;
     }
 
-    private void renderLightLayer() {
+    public void renderLightLayer() {
         if (lightMask == null) return;
         lightMask.update(
                 gameMap.getLights(),

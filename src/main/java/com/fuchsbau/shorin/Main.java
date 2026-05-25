@@ -8,7 +8,6 @@ import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.Races.RaceLoader;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -55,7 +54,6 @@ public class Main extends Application {
     public void start(Stage stage) {
         logger.info("Guten Morgen!");
         Platform.runLater(ImagePreLoader::warmUpAll);
-        Platform.runLater(RaceLoader::warmUpAll);
 
         CSSLoader.loadFonts();
         CSSLoader.ensureExists(StyleOptions.buildCss());

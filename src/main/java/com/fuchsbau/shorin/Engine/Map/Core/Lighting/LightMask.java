@@ -131,7 +131,7 @@ public class LightMask {
         renderTintLayer(tintContext, computed);
     }
 
-    private void renderLightLayer(GraphicsContext g, List<LightPolygonData> computed) {
+    public void renderLightLayer(GraphicsContext g, List<LightPolygonData> computed) {
         for (LightPolygonData data : computed) {
             double brightFraction = clamp(data.brightR() / data.dimR(), 0.0, 1.0);
             double dimStart = clamp(brightFraction + 0.001, 0.0, 1.0);

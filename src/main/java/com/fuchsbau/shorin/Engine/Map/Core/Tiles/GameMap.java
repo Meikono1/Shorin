@@ -262,6 +262,10 @@ public class GameMap {
         walls.add(wall);
     }
 
+    public void clearIndoorZones() {
+        indoorZones.clear();
+    }
+
     public void removeWall(WallSegment wall) {
         walls.remove(wall);
     }

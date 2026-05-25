@@ -1,11 +1,14 @@
 package com.fuchsbau.shorin.Engine.Map.Core;
 
+import com.fuchsbau.shorin.Engine.Editor.Module.CharacterModule;
+import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
+import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Logger.FileLogger;
 
@@ -118,6 +121,7 @@ public class MapSaverLoader {
             writeLights(out, lights);
             writeWalls(out, map.getWalls());
             writeTokens(out, map.getTokens());
+            writeIndoorZones(out, map.getIndoorZones());
         }
     }
 
@@ -129,6 +133,7 @@ public class MapSaverLoader {
         public List<LightSource> lights = new ArrayList<>();
         public List<WallSegment> walls = new ArrayList<>();
         public List<Token> tokens = new ArrayList<>();
+        public List<IndoorZone> indoorZones = new ArrayList<>();
     }
 
     /**
@@ -165,6 +170,7 @@ public class MapSaverLoader {
                     result.lights = readLights(in);
                     result.walls = readWalls(in);
                     result.tokens = readTokens(in);
+                    result.indoorZones = readIndoorZones(in);
                 }
             }
 
@@ -325,23 +331,65 @@ public class MapSaverLoader {
             out.writeInt(t.row);
             out.writeInt(t.col);
             out.writeUTF(t.name != null ? t.name : "");
+            out.writeBoolean(t.isPlayer);
+        }
+    }
+
+    private void writeIndoorZones(DataOutputStream out, List<IndoorZone> zones) throws IOException {
+        if (zones == null) {
+            out.writeInt(0);
+            return;
+        }
+        out.writeInt(zones.size());
+        for (IndoorZone z : zones) {
+            out.writeDouble(z.x);
+            out.writeDouble(z.y);
+            out.writeDouble(z.width);
+            out.writeDouble(z.height);
+            out.writeUTF(z.label != null ? z.label : "");
         }
     }
 
     private List<Token> readTokens(DataInputStream in) throws IOException {
         int count = in.readInt();
         List<Token> list = new ArrayList<>(count);
-        List<NonPlayerCharacter> npcModules = loadNpcsfromDisk();
+        List<NonPlayerCharacter> npcs = loadNpcsfromDisk();
+        List<PlayerCharacter> chars = CharacterModule.loadCharakterfromDisk();
+
         for (int i = 0; i < count; i++) {
             int row = in.readInt();
             int col = in.readInt();
             String name = in.readUTF();
-            for (NonPlayerCharacter build : npcModules) {
-                if (name.equals(build.name)) {
-                    list.add(new Token(row, col, build));
-                    break;
-                }
+            boolean isPlayer = in.readBoolean();
+
+            if (isPlayer) {
+                PlayerCharacter pc = chars.stream()
+                        .filter(c -> c.name.equals(name)).findFirst().orElse(null);
+                if (pc != null) list.add(new Token(row, col, pc));
+                else logger.warning("Charakter nicht gefunden beim Laden: " + name);
+            } else {
+                NonPlayerCharacter npc = npcs.stream()
+                        .filter(n -> n.name.equals(name)).findFirst().orElse(null);
+                if (npc != null) list.add(new Token(row, col, npc));
+                else logger.warning("NPC nicht gefunden beim Laden: " + name);
             }
+        }
+
+        return list;
+    }
+
+    private List<IndoorZone> readIndoorZones(DataInputStream in) throws IOException {
+        int count = in.readInt();
+        List<IndoorZone> list = new ArrayList<>(count);
+        for (int i = 0; i < count; i++) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            double width = in.readDouble();
+            double height = in.readDouble();
+            String label = in.readUTF();
+            IndoorZone z = new IndoorZone(x, y, width, height);
+            z.label = label;
+            list.add(z);
         }
         return list;
     }

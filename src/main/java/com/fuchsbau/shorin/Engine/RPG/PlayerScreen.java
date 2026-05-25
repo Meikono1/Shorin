@@ -1,391 +1,167 @@
 package com.fuchsbau.shorin.Engine.RPG;
 
-import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
-import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
-import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
+import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.RPG.AktionBar.ActionMenu;
-import com.fuchsbau.shorin.Engine.SceneBuilder;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.CenterPanelView;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.LeftPanelView;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.RightPanelView;
 import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Game;
-import com.fuchsbau.shorin.RPG.Places.Place;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextFlow;
+import javafx.scene.layout.BorderPane;
 
-import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * Controller zwischen Models und Views.
+ * Kein Layout-Code — nur verdrahten, routen, koordinieren.
+ *
+ * Models: MapModel, Party (@TODO), EncounterState (@TODO)
+ * Views:  LeftPanelView, CenterPanelView, RightPanelView
+ */
 public class PlayerScreen implements Saveble {
 
-    private static final double LEFT_WIDTH = 350;
-    private static final double RIGHT_WIDTH = 350;
-
-    private final SceneBuilder sb = SceneBuilder.getSceneBuilder();
     private final Logger logger = FileLogger.getLogger();
+
+    // Models
+    private final MapModel mapModel;
+    // @TODO private Party party;
+    // @TODO private EncounterModel encounterModel;
+
+    // Views
+    private final LeftPanelView  leftView;
+    private final CenterPanelView centerView;
+    private final RightPanelView  rightView;
 
     private Scene scene;
 
-    // Panels
-    public VBox leftPanel;
-    public VBox centerContent;
-    public TextFlow storyFlow;
-    public VBox actionMenu;
-    public VBox rightPanel;
+    public PlayerScreen(MapModel mapModel) {
+        this.mapModel  = mapModel;
+        this.leftView  = new LeftPanelView();
+        this.centerView = new CenterPanelView();
+        this.rightView  = new RightPanelView(mapModel);
 
-    // Aufbau
+        wireViews();
+        logger.info("PlayerScreen init");
+    }
+
+    // Views verdrahten — Callbacks registrieren
+    private void wireViews() {
+        // Minimap-Expand → Battlemap-Mode
+        rightView.setOnMinimapExpand(this::switchToBattleMap);
+
+        // Char-Wechsel im LeftPanel → Center + Right informieren
+        leftView.setOnCharSelected(this::onCharChanged);
+
+        logger.fine("Views verdrahtet");
+    }
+
+    // Scene aufbauen — nur einmal, dann cachen (Saveble-Pattern)
     private void build() {
-        logger.info("Baue PlayerScreen");
-
         BorderPane root = new BorderPane();
         root.setBackground(GameOptions.hintergrund);
 
-        root.setLeft(buildLeft());
-        root.setCenter(buildCenter());
-        root.setRight(buildRight());
+        root.setLeft(leftView.build());
+        root.setCenter(centerView.build());
+        root.setRight(rightView.build());
 
-        // ESC → Options
         scene = new Scene(root, GameOptions.width, GameOptions.height);
+        bindKeys();
+
+        String css = CSSLoader.resolveUserOrBackupCSS();
+        if (css != null) scene.getStylesheets().add(css);
+
+        // ActionMenu bekommt Scene-Ref für KeyHandler
+        centerView.setScene(scene);
+
+        // @TODO party laden und an leftView übergeben
+        // leftView.setMembers(party.getMembers(), party.getActive());
+
+        logger.info("PlayerScreen gebaut");
+    }
+
+    // Keyboard-Routing — nur hier, nicht in Views
+    private void bindKeys() {
         scene.setOnKeyPressed(e -> {
             switch (e.getCode()) {
                 case ESCAPE -> Main.getStage().setScene(
                         Game.getInstance().optionen.getScene(1));
-                // WASD → später für Map-Navigation
                 case W -> onMove(0, -1);
-                case S -> onMove(0, 1);
+                case S -> onMove(0,  1);
                 case A -> onMove(-1, 0);
-                case D -> onMove(1, 0);
+                case D -> onMove(1,  0);
+                case TAB -> onTabNextChar();
             }
         });
-
-        String css = CSSLoader.resolveUserOrBackupCSS();
-        if (css != null) scene.getStylesheets().add(css);
     }
 
-    // LEFT PANEL  –  Charakter / Stats / Tabs
-    // LEFT PANEL
-    private VBox buildLeft() {
-        leftPanel = new VBox(6);
-        leftPanel.setPrefWidth(LEFT_WIDTH);
-        leftPanel.setMaxWidth(LEFT_WIDTH);
-        leftPanel.setPadding(new Insets(8));
-        leftPanel.setBackground(GameOptions.rowHintergrundTrans40);
-
-        // CHAR SWITCHER
-        HBox charSwitcher = new HBox(8);
-        charSwitcher.setAlignment(Pos.CENTER);
-        charSwitcher.setPadding(new Insets(4));
-        charSwitcher.setBackground(new Background(new BackgroundFill(
-                Color.rgb(40, 40, 70), new CornerRadii(4), Insets.EMPTY)));
-
-        Button prevChar = new Button("◀");
-        prevChar.getStyleClass().add("menu-button");
-
-        Label charName = sb.makeWhiteLabel(Game.getInstance().spieler.getText().getText());
-        charName.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-        charName.setMaxWidth(Double.MAX_VALUE);
-        charName.setAlignment(Pos.CENTER);
-        HBox.setHgrow(charName, Priority.ALWAYS);
-
-        Button nextChar = new Button("▶");
-        nextChar.getStyleClass().add("menu-button");
-
-        charSwitcher.getChildren().addAll(prevChar, charName, nextChar);
-
-        // QUICK STATS  –  HP / AC / Shield / Gold / Heropoints
-        VBox quickStats = new VBox(4);
-        quickStats.setPadding(new Insets(6));
-        quickStats.setBackground(new Background(new BackgroundFill(
-                Color.rgb(30, 50, 40), new CornerRadii(4), Insets.EMPTY)));
-
-        Label statsHeader = sb.makeWhiteLabel("── Status ──");
-        statsHeader.setMaxWidth(Double.MAX_VALUE);
-        statsHeader.setAlignment(Pos.CENTER);
-
-        GridPane statsGrid = new GridPane();
-        statsGrid.setHgap(8);
-        statsGrid.setVgap(3);
-
-        statsGrid.add(statLabel("HP"), 0, 0);
-        statsGrid.add(statValue("__ / __"), 1, 0);
-        statsGrid.add(statLabel("AC"), 0, 1);
-        statsGrid.add(statValue("__"), 1, 1);
-        statsGrid.add(statLabel("Shield"), 0, 2);
-        statsGrid.add(statValue("__"), 1, 2);
-        statsGrid.add(statLabel("Gold"), 0, 3);
-        statsGrid.add(statValue("__"), 1, 3);
-        statsGrid.add(statLabel("Hero"), 0, 4);
-        statsGrid.add(statValue("__ / 3"), 1, 4);
-
-        // CONDITIONS
-        Label condHeader = sb.makeWhiteLabel("Conditions:");
-        condHeader.setStyle("-fx-font-size: 11px;");
-        Label condValue = new Label("keine");
-        condValue.setTextFill(Color.GRAY);
-        condValue.setStyle("-fx-font-size: 11px;");
-        condValue.setWrapText(true);
-
-        quickStats.getChildren().addAll(statsHeader, statsGrid, new Separator(), condHeader, condValue);
-
-        // 4-WEGE KREUZ  –  Inv / Char / Spells / Feats
-        GridPane cross = new GridPane();
-        cross.setHgap(4);
-        cross.setVgap(4);
-        cross.setPadding(new Insets(4));
-        cross.setAlignment(Pos.CENTER);
-
-        Button invBtn = crossBtn("🎒 Inv", Color.rgb(60, 40, 20));
-        Button charBtn = crossBtn("👤 Char", Color.rgb(20, 40, 60));
-        Button spellBtn = crossBtn("✨ Spells", Color.rgb(40, 20, 60));
-        Button featBtn = crossBtn("⭐ Feats", Color.rgb(20, 55, 35));
-
-        // TODO: je einen neuen Screen öffnen
-
-        cross.add(charBtn, 0, 0);
-        cross.add(spellBtn, 1, 0);
-        cross.add(invBtn, 0, 1);
-        cross.add(featBtn, 1, 1);
-
-        // alle Buttons gleich groß
-        for (var node : cross.getChildren()) {
-            GridPane.setFillWidth(node, true);
-            GridPane.setFillHeight(node, true);
-        }
-
-        // PAPERDOLL BUTTON
-        VBox paperdollArea = new VBox(4);
-        paperdollArea.setPadding(new Insets(6));
-        paperdollArea.setBackground(new Background(new BackgroundFill(
-                Color.rgb(50, 30, 50), new CornerRadii(4), Insets.EMPTY)));
-
-        Button paperdoll = sb.createMenuButton("⧉ Paperdoll");
-        paperdoll.setMaxWidth(Double.MAX_VALUE);
-        // TODO: PaperdollWindow.toggle();
-
-        paperdollArea.getChildren().add(paperdoll);
-
-        leftPanel.getChildren().addAll(charSwitcher, quickStats, cross, paperdollArea);
-        VBox.setVgrow(quickStats, Priority.ALWAYS);
-        return leftPanel;
+    // Screen-Swap: TextAdventure → Battlemap
+    private void switchToBattleMap() {
+        logger.info("Switch → BattleMap");
+        leftView.hide();
+        rightView.hide();
+        centerView.switchToBattleMap(mapModel, this::switchToTextAdventure);
+        // @TODO EncounterModule starten
     }
 
-    // HILFSMETHODEN LEFT
-    private Label statLabel(String text) {
-        Label l = new Label(text);
-        l.setTextFill(Color.LIGHTGRAY);
-        l.setStyle("-fx-font-size: 11px;");
-        return l;
+    // Screen-Swap: Battlemap → TextAdventure
+    private void switchToTextAdventure() {
+        logger.info("Switch → TextAdventure");
+        leftView.show();
+        rightView.show();
+        centerView.switchToTextAdventure();
+        // @TODO EncounterModule pausieren
     }
 
-    private Label statValue(String text) {
-        Label l = new Label(text);
-        l.setTextFill(Color.WHITE);
-        l.setStyle("-fx-font-size: 11px; -fx-font-weight: bold;");
-        return l;
-    }
-
-    private Button crossBtn(String label, Color bg) {
-        Button btn = new Button(label);
-        btn.setPrefSize((LEFT_WIDTH - 28) / 2, 60);
-        btn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        btn.setBackground(new Background(new BackgroundFill(bg, new CornerRadii(4), Insets.EMPTY)));
-        btn.setTextFill(Color.WHITE);
-        btn.setStyle("-fx-font-size: 12px;");
-        return btn;
-    }
-
-    // CENTER PANEL
-    private VBox buildCenter() {
-        // Story-Textbereich (scrollbar)
-        storyFlow = sb.mainFlow();
-        storyFlow.setPadding(new Insets(16));
-        storyFlow.setBackground(Background.EMPTY);
-
-        // Platzhalter-Text
-        storyFlow.getChildren().add(sb.makeText(
-                """
-                        [ Hier erscheint die Story, Beschreibungen und Dialoge... ]
-
-                        Du stehst am Hafendeck. Das Holz unter deinen Füßen knarrt im \
-                        Rhythmus der Wellen. Der Geruch von Salz und Teer liegt in der Luft."""
-        ));
-
-        ScrollPane storyScroll = new ScrollPane(storyFlow);
-        storyScroll.setFitToWidth(true);
-        storyScroll.setBackground(Background.EMPTY);
-        storyScroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        storyScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        VBox.setVgrow(storyScroll, Priority.ALWAYS);
-
-        // Aktionsmenü (unterhalb des Textes)
-        ActionMenu actionMenuObj = new ActionMenu();
-        actionMenuObj.setMode(ActionMenu.Mode.TRAVEL);
-        actionMenu = actionMenuObj.getRoot();
-
-        centerContent = new VBox(storyScroll, actionMenu);
-        centerContent.setBackground(GameOptions.hintergrund);
-        centerContent.setPadding(new Insets(0, 8, 8, 8));
-        VBox.setVgrow(storyScroll, Priority.ALWAYS);
-
-        return centerContent;
-    }
-
-    // RIGHT PANEL  –  Map / Navigation / Zeitsteuerung
-    private VBox buildRight() {
-        rightPanel = new VBox(10);
-        rightPanel.setPrefWidth(RIGHT_WIDTH);
-        rightPanel.setMaxWidth(RIGHT_WIDTH);
-        rightPanel.setPadding(new Insets(12));
-        rightPanel.setBackground(GameOptions.rowHintergrundTrans40);
-
-        // MINI-MAP via MapRenderer
-        GameMap miniMap = new GameMap(20, 20);
-        LightingSystem miniLight = new LightingSystem();
-        MapRenderer miniRenderer = new MapRenderer(miniMap, miniLight);
-        miniRenderer.setZoom(0.3);
-
-        Canvas miniCanvas = miniRenderer.getCanvas();
-        miniCanvas.setWidth(RIGHT_WIDTH - 24);
-        miniCanvas.setHeight(RIGHT_WIDTH - 24);
-
-        miniCanvas.widthProperty().addListener((o, ov, nv) -> miniRenderer.renderWorldmap());
-        miniCanvas.heightProperty().addListener((o, ov, nv) -> miniRenderer.renderWorldmap());
-        miniRenderer.renderWorldmap();
-
-        StackPane mapBox = new StackPane(miniCanvas);
-        mapBox.setBackground(new Background(new BackgroundFill(
-                Color.rgb(20, 35, 50), new CornerRadii(4), Insets.EMPTY)));
-
-        // NAVIGATION
-        Label navHeader = sb.makeWhiteLabel("Navigation");
-        navHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold;");
-
-        VBox navTree = new VBox(2);
-        navTree.setPadding(new Insets(4));
-
-        for (Place place : getTopLevelPlaces()) {
-            navTree.getChildren().add(buildNavEntry(place, 0));
-        }
-
-        ScrollPane navScroll = new ScrollPane(navTree);
-        navScroll.setFitToWidth(true);
-        navScroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-
-        VBox navSection = new VBox(4, navHeader, navScroll);
-        VBox.setVgrow(navScroll, Priority.ALWAYS);
-        VBox.setVgrow(navSection, Priority.ALWAYS);
-
-        // --- Zeitsteuerung ---
-        Label timeHeader = sb.makeWhiteLabel("Zeit");
-        timeHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold;");
-
-        Label currentTime = sb.makeWhiteLabel("Tag 1  –  06:00");
-        currentTime.setStyle("-fx-font-size: 12px;");
-
-        HBox speedRow = new HBox(4);
-        speedRow.setAlignment(Pos.CENTER_LEFT);
-        for (String speed : new String[]{"⏸", "▶", "▶▶", "▶▶▶"}) {
-            Button btn = new Button(speed);
-            btn.getStyleClass().add("menu-button");
-            btn.setPrefWidth(52);
-            // TODO: GameLoop-Geschwindigkeit setzen
-            speedRow.getChildren().add(btn);
-        }
-
-        // --- Reise-Info ---
-        Label travelHeader = sb.makeWhiteLabel("Reise");
-        travelHeader.setStyle("-fx-font-size: 13px; -fx-font-weight: bold;");
-        Label travelInfo = sb.makeWhiteLabel("Kein Ziel gewählt.");
-        travelInfo.setWrapText(true);
-        travelInfo.setStyle("-fx-font-size: 11px;");
-
-        rightPanel.getChildren().addAll(
-                mapBox,
-                new Separator(),
-                navSection,
-                new Separator(),
-                timeHeader, currentTime, speedRow,
-                new Separator(),
-                travelHeader, travelInfo
-        );
-
-        return rightPanel;
-    }
-
-    /**
-     * Wird aufgerufen bei WASD oder Nav-Klick. Koordinaten in Tile-Schritten.
-     */
+    // WASD-Bewegung — @TODO Party-Formation auf Grid bewegen
     private void onMove(int dx, int dy) {
-        // TODO: GameLoop / Map-Navigation ansteuern
-        logger.fine("Move: dx=" + dx + " dy=" + dy);
+        logger.fine("Move dx=" + dx + " dy=" + dy);
+        // @TODO mapModel.moveParty(dx, dy)
     }
 
-    private List<Place> getTopLevelPlaces() {
-        // TODO: später aus einer zentralen PlaceRegistry laden
-        return List.of(
-                Game.getInstance().whitebridge,
-                Game.getInstance().sudbury,
-                Game.getInstance().unbridledland,
-                Game.getInstance().shallowmill
-        );
+    // TAB — nächsten Char in Party wählen
+    private void onTabNextChar() {
+        logger.fine("Tab → nächster Char");
+        // @TODO party.selectNext(); leftView.setMembers(...)
     }
 
-    private VBox buildNavEntry(Place place, int depth) {
-        VBox entry = new VBox(2);
-
-        HBox row = new HBox(4);
-        row.setPadding(new Insets(2, 2, 2, 8 + depth * 12));
-        row.setBackground(new Background(new BackgroundFill(
-                depth == 0 ? Color.rgb(30, 45, 60) : Color.rgb(20, 30, 45),
-                new CornerRadii(3), Insets.EMPTY)));
-
-        Label arrow = sb.makeWhiteLabel(place.getSubPlaces().isEmpty() ? "  " : "▶");
-        arrow.setStyle("-fx-font-size: 10px;");
-        Label name = sb.makeWhiteLabel(place.getName());
-        name.setStyle("-fx-font-size: 11px;");
-
-        row.getChildren().addAll(arrow, name);
-        entry.getChildren().add(row);
-
-        // Unterliste – ein/ausklappbar
-        VBox children = new VBox(2);
-        children.setVisible(false);
-        children.setManaged(false);
-        for (Place sub : place.getSubPlaces()) {
-            children.getChildren().add(buildNavEntry(sub, depth + 1));
-        }
-
-        row.setOnMouseClicked(e -> {
-            boolean open = children.isVisible();
-            children.setVisible(!open);
-            children.setManaged(!open);
-            arrow.setText(open ? "▶" : "▼");
-        });
-
-        entry.getChildren().add(children);
-        return entry;
+    // Char gewechselt — Views neu binden
+    private void onCharChanged() {
+        logger.info("Char gewechselt → Views aktualisieren");
+        centerView.refresh();
+        // @TODO rightView.refresh() wenn Char-spezifische Daten im RightPanel
     }
 
-    // Saveble Interface
+    // ActionMenu-Mode wechseln — vom Place oder Event ausgelöst
+    public void setMode(ActionMenu.Mode mode) {
+        centerView.setMode(mode);
+        logger.info("Mode → " + mode);
+    }
+
+    // Story-Text setzen — vom aktiven Place ausgelöst
+    // @TODO durch Event-System ersetzen
+    public void setStoryText(String text) {
+        centerView.setStoryText(text);
+        logger.fine("Story gesetzt | " + text.length() + " Zeichen");
+    }
+
+    // Saveble
     @Override
     public Scene getScene(int stage) {
-        build();
+        if (scene == null) build();
         Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 
     @Override
     public void reset() {
-        this.scene = null;
+        scene = null;
+        leftView.refresh();
+        centerView.refresh();
+        rightView.refresh();
+        logger.info("PlayerScreen reset");
     }
 }

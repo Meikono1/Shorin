@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.Engine.Map;
 
 import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.StatBlock;
-import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
+import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 

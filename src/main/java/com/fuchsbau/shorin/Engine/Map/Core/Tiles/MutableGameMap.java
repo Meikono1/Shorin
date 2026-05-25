@@ -1,5 +1,7 @@
 package com.fuchsbau.shorin.Engine.Map.Core.Tiles;
 
+import com.fuchsbau.shorin.Engine.Map.Core.MapSaverLoader;
+
 public class MutableGameMap extends GameMap {
     public MutableGameMap() {
         rows = 30;
@@ -144,4 +146,7 @@ public class MutableGameMap extends GameMap {
         cols--;
     }
 
+    public void applyLoadResult(MapSaverLoader.LoadResult result) {
+
+    }
 }

@@ -7,6 +7,7 @@ import com.fuchsbau.shorin.Engine.Editor.Module.Races.AncestryModule;
 import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.System.Character.*;
 import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
+import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.SlotType;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;

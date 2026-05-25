@@ -5,10 +5,8 @@ import com.fuchsbau.shorin.Engine.Encounter.EncounterState;
 import com.fuchsbau.shorin.Engine.Encounter.EncounterTransition;
 import com.fuchsbau.shorin.Engine.Encounter.Widget.InitiativeTrackerWidget;
 import com.fuchsbau.shorin.Engine.Encounter.WidgetAnchor;
-import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
 import com.fuchsbau.shorin.Engine.Map.Core.MapSaverLoader;
-import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
-import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
+import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
@@ -21,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -31,9 +30,7 @@ public class EncounterModule implements EditorModule {
             PathResolver.resolveWritable("maps/battle").toFile();
 
     // Map-Kern
-    private final MutableGameMap gameMap = new MutableGameMap();
-    private final LightingSystem lighting = new LightingSystem();
-    private final MapRenderer mapRenderer = new MapRenderer(gameMap, lighting);
+    private final MapModel mapModel;
 
     // Encounter
     private EncounterPane encounterPane;
@@ -48,7 +45,9 @@ public class EncounterModule implements EditorModule {
     // aktive Transition-Richtung (per Dropdown wählbar)
     private EncounterTransition.Direction activeDirection = EncounterTransition.Direction.FROM_RIGHT;
 
-    // =========================================================
+    public EncounterModule(MapModel mapModel) {
+        this.mapModel = mapModel;
+    }
 
     @Override
     public String getTitle() {
@@ -60,18 +59,13 @@ public class EncounterModule implements EditorModule {
     public Node buildContent() {
         if (encounterPane == null) {
             logger.info("EncounterPane erstmalig gebaut");
-
-            encounterPane = new EncounterPane(mapRenderer);
-            mapRenderer.setupCanvasHandlers();
-
+            encounterPane = new EncounterPane(mapModel.getRenderer());
+            mapModel.getRenderer().setupCanvasHandlers();
             encounterPane.addWidget(new InitiativeTrackerWidget(), WidgetAnchor.RIGHT_CENTER);
-
-            logger.info("Widgets registriert: InitiativeTracker + DebugOverlay");
+            logger.info("Widgets registriert");
         }
 
-        Node root = encounterPane.getRoot();
-        logger.fine("buildContent → Transition: " + activeDirection);
-        return root;
+        return encounterPane.getRoot();
     }
 
     //  SidePanel -
@@ -136,7 +130,10 @@ public class EncounterModule implements EditorModule {
         Button combatToggle = new Button("⚔ Combat: AUS");
         combatToggle.setMaxWidth(Double.MAX_VALUE);
         combatToggle.setOnAction(e -> {
-            if (encounterPane == null) { logger.warning("combatToggle: kein EncounterPane"); return; }
+            if (encounterPane == null) {
+                logger.warning("combatToggle: kein EncounterPane");
+                return;
+            }
             boolean next = !encounterPane.inCombatProperty().get();
             encounterPane.inCombatProperty().set(next);
             combatToggle.setText("⚔ Combat: " + (next ? "AN" : "AUS"));
@@ -146,7 +143,10 @@ public class EncounterModule implements EditorModule {
         Button startBtn = new Button("▶ Start");
         startBtn.setMaxWidth(Double.MAX_VALUE);
         startBtn.setOnAction(e -> {
-            if (encounterPane == null) { logger.warning("Start: kein EncounterPane"); return; }
+            if (encounterPane == null) {
+                logger.warning("Start: kein EncounterPane");
+                return;
+            }
             syncInitiativeFromMap();
             if (encounterPane.getState().initiative.isEmpty()) {
                 logger.warning("Start: keine Tokens auf der Karte");
@@ -161,7 +161,10 @@ public class EncounterModule implements EditorModule {
         Button nextTurnBtn = new Button("⏭ Nächster Zug");
         nextTurnBtn.setMaxWidth(Double.MAX_VALUE);
         nextTurnBtn.setOnAction(e -> {
-            if (encounterPane == null) { logger.warning("NextTurn: kein EncounterPane"); return; }
+            if (encounterPane == null) {
+                logger.warning("NextTurn: kein EncounterPane");
+                return;
+            }
             encounterPane.getState().nextTurn();
             logger.fine("Nächster Zug – Runde " + encounterPane.getState().round.get());
         });
@@ -169,7 +172,10 @@ public class EncounterModule implements EditorModule {
         Button resetBtn = new Button("↺ Reset");
         resetBtn.setMaxWidth(Double.MAX_VALUE);
         resetBtn.setOnAction(e -> {
-            if (encounterPane == null) { logger.warning("Reset: kein EncounterPane"); return; }
+            if (encounterPane == null) {
+                logger.warning("Reset: kein EncounterPane");
+                return;
+            }
             encounterPane.getState().round.set(0);
             encounterPane.getState().actionsUsed.set(0);
             encounterPane.getState().activeToken.set(null);
@@ -181,7 +187,10 @@ public class EncounterModule implements EditorModule {
         Button endBtn = new Button("■ Beenden");
         endBtn.setMaxWidth(Double.MAX_VALUE);
         endBtn.setOnAction(e -> {
-            if (encounterPane == null) { logger.warning("End: kein EncounterPane"); return; }
+            if (encounterPane == null) {
+                logger.warning("End: kein EncounterPane");
+                return;
+            }
             encounterPane.getState().round.set(0);
             encounterPane.inCombatProperty().set(false);
             combatToggle.setText("⚔ Combat: AUS");
@@ -255,10 +264,10 @@ public class EncounterModule implements EditorModule {
             }
 
             // Default: Mitte der Karte
-            int row = gameMap.getRows() / 2;
-            int col = gameMap.getCols() / 2;
-            gameMap.getTokens().add(new Token(row, col, selected));
-            mapRenderer.renderBattlemap();
+            int row = mapModel.getGameMap().getRows() / 2;
+            int col = mapModel.getGameMap().getCols() / 2;
+            mapModel.getGameMap().getTokens().add(new Token(row, col, selected));
+            mapModel.markMapDirty();
             logger.info("NPC platziert: " + selected.name + " @ " + row + "/" + col);
         });
 
@@ -272,10 +281,10 @@ public class EncounterModule implements EditorModule {
             }
 
             // Alle Tokens dieses NPCs von der Karte räumen
-            int before = gameMap.getTokens().size();
-            gameMap.getTokens().removeIf(t -> t.Statblock == selected);
-            int removed = before - gameMap.getTokens().size();
-            mapRenderer.renderBattlemap();
+            int before = mapModel.getGameMap().getTokens().size();
+            mapModel.getGameMap().getTokens().removeIf(t -> t.Statblock == selected);
+            int removed = before - mapModel.getGameMap().getTokens().size();
+            mapModel.markMapDirty();
             logger.info("NPC entfernt: " + selected.name + " → " + removed + " Token(s) gelöscht");
         });
 
@@ -315,22 +324,22 @@ public class EncounterModule implements EditorModule {
             logger.info("Lade Karte: " + fileName);
             MapSaverLoader.LoadResult result = new MapSaverLoader().load(file);
 
-            gameMap.resizeGrid(result.map.getRows(), result.map.getCols());
+            mapModel.getGameMap().resizeGrid(result.map.getRows(), result.map.getCols());
             for (int r = 0; r < result.map.getRows(); r++)
                 for (int c = 0; c < result.map.getCols(); c++)
-                    gameMap.getTile(r, c).flags = result.map.getTile(r, c).flags;
+                    mapModel.getGameMap().getTile(r, c).flags = result.map.getTile(r, c).flags;
 
-            gameMap.getTokens().clear();
-            gameMap.getTokens().addAll(result.tokens);
-            gameMap.getLights().clear();
-            gameMap.getLights().addAll(result.lights);
-            gameMap.backgroundPath = result.map.backgroundPath;
-            gameMap.clearWalls();
-            gameMap.getWalls().addAll(result.walls);
+            mapModel.getGameMap().getTokens().clear();
+            mapModel.getGameMap().getTokens().addAll(result.tokens);
+            mapModel.getGameMap().getLights().clear();
+            mapModel.getGameMap().getLights().addAll(result.lights);
+            mapModel.getGameMap().backgroundPath = result.map.backgroundPath;
+            mapModel.getGameMap().clearWalls();
+            mapModel.getGameMap().getWalls().addAll(result.walls);
 
-            mapRenderer.loadBackground(gameMap.backgroundPath);
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getRenderer().loadBackground(mapModel.getGameMap().backgroundPath);
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
 
             syncInitiativeFromMap();
 
@@ -348,12 +357,11 @@ public class EncounterModule implements EditorModule {
     private void syncInitiativeFromMap() {
         if (encounterPane == null) return;
         EncounterState state = encounterPane.getState();
-
         state.initiative.clear();
         state.activeToken.set(null);
-        state.initiative.addAll(gameMap.getTokens());
+        state.initiative.addAll(mapModel.getGameMap().getTokens());
 
-        logger.info("Initiative befüllt: " + state.initiative.size() + " Token(s) von der Karte");
+        logger.info("Initiative befüllt: " + state.initiative.size() + " Token(s)");
     }
 
     // NPC-Liste

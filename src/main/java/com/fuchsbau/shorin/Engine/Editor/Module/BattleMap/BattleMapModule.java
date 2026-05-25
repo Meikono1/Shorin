@@ -6,16 +6,15 @@ import com.fuchsbau.shorin.Engine.Editor.Module.NpcModule;
 import com.fuchsbau.shorin.Engine.Map.Core.*;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.IndoorZone;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightSource;
-import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Sound.SoundPoint;
-import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.LightPreset;
+import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.RPG.GameClock;
-import com.fuchsbau.shorin.Engine.System.Character.PlayerCharacter;
+import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
 import com.fuchsbau.shorin.Logger.FileLogger;
@@ -49,9 +48,7 @@ public class BattleMapModule implements EditorModule {
 
     private static final Logger logger = FileLogger.getLogger();
 
-    private final MutableGameMap gameMap = new MutableGameMap();
-    private final LightingSystem lighting = new LightingSystem();
-    private final MapRenderer mapRenderer = new MapRenderer(gameMap, lighting);
+    private final MapModel mapModel;
 
     // Camera
     private boolean painting = false;
@@ -118,13 +115,21 @@ public class BattleMapModule implements EditorModule {
 
     private final ObservableList<SoundPoint> soundPoints = FXCollections.observableArrayList();
 
+    // Cache
+    private Node cachedContent = null;
+    private Node cachedSidePanel = null;
+
+    public BattleMapModule(MapModel mapModel) {
+        this.mapModel = mapModel;
+    }
+
     @Override
     public String getTitle() {
         return "BattleMap";
     }
 
     private void setupInputHandlers() {
-        Canvas canvas = mapRenderer.getCanvas();
+        Canvas canvas = mapModel.getRenderer().getCanvas();
 
         // --- Mouse Press ---
         canvas.setOnMousePressed(e -> {
@@ -134,7 +139,7 @@ public class BattleMapModule implements EditorModule {
                     placingWall = false;
                     wallStartX = -1;
                     wallStartY = -1;
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().renderBattlemap();
                     e.consume();
                     return;
                 }
@@ -144,14 +149,14 @@ public class BattleMapModule implements EditorModule {
                 Token hit = pickToken(e.getX(), e.getY());
                 if (hit != null) {
                     selectedToken = hit;
-                    mapRenderer.setSelectedToken(selectedToken);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().setSelectedToken(selectedToken);
+                    mapModel.getRenderer().renderBattlemap();
                     e.consume();
                     return;
                 } else {
                     selectedToken = null;
-                    mapRenderer.setSelectedToken(null);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().setSelectedToken(null);
+                    mapModel.getRenderer().renderBattlemap();
                 }
 
                 LightSource lightHit = pickLight(e.getX(), e.getY());
@@ -175,8 +180,8 @@ public class BattleMapModule implements EditorModule {
 
                 // --- Indoor Zone starten ---
                 if (placingZone && e.getButton() == MouseButton.PRIMARY) {
-                    double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                    double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                    double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                    double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                     double[] snapped = snapToGrid(wx, wy);
                     zoneStartX = snapped[0];
                     zoneStartY = snapped[1];
@@ -194,14 +199,14 @@ public class BattleMapModule implements EditorModule {
                         draggingStart = wallHit.isStart();
 
                         placingWall = false;
-                        mapRenderer.renderBattlemap();
+                        mapModel.getRenderer().renderBattlemap();
                         e.consume();
                         return;
                     }
 
                     // Sonst neue Wand starten
-                    double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                    double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                    double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                    double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                     double[] snapped = snapToGrid(wx, wy);
                     wallStartX = snapped[0];
                     wallStartY = snapped[1];
@@ -224,17 +229,17 @@ public class BattleMapModule implements EditorModule {
             if (e.getButton() == MouseButton.PRIMARY) {
                 if (placingZone && zoneInProgress != null) {
                     if (zoneInProgress.width > 1 && zoneInProgress.height > 1) {
-                        gameMap.addIndoorZone(zoneInProgress);
-                        zoneItems.setAll(gameMap.getIndoorZones());
+                        mapModel.getGameMap().addIndoorZone(zoneInProgress);
+                        zoneItems.setAll(mapModel.getGameMap().getIndoorZones());
 
-                        lighting.recomputeLightmapAll(gameMap);
+                        mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
                         logger.info("IndoorZone gespeichert: "
                                 + String.format("%.0f×%.0f", zoneInProgress.width, zoneInProgress.height));
                     }
                     zoneInProgress = null;
                     placingZone = false;
-                    mapRenderer.clearZonePreview();
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().clearZonePreview();
+                    mapModel.getRenderer().renderBattlemap();
                     e.consume();
                     return;
                 }
@@ -248,8 +253,8 @@ public class BattleMapModule implements EditorModule {
                 }
 
                 if (placingWall) {
-                    double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                    double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                    double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                    double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                     double[] snapped = snapToGrid(wx, wy);
 
                     // Nur hinzufügen wenn Start != End
@@ -258,7 +263,7 @@ public class BattleMapModule implements EditorModule {
                                 wallStartX, wallStartY,
                                 snapped[0], snapped[1],
                                 activeWallType);
-                        gameMap.addWall(seg);
+                        mapModel.getGameMap().addWall(seg);
                         logger.fine("Wand platziert: " + activeWallType
                                 + " (" + wallStartX + "/" + wallStartY
                                 + " → " + snapped[0] + "/" + snapped[1] + ")");
@@ -267,8 +272,8 @@ public class BattleMapModule implements EditorModule {
                     placingWall = false;
                     wallStartX = -1;
                     wallStartY = -1;
-                    mapRenderer.clearWallPreview();
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().clearWallPreview();
+                    mapModel.getRenderer().renderBattlemap();
                     e.consume();
                     return;
                 }
@@ -294,42 +299,42 @@ public class BattleMapModule implements EditorModule {
         // --- Mouse Dragged ---
         canvas.setOnMouseDragged(e -> {
             if (placingWall && e.isPrimaryButtonDown()) {
-                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                 double[] snapped = snapToGrid(wx, wy);
-                mapRenderer.setWallPreview(wallStartX, wallStartY,
+                mapModel.getRenderer().setWallPreview(wallStartX, wallStartY,
                         snapped[0], snapped[1], activeWallType);
-                mapRenderer.renderBattlemap();
+                mapModel.getRenderer().renderBattlemap();
                 e.consume();
                 return;
             }
 
             if (tokensActive && selectedToken != null && e.isPrimaryButtonDown()) {
-                int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
-                if (rc != null && gameMap.inBounds(rc[0], rc[1])) {
+                int[] rc = mapModel.getRenderer().pickTile(e.getX(), e.getY());
+                if (rc != null && mapModel.getGameMap().inBounds(rc[0], rc[1])) {
                     selectedToken.row = rc[0];
                     selectedToken.col = rc[1];
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().renderBattlemap();
                 }
                 e.consume();
                 return;
             }
 
             if (selectedLight != null && e.isPrimaryButtonDown()) {
-                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                 selectedLight.x = wx;
                 selectedLight.y = wy;
-                lighting.recomputeLightmapAll(gameMap);
-                mapRenderer.renderBattlemap();
+                mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                mapModel.getRenderer().renderBattlemap();
                 e.consume();
                 return;
             }
 
             // --- Zone-Punkt ziehen ---
             if (selectedZone != null && e.isPrimaryButtonDown()) {
-                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                 double[] snapped = snapToGrid(wx, wy);
 
                 if (draggingZoneStart) {
@@ -345,15 +350,15 @@ public class BattleMapModule implements EditorModule {
                 selectedZone.width = selectedZone.x2 - selectedZone.x;
                 selectedZone.height = selectedZone.y2 - selectedZone.y;
 
-                lighting.recomputeLightmapAll(gameMap);
-                mapRenderer.renderBattlemap();
+                mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                mapModel.getRenderer().renderBattlemap();
                 e.consume();
                 return;
             }
 
             if (placingZone && zoneInProgress != null && e.isPrimaryButtonDown()) {
-                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                 double[] snapped = snapToGrid(wx, wy);
 
                 zoneInProgress.x = Math.min(zoneStartX, snapped[0]);
@@ -362,15 +367,15 @@ public class BattleMapModule implements EditorModule {
                 zoneInProgress.height = Math.abs(snapped[1] - zoneStartY);
                 zoneInProgress.recalcBounds();
 
-                mapRenderer.setZonePreview(zoneInProgress);
-                mapRenderer.renderBattlemap();
+                mapModel.getRenderer().setZonePreview(zoneInProgress);
+                mapModel.getRenderer().renderBattlemap();
                 e.consume();
                 return;
             }
 
             if (isWallTool(currentTool) && selectedWallSeg != null && e.isPrimaryButtonDown()) {
-                double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                 double[] snapped = snapToGrid(wx, wy);
 
                 // Nur den direkt ausgewählten Punkt bewegen
@@ -382,7 +387,7 @@ public class BattleMapModule implements EditorModule {
                     selectedWallSeg.y2 = snapped[1];
                 }
 
-                mapRenderer.renderBattlemap();
+                mapModel.getRenderer().renderBattlemap();
                 e.consume();
                 return;
             }
@@ -395,18 +400,18 @@ public class BattleMapModule implements EditorModule {
 
         // --- Zoom ---
         canvas.addEventFilter(ScrollEvent.SCROLL, e -> {
-            double oldZoom = mapRenderer.getZoom();
+            double oldZoom = mapModel.getRenderer().getZoom();
             double factor = Math.pow(1.0015, e.getDeltaY());
-            mapRenderer.setZoom(clamp(mapRenderer.getZoom() * factor, 0.2, 6.0));
+            mapModel.getRenderer().setZoom(clamp(mapModel.getRenderer().getZoom() * factor, 0.2, 6.0));
 
-            double wx = mapRenderer.screenToWorldX(e.getX(), oldZoom);
-            double wy = mapRenderer.screenToWorldY(e.getY(), oldZoom);
-            double wxA = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-            double wyA = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+            double wx = mapModel.getRenderer().screenToWorldX(e.getX(), oldZoom);
+            double wy = mapModel.getRenderer().screenToWorldY(e.getY(), oldZoom);
+            double wxA = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+            double wyA = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
 
-            mapRenderer.setCamX(mapRenderer.getCamX() + (wx - wxA));
-            mapRenderer.setCamY(mapRenderer.getCamY() + (wy - wyA));
-            mapRenderer.renderBattlemap();
+            mapModel.getRenderer().setCamX(mapModel.getRenderer().getCamX() + (wx - wxA));
+            mapModel.getRenderer().setCamY(mapModel.getRenderer().getCamY() + (wy - wyA));
+            mapModel.getRenderer().renderBattlemap();
             e.consume();
         });
 
@@ -437,7 +442,7 @@ public class BattleMapModule implements EditorModule {
                     ok = true;
 
                 } else if (s.startsWith("NPC:") || s.startsWith("CHAR:")) {
-                    int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
+                    int[] rc = mapModel.getRenderer().pickTile(e.getX(), e.getY());
                     if (rc != null) {
                         String id = s.split(":")[1];
                         Token token;
@@ -452,8 +457,8 @@ public class BattleMapModule implements EditorModule {
                         } else {
                             token = new Token(rc[0], rc[1], npcs.get(id));
                         }
-                        gameMap.getTokens().add(token);
-                        mapRenderer.renderBattlemap();
+                        mapModel.getGameMap().getTokens().add(token);
+                        mapModel.getRenderer().renderBattlemap();
                         logger.fine("Token platziert: " + s + " @ " + rc[0] + "/" + rc[1]);
                         ok = true;
                     }
@@ -461,20 +466,20 @@ public class BattleMapModule implements EditorModule {
                 } else if (s.startsWith("LIGHT:")) {
                     String[] parts = s.split(":");
                     if (parts.length == 6) {
-                        int[] rc = mapRenderer.pickTile(e.getX(), e.getY());
+                        int[] rc = mapModel.getRenderer().pickTile(e.getX(), e.getY());
                         if (rc != null) {
-                            double wx = mapRenderer.screenToWorldX(e.getX(), mapRenderer.getZoom());
-                            double wy = mapRenderer.screenToWorldY(e.getY(), mapRenderer.getZoom());
+                            double wx = mapModel.getRenderer().screenToWorldX(e.getX(), mapModel.getRenderer().getZoom());
+                            double wy = mapModel.getRenderer().screenToWorldY(e.getY(), mapModel.getRenderer().getZoom());
                             int bright = Integer.parseInt(parts[2]);
                             int dim = Integer.parseInt(parts[3]);
                             float intens = Float.parseFloat(parts[4]);
                             boolean sonne = Boolean.parseBoolean(parts[5]);
-                            gameMap.addOrReplaceLight(wx, wy, bright, dim, intens, sonne);
-                            lighting.recomputeLightmapAll(gameMap);
-                            mapRenderer.renderBattlemap();
+                            mapModel.getGameMap().addOrReplaceLight(wx, wy, bright, dim, intens, sonne);
+                            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                            mapModel.getRenderer().renderBattlemap();
                             // ListView aktualisieren wenn Light-Panel aktiv
                             if (lightListView != null)
-                                lightListView.getItems().setAll(gameMap.getLights());
+                                lightListView.getItems().setAll(mapModel.getGameMap().getLights());
                             ok = true;
                         }
                     }
@@ -492,10 +497,10 @@ public class BattleMapModule implements EditorModule {
                     highlightedSeg = hit.seg();
                     double px = hit.isStart() ? hit.seg().x1 : hit.seg().x2;
                     double py = hit.isStart() ? hit.seg().y1 : hit.seg().y2;
-                    mapRenderer.setHighlightPoint(px, py);
+                    mapModel.getRenderer().setHighlightPoint(px, py);
                 } else {
                     highlightedSeg = null;
-                    mapRenderer.clearHighlight();
+                    mapModel.getRenderer().clearHighlight();
                 }
 
                 ZoneHit zHit = pickZonePoint(e.getX(), e.getY());
@@ -503,57 +508,57 @@ public class BattleMapModule implements EditorModule {
                     IndoorZone z = zHit.zone();
                     double px = zHit.isStart() ? z.x : z.x2;
                     double py = zHit.isStart() ? z.y : z.y2;
-                    mapRenderer.setZoneHighlight(px, py);
+                    mapModel.getRenderer().setZoneHighlight(px, py);
                 } else {
-                    mapRenderer.clearZoneHighlight();
+                    mapModel.getRenderer().clearZoneHighlight();
                 }
-                mapRenderer.renderBattlemap();
+                mapModel.getRenderer().renderBattlemap();
             }
         });
 
         // Pfeiltasten auf Canvas
-        mapRenderer.getCanvas().setFocusTraversable(true);
+        mapModel.getRenderer().getCanvas().setFocusTraversable(true);
 
-        mapRenderer.getCanvas().setOnKeyPressed(e -> {
+        mapModel.getRenderer().getCanvas().setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.DELETE) {
                 if (isWallTool(currentTool) && highlightedSeg != null) {
-                    gameMap.removeWall(highlightedSeg);
+                    mapModel.getGameMap().removeWall(highlightedSeg);
                     highlightedSeg = null;
-                    mapRenderer.clearHighlight();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().clearHighlight();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                     logger.fine("Wand gelöscht");
                     e.consume();
                     return;
                 }
 
                 if (isWallTool(currentTool) && selectedZone != null) {
-                    gameMap.removeIndoorZone(selectedZone);
-                    zoneItems.setAll(gameMap.getIndoorZones());
+                    mapModel.getGameMap().removeIndoorZone(selectedZone);
+                    zoneItems.setAll(mapModel.getGameMap().getIndoorZones());
                     selectedZone = null;
-                    mapRenderer.clearHighlight();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().clearHighlight();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                     logger.fine("InsideWall gelöscht");
                     e.consume();
                     return;
                 }
 
                 if (selectedLight != null) {
-                    gameMap.getLights().remove(selectedLight);
+                    mapModel.getGameMap().getLights().remove(selectedLight);
                     selectedLight = null;
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                     logger.fine("Licht gelöscht");
                     e.consume();
                     return;
                 }
 
                 if (selectedToken != null) {
-                    gameMap.getTokens().remove(selectedToken);
+                    mapModel.getGameMap().getTokens().remove(selectedToken);
                     selectedToken = null;
-                    mapRenderer.setSelectedToken(null);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getRenderer().setSelectedToken(null);
+                    mapModel.getRenderer().renderBattlemap();
                     logger.fine("Token gelöscht");
                     e.consume();
                     return;
@@ -576,10 +581,10 @@ public class BattleMapModule implements EditorModule {
 
             int newRow = selectedToken.row + dr;
             int newCol = selectedToken.col + dc;
-            if (gameMap.inBounds(newRow, newCol)) {
+            if (mapModel.getGameMap().inBounds(newRow, newCol)) {
                 selectedToken.row = newRow;
                 selectedToken.col = newCol;
-                mapRenderer.renderBattlemap();
+                mapModel.getRenderer().renderBattlemap();
                 logger.fine("Token bewegt: " + selectedToken.name + " → " + newRow + "/" + newCol);
             }
             e.consume();
@@ -589,11 +594,11 @@ public class BattleMapModule implements EditorModule {
     }
 
     private void applyAt(double sx, double sy) {
-        int[] rc = mapRenderer.pickTile(sx, sy);
+        int[] rc = mapModel.getRenderer().pickTile(sx, sy);
         if (rc == null) return;
 
         int r = rc[0], c = rc[1];
-        Tile tile = gameMap.getTile(r, c);
+        Tile tile = mapModel.getGameMap().getTile(r, c);
 
         switch (currentTool) {
             case WALL -> {
@@ -616,19 +621,21 @@ public class BattleMapModule implements EditorModule {
             case ERASE -> tile.clearAll();
         }
 
-        mapRenderer.renderBattlemap();
+        mapModel.getRenderer().renderBattlemap();
     }
 
     @Override
     public Node buildContent() {
-        mapRenderer.debug = true;
-        Node canvas = mapRenderer.buildBattleMapPane(null);
+        if (cachedContent != null) return cachedContent;
+
+        mapModel.getRenderer().debug = true;
+        cachedContent = mapModel.getRenderer().buildBattleMapPane(null);
         setupInputHandlers();
-        mapRenderer.setupCanvasHandlers();
-        mapRenderer.refreshViews();
-        mapRenderer.renderBattlemap();
-        logger.info("BattleMapModule Content gebaut");
-        return canvas;
+        mapModel.getRenderer().setupCanvasHandlers();
+        mapModel.getRenderer().refreshViews();
+        mapModel.getRenderer().renderBattlemap();
+        logger.info("BattleMap Content gebaut");
+        return cachedContent;
     }
 
     @Override
@@ -695,11 +702,11 @@ public class BattleMapModule implements EditorModule {
         Button loadBgBtn = new Button("Hintergrundbild");
         loadBgBtn.setMaxWidth(Double.MAX_VALUE);
         loadBgBtn.setOnAction(e -> {
-            String path = mapRenderer.loadBackground();
+            String path = mapModel.getRenderer().loadBackground();
             if (path == null) return;
-            gameMap.backgroundPath = path;
+            mapModel.getGameMap().backgroundPath = path;
 
-            mapRenderer.renderBattlemap();
+            mapModel.getRenderer().renderBattlemap();
         });
 
         // --- Kartenliste ---
@@ -750,22 +757,26 @@ public class BattleMapModule implements EditorModule {
         if (!file.exists()) return;
         try {
             MapSaverLoader.LoadResult result = new MapSaverLoader().load(file);
-            gameMap.resizeGrid(result.map.getRows(), result.map.getCols());
+            mapModel.getGameMap().resizeGrid(result.map.getRows(), result.map.getCols());
             for (int r = 0; r < result.map.getRows(); r++)
                 for (int c = 0; c < result.map.getCols(); c++)
-                    gameMap.getTile(r, c).flags = result.map.getTile(r, c).flags;
-            gameMap.getTokens().clear();
-            gameMap.getTokens().addAll(result.tokens);
-            gameMap.getLights().clear();
-            gameMap.getLights().addAll(result.lights);
-            gameMap.backgroundPath = result.map.backgroundPath;
-            mapRenderer.loadBackground(gameMap.backgroundPath);
+                    mapModel.getGameMap().getTile(r, c).flags = result.map.getTile(r, c).flags;
+            mapModel.getGameMap().getTokens().clear();
+            mapModel.getGameMap().getTokens().addAll(result.tokens);
+            mapModel.getGameMap().getLights().clear();
+            mapModel.getGameMap().getLights().addAll(result.lights);
+            mapModel.getGameMap().backgroundPath = result.map.backgroundPath;
+            mapModel.getRenderer().loadBackground(mapModel.getGameMap().backgroundPath);
 
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
             mapNameField.setText(fileName.replace(".shorin", ""));
-            gameMap.clearWalls();
-            gameMap.getWalls().addAll(result.walls);
+            mapModel.getGameMap().clearWalls();
+            mapModel.getGameMap().getWalls().addAll(result.walls);
+            mapModel.getGameMap().clearIndoorZones();
+            mapModel.getGameMap().getIndoorZones().addAll(result.indoorZones);
+            zoneItems.setAll(mapModel.getGameMap().getIndoorZones());
+
             logger.info("Karte geladen: " + fileName);
         } catch (Exception ex) {
             logger.severe("Fehler beim Laden: " + ex.getMessage());
@@ -773,12 +784,12 @@ public class BattleMapModule implements EditorModule {
     }
 
     private void newMap() {
-        gameMap.resizeGrid(20, 20);
-        gameMap.clearAll();
-        gameMap.getTokens().clear();
+        mapModel.getGameMap().resizeGrid(20, 20);
+        mapModel.getGameMap().clearAll();
+        mapModel.getGameMap().getTokens().clear();
         mapNameField.setText("neue_karte");
-        lighting.recomputeLightmapAll(gameMap);
-        mapRenderer.renderBattlemap();
+        mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+        mapModel.getRenderer().renderBattlemap();
         logger.info("Neue BattleMap erstellt");
     }
 
@@ -791,7 +802,7 @@ public class BattleMapModule implements EditorModule {
             File dir = PathResolver.resolveWritable("maps/battle").toFile();
             if (!dir.exists()) dir.mkdirs();
             File out = new File(dir, name);
-            new MapSaverLoader().saveBattleMap(out, gameMap, gameMap.getLights());
+            new MapSaverLoader().saveBattleMap(out, mapModel.getGameMap(), mapModel.getGameMap().getLights());
             logger.info("BattleMap gespeichert: " + out.getAbsolutePath());
         } catch (Exception ex) {
             logger.severe("Fehler beim Speichern: " + ex.getMessage());
@@ -805,7 +816,7 @@ public class BattleMapModule implements EditorModule {
         fc.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Shorin Maps", "*.shorin"));
 
-        File file = fc.showOpenDialog(mapRenderer.getCanvas().getScene().getWindow());
+        File file = fc.showOpenDialog(mapModel.getRenderer().getCanvas().getScene().getWindow());
         if (file == null) return;
         loadMapByName(file.getName());
         refreshMapList();
@@ -813,9 +824,13 @@ public class BattleMapModule implements EditorModule {
 
     @Override
     public Node buildSidePanel() {
+        if (cachedSidePanel != null) return cachedSidePanel;
+
         sidebarContainer.setMaxHeight(Double.MAX_VALUE);
         sidebarContainer.setCenter(buildMapsPanel());
-        return sidebarContainer;
+        cachedSidePanel = sidebarContainer;
+        logger.fine("BattleMap SidePanel gebaut");
+        return cachedSidePanel;
     }
 
     private void switchSidebar(String mode) {
@@ -932,16 +947,16 @@ public class BattleMapModule implements EditorModule {
                 setText(t.name + " @ " + t.row + "/" + t.col);
             }
         });
-        placedList.getItems().setAll(gameMap.getTokens());
+        placedList.getItems().setAll(mapModel.getGameMap().getTokens());
 
         Button removeTokenBtn = new Button("✕ Entfernen");
         removeTokenBtn.setMaxWidth(Double.MAX_VALUE);
         removeTokenBtn.setOnAction(e -> {
             Token selected = placedList.getSelectionModel().getSelectedItem();
             if (selected == null) return;
-            gameMap.getTokens().remove(selected);
+            mapModel.getGameMap().getTokens().remove(selected);
             placedList.getItems().remove(selected);
-            mapRenderer.renderBattlemap();
+            mapModel.getRenderer().renderBattlemap();
             logger.fine("Token entfernt: " + selected.name);
         });
 
@@ -958,10 +973,10 @@ public class BattleMapModule implements EditorModule {
     }
 
     private Token pickToken(double sx, double sy) {
-        int[] rc = mapRenderer.pickTile(sx, sy);
+        int[] rc = mapModel.getRenderer().pickTile(sx, sy);
         if (rc == null) return null;
 
-        for (Token t : gameMap.getTokens()) {
+        for (Token t : mapModel.getGameMap().getTokens()) {
             if (t.row == rc[0] && t.col == rc[1]) return t;
         }
         return null;
@@ -969,9 +984,9 @@ public class BattleMapModule implements EditorModule {
 
     private LightSource pickLight(double sx, double sy) {
         double tolerance = 12.0;
-        for (LightSource ls : gameMap.getLights()) {
-            double lsx = (ls.x - mapRenderer.getCamX()) * mapRenderer.getZoom();
-            double lsy = (ls.y - mapRenderer.getCamY()) * mapRenderer.getZoom();
+        for (LightSource ls : mapModel.getGameMap().getLights()) {
+            double lsx = (ls.x - mapModel.getRenderer().getCamX()) * mapModel.getRenderer().getZoom();
+            double lsy = (ls.y - mapModel.getRenderer().getCamY()) * mapModel.getRenderer().getZoom();
             double dx = sx - lsx;
             double dy = sy - lsy;
             if (dx * dx + dy * dy <= tolerance * tolerance) return ls;
@@ -998,7 +1013,7 @@ public class BattleMapModule implements EditorModule {
             }
         });
 
-        zoneItems.setAll(gameMap.getIndoorZones());
+        zoneItems.setAll(mapModel.getGameMap().getIndoorZones());
         if (zoneListView.getItems() != zoneItems) {
             zoneListView.setItems(zoneItems);
         }
@@ -1017,10 +1032,10 @@ public class BattleMapModule implements EditorModule {
         removeZoneBtn.setOnAction(e -> {
             IndoorZone selected = zoneListView.getSelectionModel().getSelectedItem();
             if (selected == null) return;
-            gameMap.removeIndoorZone(selected);
-            zoneItems.setAll(gameMap.getIndoorZones());
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getGameMap().removeIndoorZone(selected);
+            zoneItems.setAll(mapModel.getGameMap().getIndoorZones());
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
             logger.fine("IndoorZone entfernt");
         });
 
@@ -1049,18 +1064,18 @@ public class BattleMapModule implements EditorModule {
         // --- Grid Controls ---
         Label gridLabel = new Label("Grid");
 
-        TextField rowsField = new TextField(String.valueOf(gameMap.getRows()));
+        TextField rowsField = new TextField(String.valueOf(mapModel.getGameMap().getRows()));
         rowsField.setPrefWidth(55);
-        TextField colsField = new TextField(String.valueOf(gameMap.getCols()));
+        TextField colsField = new TextField(String.valueOf(mapModel.getGameMap().getCols()));
         colsField.setPrefWidth(55);
 
         Button applySize = new Button("Apply");
         applySize.setOnAction(e -> {
-            int rows = parsePositiveInt(rowsField.getText(), gameMap.getRows());
-            int cols = parsePositiveInt(colsField.getText(), gameMap.getCols());
-            gameMap.resizeGrid(rows, cols);
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            int rows = parsePositiveInt(rowsField.getText(), mapModel.getGameMap().getRows());
+            int cols = parsePositiveInt(colsField.getText(), mapModel.getGameMap().getCols());
+            mapModel.getGameMap().resizeGrid(rows, cols);
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
             logger.fine("Grid angepasst: " + rows + "x" + cols);
         });
 
@@ -1073,45 +1088,45 @@ public class BattleMapModule implements EditorModule {
         VBox gridSection = new VBox(4,
                 sizeRow,
                 makeGridBtn("+ Oben", () -> {
-                    gameMap.addRowTop();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().addRowTop();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 makeGridBtn("+ Unten", () -> {
-                    gameMap.addRowBottom();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().addRowBottom();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 makeGridBtn("+ Links", () -> {
-                    gameMap.addColLeft();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().addColLeft();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 makeGridBtn("+ Rechts", () -> {
-                    gameMap.addColRight();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().addColRight();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 new Separator(),
                 makeGridBtn("- Oben", () -> {
-                    gameMap.removeRowTop();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().removeRowTop();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 makeGridBtn("- Unten", () -> {
-                    gameMap.removeRowBottom();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().removeRowBottom();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 makeGridBtn("- Links", () -> {
-                    gameMap.removeColLeft();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().removeColLeft();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 }),
                 makeGridBtn("- Rechts", () -> {
-                    gameMap.removeColRight();
-                    lighting.recomputeLightmapAll(gameMap);
-                    mapRenderer.renderBattlemap();
+                    mapModel.getGameMap().removeColRight();
+                    mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+                    mapModel.getRenderer().renderBattlemap();
                 })
         );
 
@@ -1163,32 +1178,32 @@ public class BattleMapModule implements EditorModule {
         plusHalfBtn.setOnAction(e -> {
             GameClock.getInstance().setTotalTurns(
                     GameClock.getInstance().getTotalTurns() + GameClock.TURNS_PER_HOUR / 2.0);
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
         });
 
         Button plusHourBtn = new Button("+1h");
         plusHourBtn.setOnAction(e -> {
             GameClock.getInstance().setTotalTurns(
                     GameClock.getInstance().getTotalTurns() + GameClock.TURNS_PER_HOUR);
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
         });
 
         Button minusHalfBtn = new Button("-30min");
         minusHalfBtn.setOnAction(e -> {
             GameClock.getInstance().setTotalTurns(
                     Math.max(0, GameClock.getInstance().getTotalTurns() - GameClock.TURNS_PER_HOUR / 2.0));
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
         });
 
         Button minusHourBtn = new Button("-1h");
         minusHourBtn.setOnAction(e -> {
             GameClock.getInstance().setTotalTurns(
                     Math.max(0, GameClock.getInstance().getTotalTurns() - GameClock.TURNS_PER_HOUR));
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
         });
 
         HBox timeControls = new HBox(4, minusHourBtn, minusHalfBtn, plusHalfBtn, plusHourBtn);
@@ -1202,8 +1217,8 @@ public class BattleMapModule implements EditorModule {
             int hour = daylightBox.isSelected() ? 16 : 0;
             double turns = hour * GameClock.TURNS_PER_HOUR;
             GameClock.getInstance().setTotalTurns(turns);
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
             logger.fine("Tageslicht: " + hour + " Uhr");
         });
 
@@ -1258,7 +1273,7 @@ public class BattleMapModule implements EditorModule {
                 }
             }
         });
-        lightListView.getItems().setAll(gameMap.getLights());
+        lightListView.getItems().setAll(mapModel.getGameMap().getLights());
         lightListView.getSelectionModel().selectedItemProperty().addListener(
                 (obs, ov, nv) -> loadLightIntoForm(nv));
 
@@ -1304,8 +1319,8 @@ public class BattleMapModule implements EditorModule {
             selectedLight.colorB = c.getBlue();
 
 
-            lighting.recomputeLightmapAll(gameMap);
-            mapRenderer.renderBattlemap();
+            mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+            mapModel.getRenderer().renderBattlemap();
             lightListView.refresh();
             logger.fine("Licht angepasst: " + selectedLight.label
                     + " rgb(" + selectedLight.colorR + "/" + selectedLight.colorG + "/" + selectedLight.colorB + ")");
@@ -1354,17 +1369,17 @@ public class BattleMapModule implements EditorModule {
         lightDimSpinner.getValueFactory().setValue(ls.dimTiles);
         lightIntSpinner.getValueFactory().setValue((double) ls.intensity);
         lightColorPicker.setValue(Color.color(ls.colorR, ls.colorG, ls.colorB));
-        mapRenderer.setSelectedLight(ls);
-        mapRenderer.renderBattlemap();
+        mapModel.getRenderer().setSelectedLight(ls);
+        mapModel.getRenderer().renderBattlemap();
     }
 
     private void deleteSelectedLight() {
         if (selectedLight == null) return;
-        gameMap.getLights().remove(selectedLight);
+        mapModel.getGameMap().getLights().remove(selectedLight);
         lightListView.getItems().remove(selectedLight);
         selectedLight = null;
-        lighting.recomputeLightmapAll(gameMap);
-        mapRenderer.renderBattlemap();
+        mapModel.getLightingSystem().recomputeLightmapAll(mapModel.getGameMap());
+        mapModel.getRenderer().renderBattlemap();
         logger.fine("Licht gelöscht");
     }
 
@@ -1550,9 +1565,7 @@ public class BattleMapModule implements EditorModule {
     public void onActivate() {
         loadNpcs();
         loadChars();
-        double turns = 16 * GameClock.TURNS_PER_HOUR;
-        GameClock.getInstance().setTotalTurns(turns);
-        mapRenderer.renderBattlemap();
+        mapModel.getRenderer().renderBattlemap();
         logger.info("BattleMapModule aktiviert");
     }
 
@@ -1601,11 +1614,11 @@ public class BattleMapModule implements EditorModule {
     }
 
     private WallHit pickWallPoint(double sx, double sy) {
-        double wx = mapRenderer.screenToWorldX(sx, mapRenderer.getZoom());
-        double wy = mapRenderer.screenToWorldY(sy, mapRenderer.getZoom());
+        double wx = mapModel.getRenderer().screenToWorldX(sx, mapModel.getRenderer().getZoom());
+        double wy = mapModel.getRenderer().screenToWorldY(sy, mapModel.getRenderer().getZoom());
         double tol = SNAP_TOLERANCE;
 
-        for (WallSegment seg : gameMap.getWalls()) {
+        for (WallSegment seg : mapModel.getGameMap().getWalls()) {
             if (Math.abs(seg.x1 - wx) < tol && Math.abs(seg.y1 - wy) < tol)
                 return new WallHit(seg, true);
             if (Math.abs(seg.x2 - wx) < tol && Math.abs(seg.y2 - wy) < tol)
@@ -1618,11 +1631,11 @@ public class BattleMapModule implements EditorModule {
     }
 
     private ZoneHit pickZonePoint(double sx, double sy) {
-        double wx = mapRenderer.screenToWorldX(sx, mapRenderer.getZoom());
-        double wy = mapRenderer.screenToWorldY(sy, mapRenderer.getZoom());
+        double wx = mapModel.getRenderer().screenToWorldX(sx, mapModel.getRenderer().getZoom());
+        double wy = mapModel.getRenderer().screenToWorldY(sy, mapModel.getRenderer().getZoom());
         double tol = SNAP_TOLERANCE * 2;
 
-        for (IndoorZone z : gameMap.getIndoorZones()) {
+        for (IndoorZone z : mapModel.getGameMap().getIndoorZones()) {
             if (dist2(wx, wy, z.x, z.y) < tol * tol) {
                 logger.finest("ZoneHit Start: " + z.x + "/" + z.y);
                 return new ZoneHit(z, true);
@@ -1642,7 +1655,7 @@ public class BattleMapModule implements EditorModule {
         double bestDist2 = (gridSnap * gridSnap); // Radius innerhalb dessen Wall-Punkte gewinnen
 
         // Wall-Punkte als Snap-Kandidaten prüfen
-        for (WallSegment seg : gameMap.getWalls()) {
+        for (WallSegment seg : mapModel.getGameMap().getWalls()) {
             double d1 = dist2(wx, wy, seg.x1, seg.y1);
             if (d1 < bestDist2) {
                 bestDist2 = d1;

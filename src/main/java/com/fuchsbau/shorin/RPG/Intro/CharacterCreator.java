@@ -8,8 +8,6 @@ import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
-import com.fuchsbau.shorin.Races.Base.Attributes;
-import com.fuchsbau.shorin.Races.Base.Race;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
@@ -30,9 +28,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import static javafx.scene.paint.Color.RED;
@@ -45,7 +40,6 @@ public class CharacterCreator implements Saveble {
     private Label size;
     private Label speed;
     private Label money;
-    private Race selectedRace;
 
     private final ScenarioDefinition definition;
     private final static SceneBuilder scenebuilder = SceneBuilder.getSceneBuilder();
@@ -66,8 +60,6 @@ public class CharacterCreator implements Saveble {
 
     private final GridPane settingsGrid = new GridPane();
     private final SplitPane split = new SplitPane();
-
-    private Attributes lastRaceMod = new Attributes(0, 0, 0, 0, 0, 0);
 
     // Stats
     public static final class StatBlock {
@@ -198,12 +190,12 @@ public class CharacterCreator implements Saveble {
 
         // Top
         HBox topBar = buildTopStepBar();
-        HBox statsBar = buildStatsBar();
+       // HBox statsBar = buildStatsBar();
 
         VBox topContainer = new VBox();
 
         topContainer.getStyleClass().add("top-hbox");
-        topContainer.getChildren().addAll(topBar, statsBar);
+        topContainer.getChildren().addAll(topBar);
 
         root.setTop(topContainer);
 
@@ -319,49 +311,14 @@ public class CharacterCreator implements Saveble {
         if (stats.pointsLeft.get() <= 0 || stat.get() >= max.get()) return;
         stat.set(stat.get() + 1);
         stats.pointsLeft.set(stats.pointsLeft.get() - 1);
-        characterDraft.health.set(selectedRace.getMaxHealth() + (level * stats.con.get()));
+        //characterDraft.health.set(selectedRace.getMaxHealth() + (level * stats.con.get()));
     }
 
     private void tryDecStat(IntegerProperty stat, IntegerProperty min) {
         if (stat.get() <= min.get()) return;
         stat.set(stat.get() - 1);
         stats.pointsLeft.set(stats.pointsLeft.get() + 1);
-        characterDraft.health.set(selectedRace.getMaxHealth() + (level * stats.con.get()));
-    }
-
-    // ---------- Rassen-Malus anwenden ----------
-    private void applyRaceMalus(Race race) {
-        int baseMax = 3;
-
-        // alten Mod zurücknehmen (damit Wechsel nicht akkumuliert)
-        add(stats.str, -lastRaceMod.strength());
-        add(stats.dex, -lastRaceMod.dexterity());
-        add(stats.con, -lastRaceMod.constitution());
-        add(stats.intel, -lastRaceMod.intellect());
-        add(stats.wis, -lastRaceMod.wisdom());
-        add(stats.cha, -lastRaceMod.charisma());
-
-        Attributes mod = (race != null && race.getAttributes() != null) ? race.getAttributes() : new Attributes(0, 0, 0, 0, 0, 0);
-
-        // neuen Mod anwenden
-        add(stats.str, mod.strength());
-        add(stats.dex, mod.dexterity());
-        add(stats.con, mod.constitution());
-        add(stats.intel, mod.intellect());
-        add(stats.wis, mod.wisdom());
-        add(stats.cha, mod.charisma());
-
-        // min/max setzen: Bereich wird um mod verschoben
-        setRange(stats.minStr, stats.maxStr, baseMax, mod.strength());
-        setRange(stats.minDex, stats.maxDex, baseMax, mod.dexterity());
-        setRange(stats.minCon, stats.maxCon, baseMax, mod.constitution());
-        setRange(stats.minInt, stats.maxInt, baseMax, mod.intellect());
-        setRange(stats.minWis, stats.maxWis, baseMax, mod.wisdom());
-        setRange(stats.minCha, stats.maxCha, baseMax, mod.charisma());
-
-        lastRaceMod = mod;
-
-        clampToMinMax();
+        //characterDraft.health.set(selectedRace.getMaxHealth() + (level * stats.con.get()));
     }
 
     private static void setRange(IntegerProperty min, IntegerProperty max, int baseMax, int mod) {
@@ -433,12 +390,12 @@ public class CharacterCreator implements Saveble {
         Label nameLabel = SceneBuilder.createTextLabel("");
         nameLabel.textProperty().bind(characterDraft.name);
 
-        characterDraft.health.set(selectedRace.getMaxHealth() + (level * this.stats.con.get()));
+        //characterDraft.health.set(selectedRace.getMaxHealth() + (level * this.stats.con.get()));
         Label hp = SceneBuilder.createTextLabel("");
         hp.textProperty().bind(characterDraft.health.asString("HP: %d"));
 
-        size = SceneBuilder.createTextLabel("Size: " + selectedRace.getSize().name());
-        speed = SceneBuilder.createTextLabel("Speed: " + selectedRace.getSpeed() + "ft");
+        //size = SceneBuilder.createTextLabel("Size: " + selectedRace.getSize().name());
+        //speed = SceneBuilder.createTextLabel("Speed: " + selectedRace.getSpeed() + "ft");
 
         money = SceneBuilder.createTextLabel("Gold: " + characterDraft.gold.get() + ", Silver: " + characterDraft.silver.get() + ", Copper: " + characterDraft.copper.get());
 
@@ -482,7 +439,7 @@ public class CharacterCreator implements Saveble {
     }
 
     private void buildBaseSection(GridPane settingsGrid) {
-        ComboBox<String> raceDropdown = SceneBuilder.makeDropdown();
+        /*ComboBox<String> raceDropdown = SceneBuilder.makeDropdown();
         ComboBox<String> sexDropdown = SceneBuilder.makeDropdown();
         Map<String, Race> byDisplay = new HashMap<>();
 
@@ -567,6 +524,8 @@ public class CharacterCreator implements Saveble {
         addSettingRow(settingsGrid, 3, "Gender", null, sexDropdown, null);
         addSettingRow(settingsGrid, 4, "Age", null, ageSlider, ageValue);
         if (selectedRace != null) syncAgeRange.accept(selectedRace);
+
+         */
     }
 
     private void buildBodySection(GridPane settingsGrid) {

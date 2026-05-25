@@ -2,6 +2,7 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 
 import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.System.Character.*;
+import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
