@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Logger;
+package com.fuchsbau.shorin.Engine.Logger;
 
 
 import java.io.File;

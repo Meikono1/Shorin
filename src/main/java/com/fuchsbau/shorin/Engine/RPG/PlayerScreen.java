@@ -3,17 +3,17 @@ package com.fuchsbau.shorin.Engine.RPG;
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
-import com.fuchsbau.shorin.Engine.RPG.UI.ButtonStyle;
-import com.fuchsbau.shorin.Engine.RPG.UI.SimpleAction;
-import com.fuchsbau.shorin.Engine.RPG.ViewModules.CenterPanelView;
-import com.fuchsbau.shorin.Engine.RPG.ViewModules.LeftPanelView;
-import com.fuchsbau.shorin.Engine.RPG.ViewModules.RightPanelView;
+import com.fuchsbau.shorin.Engine.RPG.Controls.Actionable;
+import com.fuchsbau.shorin.Engine.RPG.Controls.ButtonStyle;
+import com.fuchsbau.shorin.Engine.RPG.Controls.SimpleAction;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextAdventure.CenterPanelView;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextAdventure.LeftPanelView;
+import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextAdventure.RightPanelView;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.ScreenMode;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextDisplayConfig;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextSegment;
-import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.CSSLoader;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.Game;
 import javafx.application.Platform;
@@ -229,7 +229,6 @@ public class PlayerScreen implements Saveble {
     @Override
     public Scene getScene(int stage) {
         if (scene == null) build();
-        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.Images;
 
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;

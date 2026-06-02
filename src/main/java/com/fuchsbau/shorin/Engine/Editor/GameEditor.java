@@ -10,7 +10,7 @@ import com.fuchsbau.shorin.Engine.Editor.Module.Races.AncestryModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.Races.HeritageModule;
 import com.fuchsbau.shorin.Engine.Editor.Module.Races.LanguageModule;
 import com.fuchsbau.shorin.Engine.Map.MapModel;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.MainScreen;
 import javafx.scene.Node;

@@ -5,7 +5,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.MapSaverLoader;
 import com.fuchsbau.shorin.Engine.Map.Core.Lighting.LightingSystem;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.MutableGameMap;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.io.IOException;
 import java.nio.file.Path;

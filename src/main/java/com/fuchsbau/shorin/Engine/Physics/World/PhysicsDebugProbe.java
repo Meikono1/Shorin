@@ -2,7 +2,7 @@ package com.fuchsbau.shorin.Engine.Physics.World;
 
 import com.fuchsbau.shorin.Engine.Physics.Shape.BodyType;
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.util.List;
 import java.util.logging.Logger;

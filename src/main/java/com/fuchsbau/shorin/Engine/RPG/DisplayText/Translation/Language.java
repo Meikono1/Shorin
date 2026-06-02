@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.RPG;
+package com.fuchsbau.shorin.Engine.RPG.DisplayText.Translation;
 
 public class Language {
     public String name = "";

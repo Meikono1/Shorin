@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine;
 
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.util.ArrayList;
 import java.util.List;

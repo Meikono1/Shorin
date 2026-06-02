@@ -2,11 +2,11 @@ package com.fuchsbau.shorin.Engine.RPG.ViewModules.ButtonControl;
 
 import com.fuchsbau.shorin.Engine.RPG.AktionBar.ActionMenu;
 import com.fuchsbau.shorin.Engine.RPG.AktionBar.ActionMode;
-import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
+import com.fuchsbau.shorin.Engine.RPG.Controls.Actionable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Hideable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Renderable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.ScreenMode;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

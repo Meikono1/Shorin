@@ -1,6 +1,5 @@
 package com.fuchsbau.shorin.RPG.Places.Whitebrigde;
 
-import com.fuchsbau.shorin.Items.MaxHealth;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
@@ -21,37 +20,10 @@ public class Inn extends Place implements Saveble {
     }
 
     private void makeScene() {
-        TextFlow flow = SceneBuilder.getSceneBuilder().mainFlow();
-
-        Text intro = SceneBuilder.getSceneBuilder().makeText();
-        intro.setText("You're in the Whitebrige Tavern. \nYou can talk to the barkeeper or buy a drink");
-        flow.getChildren().addAll(intro);
-
-        Button back = SceneBuilder.getSceneBuilder().makeButton(3, "Back to Whitebridge");
-        back.setOnMouseClicked(event -> Main.getStage().setScene(Game.getInstance().whitebridge.getScene(0)));
-        SceneBuilder.getSceneBuilder().addButton(back, 3);
-
-
-        //TODO Make Barkeeper
-        Button bar = SceneBuilder.getSceneBuilder().makeButton(1, "Talk to barkeeper");
-        bar.setOnMouseClicked(event -> Main.getStage().setScene(barkeeper.getScene(0)));
-        SceneBuilder.getSceneBuilder().addButton(bar, 1);
-
-        Button buy = SceneBuilder.getSceneBuilder().makeButton(1, "Buy Beer");
-        buy.setOnMouseClicked(mouseEvent -> {
-            MaxHealth bear = new MaxHealth("Beer");
-            Game.getInstance().inventory.addItem(bear);
-        });
-        SceneBuilder.getSceneBuilder().addButton(buy, 1);
-
-        //TODO let buy drink
-        scene = new Scene(SceneBuilder.getSceneBuilder().buildGameScene(flow));
     }
 
     @Override
     public Scene getScene(int stage) {
-        makeScene();
-        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 
@@ -72,7 +44,6 @@ public class Inn extends Place implements Saveble {
         public Scene getScene(int stage) {
             SceneBuilder.getSceneBuilder().resetButtonrows();
             makeScene();
-            Game.getInstance().spieler.setCurrentScene(this, stage);
             return scene;
         }
 

@@ -28,7 +28,6 @@ public class Entrance extends Place implements Saveble {
     public Scene getScene(int stage) {
         SceneBuilder.getSceneBuilder().resetButtonrows();
         makeScene();
-        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

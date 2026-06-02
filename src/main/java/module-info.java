@@ -13,8 +13,8 @@ module com.fuchsbau.shorin {
     opens com.fuchsbau.shorin to javafx.fxml;
     exports com.fuchsbau.shorin.Engine;
     opens com.fuchsbau.shorin.Engine to javafx.fxml;
-    exports com.fuchsbau.shorin.Engine.Styler;
-    opens com.fuchsbau.shorin.Engine.Styler to javafx.fxml;
+    exports com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler;
+    opens com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler to javafx.fxml;
     exports com.fuchsbau.shorin.Engine.RPG;
     opens com.fuchsbau.shorin.Engine.RPG to com.fasterxml.jackson.databind;
 
@@ -40,4 +40,8 @@ module com.fuchsbau.shorin {
     exports com.fuchsbau.shorin.Engine.Dice;
     exports com.fuchsbau.shorin.test.Dicetray;
     exports com.fuchsbau.shorin.Engine.Encounter.Widget;
+    exports com.fuchsbau.shorin.Engine.RPG.DisplayText.Translation;
+    opens com.fuchsbau.shorin.Engine.RPG.DisplayText.Translation to com.fasterxml.jackson.databind;
+    exports com.fuchsbau.shorin.Engine.RPG.DisplayText;
+    opens com.fuchsbau.shorin.Engine.RPG.DisplayText to com.fasterxml.jackson.databind;
 }

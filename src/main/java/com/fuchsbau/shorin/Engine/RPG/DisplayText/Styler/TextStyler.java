@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.Styler;
+package com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler;
 
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;

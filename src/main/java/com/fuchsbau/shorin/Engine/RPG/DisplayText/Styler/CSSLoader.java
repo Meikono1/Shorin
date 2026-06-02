@@ -1,6 +1,6 @@
-package com.fuchsbau.shorin.Engine.Styler;
+package com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler;
 
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;

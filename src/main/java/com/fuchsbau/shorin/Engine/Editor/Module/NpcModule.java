@@ -12,7 +12,7 @@ import com.fuchsbau.shorin.Engine.System.Combat.DamageModifier;
 import com.fuchsbau.shorin.Engine.System.Combat.DamageType;
 import com.fuchsbau.shorin.Engine.System.Misc.RecallKnowledge;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;

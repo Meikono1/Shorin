@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.RPG.AktionBar;
 
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
+import com.fuchsbau.shorin.Engine.RPG.Controls.Actionable;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;

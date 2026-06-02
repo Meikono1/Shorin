@@ -3,12 +3,11 @@ package com.fuchsbau.shorin.Engine.Encounter;
 import com.fuchsbau.shorin.Engine.Encounter.Widget.EncounterWidget;
 import com.fuchsbau.shorin.Engine.Encounter.Widget.InitiativeTrackerWidget;
 import com.fuchsbau.shorin.Engine.Map.Core.MapRenderer;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.Node;
-import javafx.scene.layout.Region;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,7 +6,7 @@ import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
 import com.fuchsbau.shorin.Engine.Physics.Shape.ShapeType;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape.DiceShapeData;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.geometry.Point3D;
 import javafx.scene.Group;
 import javafx.scene.Node;

@@ -5,7 +5,7 @@ import com.fuchsbau.shorin.Engine.Physics.Shape.BodyType;
 import com.fuchsbau.shorin.Engine.Physics.Shape.PhysicsBody;
 import com.fuchsbau.shorin.Engine.Physics.Shape.SleepState;
 import com.fuchsbau.shorin.Engine.Physics.World.World;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

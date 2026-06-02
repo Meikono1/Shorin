@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.RPG;
+package com.fuchsbau.shorin.Engine.RPG.DisplayText;
 
 public class Lore {
     public String name = "";

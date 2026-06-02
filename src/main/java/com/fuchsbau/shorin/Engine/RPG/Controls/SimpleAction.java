@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.RPG.UI;
+package com.fuchsbau.shorin.Engine.RPG.Controls;
 
 /**
  * Einfache Actionable-Implementierung für einmalige Aktionen.

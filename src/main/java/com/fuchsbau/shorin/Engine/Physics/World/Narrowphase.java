@@ -7,7 +7,7 @@ import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
 import com.fuchsbau.shorin.Engine.Physics.Shape.*;
 import com.fuchsbau.shorin.Engine.Physics.Solver.Equation.ContactEquation;
 import com.fuchsbau.shorin.Engine.Physics.Solver.Equation.FrictionEquation;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.util.ArrayList;
 import java.util.List;

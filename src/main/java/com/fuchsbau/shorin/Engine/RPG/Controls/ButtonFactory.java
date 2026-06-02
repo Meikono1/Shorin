@@ -1,6 +1,6 @@
-package com.fuchsbau.shorin.Engine.RPG.UI;
+package com.fuchsbau.shorin.Engine.RPG.Controls;
 
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 

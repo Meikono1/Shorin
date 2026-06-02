@@ -17,7 +17,7 @@ import com.fuchsbau.shorin.Engine.RPG.GameClock;
 import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;

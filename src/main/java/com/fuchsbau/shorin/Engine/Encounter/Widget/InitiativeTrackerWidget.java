@@ -3,7 +3,7 @@ package com.fuchsbau.shorin.Engine.Encounter.Widget;
 import com.fuchsbau.shorin.Engine.Encounter.EncounterState;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

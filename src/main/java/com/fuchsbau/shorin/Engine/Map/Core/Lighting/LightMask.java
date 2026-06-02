@@ -4,7 +4,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.Tiles.GameMap;
 import com.fuchsbau.shorin.Engine.Map.Core.Tiles.Tile;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallSegment;
 import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.BlendMode;

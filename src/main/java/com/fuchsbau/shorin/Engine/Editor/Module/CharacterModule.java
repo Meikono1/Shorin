@@ -10,7 +10,7 @@ import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
 import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.SlotType;
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;

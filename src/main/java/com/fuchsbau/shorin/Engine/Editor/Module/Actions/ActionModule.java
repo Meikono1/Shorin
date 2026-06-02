@@ -9,7 +9,7 @@ import com.fuchsbau.shorin.Engine.System.Combat.ActionCost;
 import com.fuchsbau.shorin.Engine.System.Combat.DCType;
 import com.fuchsbau.shorin.Engine.System.Combat.GameAction;
 import com.fuchsbau.shorin.Engine.System.Misc.Trait;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;

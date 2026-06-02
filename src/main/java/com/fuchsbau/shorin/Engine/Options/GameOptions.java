@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.Options;
 
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.RPG.MainScreen;
 import com.fuchsbau.shorin.Main;
@@ -79,7 +79,7 @@ public class GameOptions {
             if (stage == 0) {
                 Main.getStage().setScene(new MainScreen().getScene(0));
             } else {
-                Main.getStage().setScene(Game.getInstance().spieler.getCurrentScene());
+                //Main.getStage().setScene(Game.getInstance().spieler.getCurrentScene());
             }
         });
         SceneBuilder.getSceneBuilder().addButton(back, 1);

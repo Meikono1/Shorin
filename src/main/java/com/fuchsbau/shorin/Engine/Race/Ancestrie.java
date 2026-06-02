@@ -1,7 +1,6 @@
 package com.fuchsbau.shorin.Engine.Race;
 
-import com.fuchsbau.shorin.Engine.RPG.Language;
-import com.fuchsbau.shorin.Engine.System.Character.AbilityScore;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Translation.Language;
 import com.fuchsbau.shorin.Engine.System.Character.AbilityScoreEntry;
 
 import java.util.ArrayList;

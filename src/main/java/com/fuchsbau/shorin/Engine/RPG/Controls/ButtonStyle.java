@@ -1,4 +1,4 @@
-package com.fuchsbau.shorin.Engine.RPG.UI;
+package com.fuchsbau.shorin.Engine.RPG.Controls;
 
 /**
  * Alle Button-Typen im Spiel.

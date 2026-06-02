@@ -1,17 +1,17 @@
-package com.fuchsbau.shorin.Engine.RPG.ViewModules;
+package com.fuchsbau.shorin.Engine.RPG.ViewModules.TextAdventure;
 
 import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.RPG.UI.Actionable;
-import com.fuchsbau.shorin.Engine.RPG.UI.ButtonFactory;
-import com.fuchsbau.shorin.Engine.RPG.UI.ButtonStyle;
+import com.fuchsbau.shorin.Engine.RPG.Controls.Actionable;
+import com.fuchsbau.shorin.Engine.RPG.Controls.ButtonFactory;
+import com.fuchsbau.shorin.Engine.RPG.Controls.ButtonStyle;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.ButtonControl.TextControlModule;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Hideable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Renderable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextAdventureDisplayView;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextDisplayConfig;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.TextDisplay.TextSegment;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;

@@ -3,10 +3,10 @@ package com.fuchsbau.shorin.RPG;
 import com.fuchsbau.shorin.Engine.Editor.GameEditor;
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.CSSLoader;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
-import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
-import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Intro.Intro;
@@ -124,7 +124,6 @@ public class MainScreen implements Saveble {
     @Override
     public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

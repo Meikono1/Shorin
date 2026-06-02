@@ -1,16 +1,13 @@
 package com.fuchsbau.shorin.RPG.Intro;
 
 import com.fuchsbau.shorin.Engine.Images.BackgroundMap;
-import com.fuchsbau.shorin.Engine.Images.ImagePaths;
-import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.PerformanceTimer;
-import com.fuchsbau.shorin.Engine.RPG.ScenarioDefinition;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.CSSLoader;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.TextStyler;
 import com.fuchsbau.shorin.Engine.RPG.ScenarioLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
-import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
-import com.fuchsbau.shorin.Engine.Styler.TextStyler;
-import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.RPG.MainScreen;
 import javafx.geometry.Insets;

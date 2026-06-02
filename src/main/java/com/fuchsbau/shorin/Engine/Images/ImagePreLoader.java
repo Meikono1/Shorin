@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.Images;
 
 import com.fuchsbau.shorin.Engine.Util.PathResolver;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.animation.AnimationTimer;
 import javafx.scene.image.Image;
 

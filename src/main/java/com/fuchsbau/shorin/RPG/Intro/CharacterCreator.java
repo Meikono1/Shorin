@@ -1,11 +1,10 @@
 package com.fuchsbau.shorin.RPG.Intro;
 
-import com.fuchsbau.shorin.Engine.Paperdoll.DetailWindow;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.CSSLoader;
 import com.fuchsbau.shorin.Engine.RPG.ScenarioDefinition;
 import com.fuchsbau.shorin.Engine.RPG.StartClassLoader;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
-import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
-import com.fuchsbau.shorin.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 import com.fuchsbau.shorin.Engine.RPG.Saveble;
 import javafx.animation.FadeTransition;

@@ -1,6 +1,6 @@
 package com.fuchsbau.shorin.Engine.Images;
 
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.Main;
 
 import java.nio.file.Files;

@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.Paperdoll;
 
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.CSSLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

@@ -14,7 +14,7 @@ import com.fuchsbau.shorin.Engine.Physics.Solver.Equation.Equation;
 import com.fuchsbau.shorin.Engine.Physics.Solver.Equation.FrictionEquation;
 import com.fuchsbau.shorin.Engine.Physics.Solver.GaussSeidelSolver;
 import com.fuchsbau.shorin.Engine.Physics.Util.TupleDictionary;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;

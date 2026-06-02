@@ -2,7 +2,7 @@ package com.fuchsbau.shorin;
 
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.RPG.MainScreen;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;

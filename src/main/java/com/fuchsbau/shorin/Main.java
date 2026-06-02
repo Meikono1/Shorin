@@ -4,8 +4,8 @@ import com.fuchsbau.shorin.Engine.FXML.ShorinXMLLoader;
 import com.fuchsbau.shorin.Engine.Images.ImagePaths;
 import com.fuchsbau.shorin.Engine.Images.ImagePreLoader;
 import com.fuchsbau.shorin.Engine.Options.StyleOptions;
-import com.fuchsbau.shorin.Engine.Styler.CSSLoader;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.RPG.DisplayText.Styler.CSSLoader;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.RPG.Game;
 import javafx.application.Application;
@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.fuchsbau.shorin.Logger.FileLogger.logCauses;
-import static com.fuchsbau.shorin.Logger.FileLogger.logStack;
+import static com.fuchsbau.shorin.Engine.Logger.FileLogger.logCauses;
+import static com.fuchsbau.shorin.Engine.Logger.FileLogger.logStack;
 
 public class Main extends Application {
     private static final Logger logger = FileLogger.getLogger();

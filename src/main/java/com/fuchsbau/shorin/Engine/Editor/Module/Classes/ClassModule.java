@@ -10,7 +10,7 @@ import com.fuchsbau.shorin.Engine.System.Character.WeaponCategory;
 import com.fuchsbau.shorin.Engine.System.Combat.SavingThrows;
 import com.fuchsbau.shorin.Engine.System.Combat.ArmorCategory;
 import com.fuchsbau.shorin.Engine.System.Misc.Proficiency;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;

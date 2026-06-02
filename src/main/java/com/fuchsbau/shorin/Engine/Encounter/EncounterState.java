@@ -1,7 +1,7 @@
 package com.fuchsbau.shorin.Engine.Encounter;
 
 import com.fuchsbau.shorin.Engine.Map.Token;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

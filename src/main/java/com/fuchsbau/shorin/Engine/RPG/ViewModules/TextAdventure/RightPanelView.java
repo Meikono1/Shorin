@@ -1,13 +1,13 @@
-package com.fuchsbau.shorin.Engine.RPG.ViewModules;
+package com.fuchsbau.shorin.Engine.RPG.ViewModules.TextAdventure;
 
 import com.fuchsbau.shorin.Engine.Map.MapModel;
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
-import com.fuchsbau.shorin.Engine.RPG.UI.ButtonFactory;
-import com.fuchsbau.shorin.Engine.RPG.UI.ButtonStyle;
+import com.fuchsbau.shorin.Engine.RPG.Controls.ButtonFactory;
+import com.fuchsbau.shorin.Engine.RPG.Controls.ButtonStyle;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Hideable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Renderable;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import com.fuchsbau.shorin.RPG.Game;
 import com.fuchsbau.shorin.RPG.Places.Place;
 import javafx.geometry.Insets;
@@ -208,7 +208,6 @@ public class RightPanelView implements Renderable, Hideable {
     }
 
     private List<Place> getTopLevelPlaces() {
-        // @TODO aus PlaceRegistry statt direkt aus Game
         return List.of(
                 Game.getInstance().whitebridge,
                 Game.getInstance().sudbury,

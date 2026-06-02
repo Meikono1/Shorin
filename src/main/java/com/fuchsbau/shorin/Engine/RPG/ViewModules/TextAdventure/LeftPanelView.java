@@ -1,11 +1,11 @@
-package com.fuchsbau.shorin.Engine.RPG.ViewModules;
+package com.fuchsbau.shorin.Engine.RPG.ViewModules.TextAdventure;
 
 import com.fuchsbau.shorin.Engine.Options.GameOptions;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Hideable;
 import com.fuchsbau.shorin.Engine.RPG.ViewModules.Interfaces.Renderable;
 import com.fuchsbau.shorin.Engine.SceneBuilder;
 import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;

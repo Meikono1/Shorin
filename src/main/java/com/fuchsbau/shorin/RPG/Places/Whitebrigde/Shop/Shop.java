@@ -34,7 +34,6 @@ public class Shop extends Place implements Saveble {
     @Override
     public Scene getScene(int stage) {
         makeScene();
-        Game.getInstance().spieler.setCurrentScene(this, stage);
         return scene;
     }
 

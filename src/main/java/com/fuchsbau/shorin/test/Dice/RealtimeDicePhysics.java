@@ -8,7 +8,7 @@ import com.fuchsbau.shorin.Engine.Physics.Math.Vec3;
 import com.fuchsbau.shorin.Engine.Physics.Shape.*;
 import com.fuchsbau.shorin.Engine.Physics.Util.DiceShape;
 import com.fuchsbau.shorin.Engine.Physics.World.World;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.util.*;
 import java.util.logging.Logger;

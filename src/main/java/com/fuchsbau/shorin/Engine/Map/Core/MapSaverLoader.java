@@ -10,7 +10,7 @@ import com.fuchsbau.shorin.Engine.Map.Core.Walls.WallType;
 import com.fuchsbau.shorin.Engine.Map.Token;
 import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
 import com.fuchsbau.shorin.Engine.System.NonPlayerCharacter;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 
 import java.io.*;
 import java.nio.file.Files;

@@ -3,7 +3,7 @@ package com.fuchsbau.shorin.Engine.Editor.Module;
 import com.fuchsbau.shorin.Engine.Race.Ancestrie;
 import com.fuchsbau.shorin.Engine.System.Character.*;
 import com.fuchsbau.shorin.Engine.System.PlayerCharacter;
-import com.fuchsbau.shorin.Logger.FileLogger;
+import com.fuchsbau.shorin.Engine.Logger.FileLogger;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
